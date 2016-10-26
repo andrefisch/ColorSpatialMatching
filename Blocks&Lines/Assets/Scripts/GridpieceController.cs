@@ -10,6 +10,10 @@ public class GridpieceController : MonoBehaviour {
 
 	public int type;
 
+	public bool highlighted;
+	public bool selected;
+
+	//public Vector2 placeInGrid;
 
 	private bool setColor;
 	private SpriteRenderer sr;
@@ -39,4 +43,6 @@ public class GridpieceController : MonoBehaviour {
 
 
 	}
+
+
 }
