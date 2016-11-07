@@ -42,8 +42,8 @@ public class PlaygridController : MonoBehaviour {
         } 
 
         // Set up the actual pieces
-        for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 0; j <= gridSize.y - 1; j++) {
+        for (int i = 0; i < gridSize.x + extraX; i++) {
+            for (int j = 0; j < gridSize.y + extraY; j++) {
                 GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i - 1, j], Quaternion.identity);
                 objectControllers[i - 1, j] = go.GetComponent<GridpieceController>();
                 objectControllers[i - 1, j].type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
