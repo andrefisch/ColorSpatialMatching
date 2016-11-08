@@ -3,6 +3,7 @@ using System.Collections;
 
 public class GridpieceController : MonoBehaviour {
 
+	public const int EDGE = 0;
 	public const int RED = 1;
 	public const int BLUE = 2;
 	public const int GREEN = 3;
@@ -29,7 +30,11 @@ public class GridpieceController : MonoBehaviour {
 	void Update () {
 	
 		if (!setColor) {
-			if (type == RED)
+			if (type == EDGE) {
+				//sr.color = new Color(1, 0, 0, .5f);
+				sr.color = Color.gray;
+			}
+			else if (type == RED)
 				sr.color = Color.red;
 			else if (type == BLUE)
 				sr.color = Color.blue;

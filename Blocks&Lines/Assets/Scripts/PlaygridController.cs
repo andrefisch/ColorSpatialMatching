@@ -30,13 +30,13 @@ public class PlaygridController : MonoBehaviour {
         gridObjects = new GameObject[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
 
 
-        gridPositions = new Vector3[(int)gridSize.x, (int)gridSize.y];
-        objectControllers = new GridpieceController[(int)gridSize.x + extraX, (int)gridSize.y];
+		gridPositions = new Vector3[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
+		objectControllers = new GridpieceController[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
 
         // set up Grid Piece positions
         // Could probably do a better version where they're even around 0 instead of spaced out as I have them currently
-        for (int i = 0; i < gridSize.x; i++) {
-            for (int j = 0; j < gridSize.y; j++) {
+		for (int i = 0; i < gridSize.x + extraX; i++) {
+            for (int j = 0; j < gridSize.y + extraY; j++) {
                 gridPositions[i, j] = new Vector3( i * gridSpacing.x, j * gridSpacing.y, 0);
             }
         } 
@@ -44,12 +44,33 @@ public class PlaygridController : MonoBehaviour {
         // Set up the actual pieces
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 0; j <= gridSize.y - 1; j++) {
-                GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i - 1, j], Quaternion.identity);
+                GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i, j], Quaternion.identity);
                 objectControllers[i - 1, j] = go.GetComponent<GridpieceController>();
                 objectControllers[i - 1, j].type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
                 gridObjects[i, j] = go;
             }
         }
+
+		// Set up the edge pieces
+		// Go from 0 to size on the left edge
+		for (int i=0; i<gridSize.y; i++) {
+			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[0, i], Quaternion.identity);
+			go.GetComponent<GridpieceController>().type = 0;
+			gridObjects[0, i] = go;
+		}
+		// Go from 0 to size on the right edge
+		for (int i=0; i<gridSize.y; i++) {
+			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[(int)gridSize.x + extraX - 1, i], Quaternion.identity);
+			go.GetComponent<GridpieceController>().type = 0;
+			gridObjects[(int)gridSize.x + extraX - 1, i] = go;
+		}
+		// Go from 0 to size on the top
+		for (int i=0; i<gridSize.x + extraX; i++) {
+			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i, (int)gridSize.y + extraY - 1], Quaternion.identity);
+			go.GetComponent<GridpieceController>().type = 0;
+			gridObjects[i, (int)gridSize.y + extraY - 1] = go;
+		}
+
     }
 
     // do the two blocks match?
@@ -296,14 +317,14 @@ public class PlaygridController : MonoBehaviour {
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 0; j <= gridSize.y - 1; j++) {
                 if (objectControllers[i - 1, j].highlighted) {
-                    highlighter.transform.position = gridPositions[i - 1, j];
+                    highlighter.transform.position = gridPositions[i, j];
                     highlightedPiece = true;
                     if (DEBUG){
                         Debug.Log("Dimensions of highlighted piece: " + i + ", " + j);
                     }
                 }
                 if (objectControllers[i - 1, j].selected) {
-                    selector.transform.position = gridPositions[i - 1, j];
+                    selector.transform.position = gridPositions[i, j];
                     if (currentPiece != null)
                     {
                         lastPiece = currentPiece;
