@@ -82,6 +82,10 @@ public class PlaygridController : MonoBehaviour {
     // UNTESTED
     bool Match(GameObject[,] board, int x1, int y1, int x2, int y2)
     {
+		if (DEBUG)
+		{
+			Debug.Log("---------------------------------------------------------------");
+		}
         bool match = false;
         // if the blocks arent the same type no more checking needs to be done
         if (board[x1, y1].GetComponent<GridpieceController>().type == board[x2, y2].GetComponent<GridpieceController>().type)
