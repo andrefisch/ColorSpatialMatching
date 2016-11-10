@@ -11,13 +11,16 @@ public class GridpieceController : MonoBehaviour {
 
 	public int type;
 
+    public int dimX = -100;
+    public int dimY = -100;
+
 	public bool highlighted;
 	public bool selected;
 
 	//public Vector2 placeInGrid;
 
 	private bool setColor;
-	private SpriteRenderer sr;
+	public SpriteRenderer sr;
 
 	// Use this for initialization
 	void Start () {
@@ -45,9 +48,5 @@ public class GridpieceController : MonoBehaviour {
 		
 			setColor = true;
 		}
-
-
 	}
-
-
 }
