@@ -82,42 +82,49 @@ public class PlaygridController : MonoBehaviour {
     // UNTESTED
     bool Match(GameObject[,] board, int x1, int y1, int x2, int y2)
     {
-		if (DEBUG)
-		{
-			Debug.Log("---------------------------------------------------------------");
-		}
-        bool match = false;
-        // if the blocks arent the same type no more checking needs to be done
-        if (board[x1, y1].GetComponent<GridpieceController>().type == board[x2, y2].GetComponent<GridpieceController>().type)
+        if (DEBUG)
         {
-            if (DEBUG)
-            {
-                Debug.Log("Now checking adjacency of " + x1 + ", " + y1 + " and " + x2 + ", " + y2);
-            }
-            // if the blocks are adjacent we are done and no more checking needs to happen
-            if (Adjacent(board, x1, y1, x2, y2))
-            {
-                // board[x1, y1] = null;
-                // board[x2, y2] = null;
-                if (DEBUG)
-                {
-                    Debug.Log("They are adjacent so we have a match!");
-                }
-                match = true;
-            }
-            // then we check to see if there is a straight shot from A to B
-            else if (StraightShot(board, x1, y1, x2, y2))
-            {
-                match = true;
-            }
-            else
+            Debug.Log("---------------------------------------------------------------");
+        }
+        bool match = false;
+        // make sure the pieces are all valid pieces
+        if (x1 == 0 && x1 == gridSize.x + extraX - 1 &&
+            x2 == 0 && x2 == gridSize.x + extraX - 1 &&
+            y1 == gridSize.y + extraY - 1 &&
+            y2 == gridSize.y + extraY - 1)
+        {
+            // if the blocks arent the same type no more checking needs to be done
+            if (board[x1, y1].GetComponent<GridpieceController>().type == board[x2, y2].GetComponent<GridpieceController>().type)
             {
                 if (DEBUG)
                 {
-                    Debug.Log("Not adjacent so checking match trails");
+                    Debug.Log("Now checking adjacency of " + x1 + ", " + y1 + " and " + x2 + ", " + y2);
                 }
-                // create the match trails
-                match = CheckMatchTrails(board, CreateMatchTrail(board, x1, y1), CreateMatchTrail(board, x2, y2));
+                // if the blocks are adjacent we are done and no more checking needs to happen
+                if (Adjacent(board, x1, y1, x2, y2))
+                {
+                    // board[x1, y1] = null;
+                    // board[x2, y2] = null;
+                    if (DEBUG)
+                    {
+                        Debug.Log("They are adjacent so we have a match!");
+                    }
+                    match = true;
+                }
+                // then we check to see if there is a straight shot from A to B
+                else if (StraightShot(board, x1, y1, x2, y2))
+                {
+                    match = true;
+                }
+                else
+                {
+                    if (DEBUG)
+                    {
+                        Debug.Log("Not adjacent so checking match trails");
+                    }
+                    // create the match trails
+                    match = CheckMatchTrails(board, CreateMatchTrail(board, x1, y1), CreateMatchTrail(board, x2, y2));
+                }
             }
         }
         if (DEBUG)
@@ -493,6 +500,8 @@ public class PlaygridController : MonoBehaviour {
             }
             // If you click away, it deselects any piece
             if (Input.GetMouseButtonDown(0)) {
+                currentPiece = new Vector2(-1, -1);
+                lastPiece = new Vector2(-1, -1);
                 for (int i = 1; i <= gridSize.x; i++) {
                     for (int j = 0; j <= gridSize.y - 1; j++)
                         objectControllers[i - 1, j].selected = false;
