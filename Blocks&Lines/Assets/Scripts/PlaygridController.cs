@@ -21,6 +21,8 @@ public class PlaygridController : MonoBehaviour {
 
     // This is how you do a 2D array in C# ---  int[][] is an array of arrays
     public GameObject[,] gridObjects;
+    // Keep track of which objects fell down for combo checking
+    public List<Vector2> movedObjects;
 
     private GridpieceController[,] objectControllers;
     private Vector3[,] gridPositions;
@@ -58,19 +60,19 @@ public class PlaygridController : MonoBehaviour {
 
 		// Set up the edge pieces
 		// Go from 0 to size on the left edge
-		for (int i=0; i<gridSize.y; i++) {
+		for (int i = 0; i < gridSize.y; i++) {
 			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[0, i], Quaternion.identity);
 			go.GetComponent<GridpieceController>().type = 0;
 			gridObjects[0, i] = go;
 		}
 		// Go from 0 to size on the right edge
-		for (int i=0; i<gridSize.y; i++) {
+		for (int i = 0; i < gridSize.y; i++) {
 			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[(int)gridSize.x + extraX - 1, i], Quaternion.identity);
 			go.GetComponent<GridpieceController>().type = 0;
 			gridObjects[(int)gridSize.x + extraX - 1, i] = go;
 		}
 		// Go from 0 to size on the top
-		for (int i=0; i<gridSize.x + extraX; i++) {
+		for (int i = 0; i < gridSize.x + extraX; i++) {
 			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i, (int)gridSize.y + extraY - 1], Quaternion.identity);
 			go.GetComponent<GridpieceController>().type = 0;
 			gridObjects[i, (int)gridSize.y + extraY - 1] = go;
@@ -79,7 +81,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // do the two blocks match?
-    // UNTESTED
+    // NO KNOWN BUGS
     bool Match(GameObject[,] board, int x1, int y1, int x2, int y2)
     {
         if (DEBUG)
@@ -144,7 +146,7 @@ public class PlaygridController : MonoBehaviour {
     
 
     // are the two blocks adjacent?
-    // UNTESTED
+    // WORKS
     bool Adjacent(GameObject[,] board, int x1, int y1, int x2, int y2){
         if ((Mathf.Abs(x1 - x2) == 1 && Mathf.Abs(y1 - y2) == 0) || (Mathf.Abs(x1 - x2) == 0 && Mathf.Abs(y1 - y2) == 1))
         {
@@ -169,7 +171,7 @@ public class PlaygridController : MonoBehaviour {
 
     // THE DIRECTIONS NEED TO BE CHANGED
     // creates a trail of -1's from all possible directions of input block
-    // UNTESTED
+    // WORKS
     List<Vector2> CreateMatchTrail(GameObject[,] board, int x1, int y1)
     {
         List<Vector2> output = new List<Vector2>();
@@ -286,7 +288,7 @@ public class PlaygridController : MonoBehaviour {
     // checks to see if there is anything but 0's between the two spots
     // will even work with indeces that are one out of bounds so we can
     // test blocks on the edge against each other
-    // UNTESTED
+    // WORKS
     bool StraightShot(GameObject[,] board, int x1, int y1, int x2, int y2)
     {
         bool output = false;
@@ -341,30 +343,9 @@ public class PlaygridController : MonoBehaviour {
         return output;
     }
 
-    // check if both tiles are adjacent to a -1. if they are its a match
-    bool check90(GameObject[,] board, int x1, int y1, int x2, int y2)
-    {
-        bool match1 = false;
-        bool match2 = false;
-        if (board[x1 - 1, y1].GetComponent<GridpieceController>().type == -1 ||
-            board[x1 + 1, y1].GetComponent<GridpieceController>().type == -1 ||
-            (y1 > 0 && board[x1, y1 - 1].GetComponent<GridpieceController>().type == -1) ||
-            board[x1, y1 + 1].GetComponent<GridpieceController>().type == -1)
-        {
-            match1 = true;
-        }
-        if (board[x2 - 1, y2].GetComponent<GridpieceController>().type == -1 ||
-            board[x2 + 1, y2].GetComponent<GridpieceController>().type == -1 ||
-            (y2 > 0 && board[x2, y2 - 1].GetComponent<GridpieceController>().type == -1) ||
-            board[x2, y2 + 1].GetComponent<GridpieceController>().type == -1)
-        {
-            match2 = true;
-        }
-        return match1 && match2;
-    }
 
     // checks to see if there is a straightShot between any -1 in list1 and list2
-    // UNTESTED
+    // WORKS
     bool CheckMatchTrails(GameObject[,] board, List<Vector2> list1, List<Vector2> list2)
     {
         bool match = false;
@@ -396,7 +377,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // remove all -1's from the board
-    // UNTESTED
+    // WORKS
     void MatchTrailCleanup(GameObject[,] board)
     {
         for (int i = 0; i < gridSize.x + extraX; i++)
@@ -406,6 +387,24 @@ public class PlaygridController : MonoBehaviour {
                 if (board[i, j].GetComponent<GridpieceController>().type == -1)
                 {
                     board[i, j].GetComponent<GridpieceController>().type = 0;
+                }
+            }
+        }
+    }
+
+    // Move all blocks that can be moved down as far as possible
+    // Keep track of which blocks moved so that we can combo later
+    // UNTESTED
+    void ProcessBoard(GameObject[,] board)
+    {
+        // find all blank spaces in the board with a block above them and move above blocks down a line
+        for (int i = 1; i <= gridSize.x; i++) 
+        {
+            for (int j = 0; j <= gridSize.y - 1; j++) 
+            {
+                if (objectControllers[i - 1, j].GetComponent<GridpieceController>().type == 0)
+                {
+
                 }
             }
         }
