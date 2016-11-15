@@ -27,6 +27,11 @@ public class PlaygridController : MonoBehaviour {
     private GridpieceController[,] objectControllers;
     private Vector3[,] gridPositions;
 
+	private bool removePiece;
+	private bool addPiece;
+	private int selectedX;
+	private int selectedY;
+
     // Use this for initialization
     void Start () {
         currentPiece = new Vector2(-1, -1);
@@ -49,12 +54,7 @@ public class PlaygridController : MonoBehaviour {
         // Set up the actual pieces
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 0; j <= gridSize.y - 1; j++) {
-                GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i, j], Quaternion.identity);
-                objectControllers[i - 1, j] = go.GetComponent<GridpieceController>();
-                objectControllers[i - 1, j].type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
-                objectControllers[i - 1, j].dimX = i;
-                objectControllers[i - 1, j].dimY = j;
-                gridObjects[i, j] = go;
+				AddPieceAtPostion(i, j);
             }
         }
 
@@ -413,6 +413,19 @@ public class PlaygridController : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 
+		// FOR TESTING ADDING AND REMOVAL OF PIECES
+		if (Input.GetKeyDown("p")) {
+			removePiece = !removePiece;
+			if (removePiece)
+				addPiece = false;
+		}
+		if (Input.GetKeyDown("o")) {
+			addPiece = !addPiece;
+			if (addPiece)
+				removePiece = false;
+		}
+		// DONE WITH TESTING
+		
         // WHAT ARE THE CURRENT AND LAST PIECE
         if (DEBUG)
         {
@@ -424,19 +437,30 @@ public class PlaygridController : MonoBehaviour {
         bool selectedPiece = false;
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 0; j <= gridSize.y - 1; j++) {
-                if (objectControllers[i - 1, j].highlighted) {
+				if (objectControllers[i-1, j] && objectControllers[i - 1, j].highlighted) {
                     highlighter.transform.position = gridPositions[i, j];
                     highlightedPiece = true;
                     if (DEBUG){
                         // Debug.Log("Dimensions of highlighted piece: " + i + ", " + j);
                     }
                 }
-                if (objectControllers[i - 1, j].selected) {
+				if (objectControllers[i-1, j] && objectControllers[i - 1, j].selected) {
                     selector.transform.position = gridPositions[i, j];
                     selectedPiece = true;
+					selectedX = i;
+					selectedY = j;
+
                 }
             }
         }
+
+		// TESTING MOVING PIECES
+		if (selectedPiece && Input.GetKeyDown(KeyCode.Space)) {
+			objectControllers[selectedX - 1, selectedY].selected = false;
+			MovePieceToPosition(objectControllers[selectedX - 1, selectedY].gameObject, selectedX, selectedY - 1);
+			selectedPiece = false;
+		}
+		// DONE
 
         // WHAT ARE THE CURRENT AND LAST PIECE
         if (DEBUG)
@@ -455,46 +479,67 @@ public class PlaygridController : MonoBehaviour {
         // Also, it feels very janky and can probably be improved a bunch
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
         if (hit.collider != null) {
-            hit.collider.gameObject.GetComponent<GridpieceController>().highlighted = true;
-            if (Input.GetMouseButtonDown(0)) {
-                for (int i = 1; i <= gridSize.x; i++) {
-                    for (int j = 0; j <= gridSize.y - 1; j++) {
-                        // FOR ANDREW:  Based on your algorithm, this part might screw with it because when you select a new object, it goes through and deselects all the existing objects before selecting the new one
-                        // This is because I don't keep track well enough of the selected piece.  Probably should track it better throughout
-                        objectControllers[i - 1, j].selected = false;
-                    }
-                }
-                hit.collider.GetComponent <GridpieceController>().selected = true;
-                if (currentPiece.x != -1 && currentPiece.y != -1)
-                {
-                    lastPiece.x = currentPiece.x;
-                    lastPiece.y = currentPiece.y;
-                }
-                currentPiece.x = hit.collider.GetComponent <GridpieceController>().dimX;
-                currentPiece.y = hit.collider.GetComponent <GridpieceController>().dimY;
-                // CHECK FOR A MATCH
-                if (DEBUG)
-                {
-                    Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
-                    Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
-                }
-                if (lastPiece.x != -1)
-                {
-                    if (Match(gridObjects, (int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y))
-                    {
-                        Debug.Log("THEY MATCH!");
-                    }
-                    else
-                    {
-                        Debug.Log("NO MATCH...");
-                    }
-                }
-            }
+            
+			GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
+			gpc.highlighted = true;
+
+			if (Input.GetMouseButtonDown(0) && !removePiece && !addPiece) {
+				for (int i = 1; i <= gridSize.x; i++) {
+					for (int j = 0; j <= gridSize.y - 1; j++) {
+						// FOR ANDREW:  Based on your algorithm, this part might screw with it because when you select a new object, it goes through and deselects all the existing objects before selecting the new one
+						// This is because I don't keep track well enough of the selected piece.  Probably should track it better throughout
+						if (objectControllers[i-1, j])
+							objectControllers[i - 1, j].selected = false;
+					}
+				}
+				gpc.selected = true;
+				if (currentPiece.x != -1 && currentPiece.y != -1) {
+					lastPiece.x = currentPiece.x;
+					lastPiece.y = currentPiece.y;
+				}
+				currentPiece.x = gpc.dimX;
+				currentPiece.y =gpc.dimY;
+
+				// CHECK FOR A MATCH
+				if (DEBUG) {
+					Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
+					Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
+				}
+				if (lastPiece.x != -1) {
+					if (Match(gridObjects, (int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
+						Debug.Log("THEY MATCH!");
+					}
+					else {
+						Debug.Log("NO MATCH...");
+					}
+				}
+			}
+
+			// TESTING REMOVING PIECES.  HIT P TO TOGGLE THIS FUNCTIONALITY
+			else if (Input.GetMouseButtonDown(0) && removePiece) {
+				if (gpc.dimX != -100 && gpc.dimY != -100)
+				RemovePieceAtPosition(gpc.dimX, gpc.dimY);
+			}
+			// TESTING ADDING PIECES. HIT O TO TOGGLE THIS FUNCTIONALITY
+			else if (Input.GetMouseButtonDown(0) && addPiece) {
+				for (int i = 1; i <= gridSize.x; i++) {
+					GameObject go = null;
+					for (int j = 0; j <= gridSize.y; j++) {
+						if (gridObjects[i, j] == null) {
+							go = AddPieceAtPostion(i, j);
+							break;
+						}
+					}
+					if (go)
+						break;
+				}
+			}
         }
         else {
             for (int i = 1; i <= gridSize.x; i++) {
                 for (int j = 0; j <= gridSize.y - 1; j++) {
-                    objectControllers[i - 1, j].highlighted = false;
+					if (objectControllers[i-1, j])
+						objectControllers[i - 1, j].highlighted = false;
                 }
             }
             // If you click away, it deselects any piece
@@ -503,9 +548,70 @@ public class PlaygridController : MonoBehaviour {
                 lastPiece = new Vector2(-1, -1);
                 for (int i = 1; i <= gridSize.x; i++) {
                     for (int j = 0; j <= gridSize.y - 1; j++)
-                        objectControllers[i - 1, j].selected = false;
+						if (objectControllers[i-1, j])
+							objectControllers[i - 1, j].selected = false;
                 }
             }
         }
     }
+
+	// Removes any piece
+	public void RemovePieceAtPosition(int x, int y) {
+		GameObject.Destroy(gridObjects[x, y]);
+	}
+
+	public GameObject AddPieceAtPostion(int x, int y) {
+		GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[x, y], Quaternion.identity);
+		objectControllers[x - 1, y] = go.GetComponent<GridpieceController>();
+		objectControllers[x - 1, y].type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
+		objectControllers[x - 1, y].dimX = x;
+		objectControllers[x - 1, y].dimY = y;
+		gridObjects[x, y] = go;
+		if (DEBUG)
+			Debug.Log("Created Piece at position: " + x + ", " + y);
+		return go;
+	}
+
+
+	public void MovePieceToPosition(GameObject piece, int x, int y) {
+		if (DEBUG)
+			Debug.Log("Moving Piece");
+
+		if (y<0 || y>=gridSize.y + extraY)
+			Debug.Log("Warning, trying to move piece below or above grid Y limits");
+		else if (x<0 || x>=gridSize.x + extraX)
+			Debug.Log("Warning, trying to move piece below or above grid X limits");
+		else if (gridObjects[x, y] != null)
+			Debug.Log("Warning, trying to move piece into occupied space");
+		else {
+			GridpieceController gpc = piece.GetComponent<GridpieceController>();
+			gridObjects[gpc.dimX, gpc.dimY] = null;
+			gridObjects[x, y] = piece;
+			objectControllers[gpc.dimX - 1, gpc.dimY] = null;
+			objectControllers[x - 1, y] = gpc;
+			gpc.dimX = x;
+			gpc.dimY = y;
+			piece.transform.position = gridPositions[x, y];
+			// Can swap the line above for the line below in order to create a moving piece
+			//StartCoroutine(MovePiece(piece, x, y));
+		}
+	}
+
+	public IEnumerator MovePiece(GameObject piece, int x, int y) {
+		float timeForPieceToMove = 0.5f;
+		Vector3 startPos = piece.transform.position;
+		for (float i = 0; i < timeForPieceToMove; i += Time.deltaTime) {
+			float counter = i / timeForPieceToMove;
+			piece.transform.position = Vector3.Lerp(startPos, gridPositions[x, y], counter);
+			yield return null;
+		}
+	}
+
+
+
+
+
+
+
+
 }
