@@ -16,6 +16,7 @@ public class PlaygridController : MonoBehaviour {
     public Vector2 gridSize;
     public Vector2 gridSpacing;
 
+    public GridpieceController gpc;
     public Vector2 currentPiece;
     public Vector2 lastPiece;
 
@@ -90,10 +91,10 @@ public class PlaygridController : MonoBehaviour {
         }
         bool match = false;
         // make sure the pieces are all valid pieces
-        if (x1 == 0 && x1 == gridSize.x + extraX - 1 &&
-            x2 == 0 && x2 == gridSize.x + extraX - 1 &&
-            y1 == gridSize.y + extraY - 1 &&
-            y2 == gridSize.y + extraY - 1)
+        if (x1 >= 0 && x1 <= gridSize.x + extraX - 1 &&
+            x2 >= 0 && x2 <= gridSize.x + extraX - 1 &&
+            y1 <= gridSize.y + extraY - 1 &&
+            y2 <= gridSize.y + extraY - 1)
         {
             // if the blocks arent the same type no more checking needs to be done
             if (board[x1, y1].GetComponent<GridpieceController>().type == board[x2, y2].GetComponent<GridpieceController>().type)
@@ -135,10 +136,14 @@ public class PlaygridController : MonoBehaviour {
         }
         if (match)
         {
+            // make sure we set the pieces to 0 and gray
             gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().type = 0;
             gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
             gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().type = 0;
             gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
+            // make sure we deselect and unhighlight last piece
+            gpc.selected = false;
+            gpc.highlighted = false;
         }
         MatchTrailCleanup(board);
         return match;
@@ -392,6 +397,7 @@ public class PlaygridController : MonoBehaviour {
         }
     }
 
+
     // Move all blocks that can be moved down as far as possible
     // Keep track of which blocks moved so that we can combo later
     // UNTESTED
@@ -480,7 +486,7 @@ public class PlaygridController : MonoBehaviour {
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
         if (hit.collider != null) {
             
-			GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
+			gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
 			gpc.highlighted = true;
 
 			if (Input.GetMouseButtonDown(0) && !removePiece && !addPiece) {
@@ -488,17 +494,21 @@ public class PlaygridController : MonoBehaviour {
 					for (int j = 0; j <= gridSize.y - 1; j++) {
 						// FOR ANDREW:  Based on your algorithm, this part might screw with it because when you select a new object, it goes through and deselects all the existing objects before selecting the new one
 						// This is because I don't keep track well enough of the selected piece.  Probably should track it better throughout
-						if (objectControllers[i-1, j])
+						if (objectControllers[i - 1, j]){
 							objectControllers[i - 1, j].selected = false;
+                        }
 					}
 				}
-				gpc.selected = true;
+                if (gpc.type != 0)
+                {
+                    gpc.selected = true;
+                }
 				if (currentPiece.x != -1 && currentPiece.y != -1) {
 					lastPiece.x = currentPiece.x;
 					lastPiece.y = currentPiece.y;
 				}
 				currentPiece.x = gpc.dimX;
-				currentPiece.y =gpc.dimY;
+				currentPiece.y = gpc.dimY;
 
 				// CHECK FOR A MATCH
 				if (DEBUG) {
