@@ -632,7 +632,7 @@ public class PlaygridController : MonoBehaviour {
 
 		if (y < 0 || y >= gridSize.y + extraY)
 			Debug.Log("Warning, trying to move piece below or above grid Y limits");
-		else if (x < 0 || x >= gridSize.x + extraX)
+		else if (x<0 || x>=gridSize.x + extraX)
 			Debug.Log("Warning, trying to move piece below or above grid X limits");
 		else if (gridObjects[x, y] != null)
 			Debug.Log("Warning, trying to move piece into occupied space " + x + ", " + y);
