@@ -16,7 +16,7 @@ public class PlaygridController : MonoBehaviour {
     public Vector2 gridSize;
     public Vector2 gridSpacing;
 
-    public GridpieceController gpc;
+    //public GridpieceController gpc;
     public Vector2 currentPiece;
     public Vector2 lastPiece;
 
@@ -93,110 +93,49 @@ public class PlaygridController : MonoBehaviour {
 		// DONE WITH TESTING
 		*/
 
-
-		// WHAT ARE THE CURRENT AND LAST PIECE
-		if (DEBUG)
-		{
-			// Debug.Log("Current piece: " + currentPiece.x + ", " + currentPiece.y);
-			// Debug.Log("Last piece: " + lastPiece.x + ", " + lastPiece.y);
-		}
-		bool highlightedPiece = false;
-		bool selectedPiece = false;
-		for (int i = 1; i <= gridSize.x; i++) {
-			for (int j = 0; j < gridSize.y; j++) {
-				if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().highlighted) {
-					highlighter.transform.position = gridPositions[i, j];
-					highlightedPiece = true;
-					if (DEBUG){
-						// Debug.Log("Dimensions of highlighted piece: " + i + ", " + j);
-					}
-				}
-				if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().selected) {
-					selector.transform.position = gridPositions[i, j];
-					selectedPiece = true;
-					//selectedX = i;
-					//selectedY = j;
-
-				}
-			}
-		}
-		// WHAT ARE THE CURRENT AND LAST PIECE
-		if (DEBUG)
-		{
-			// Debug.Log("Current piece: " + currentPiece.x + ", " + currentPiece.y);
-			// Debug.Log("Last piece: " + lastPiece.x + ", " + lastPiece.y);
-		}
-
-		if (!highlightedPiece)
-			highlighter.transform.position = new Vector3(-10, 10, 0);
-		if (!selectedPiece)
-			selector.transform.position = new Vector3(-10, 10, 0);
-
 		// This part deals with the highlighting and selecting of objects
-		// This should be updated so that we don't have to get the controller components every frame if we highlight
-		// Also, it feels very janky and can probably be improved a bunch
 		RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
 		if (hit.collider != null) {
 
-			gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
+			GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
 			gpc.highlighted = true;
 
 			if (Input.GetMouseButtonDown(0)) {
+				// First deselect any selected piece
 				for (int i = 1; i <= gridSize.x; i++) {
 					for (int j = 0; j < gridSize.y; j++) {
-						// FOR ANDREW:  Based on your algorithm, this part might screw with it because when you select a new object, it goes through and deselects all the existing objects before selecting the new one
-						// This is because I don't keep track well enough of the selected piece.  Probably should track it better throughout
 						if (gridObjects[i,j]){
 							gridObjects[i,j].GetComponent<GridpieceController>().selected = false;
 						}
 					}
 				}
-				if (gpc.type != 0)
-				{
-					gpc.selected = true;
-				}
-				if (currentPiece.x != -1 && currentPiece.y != -1) {
-					lastPiece.x = currentPiece.x;
-					lastPiece.y = currentPiece.y;
-				}
-				currentPiece.x = gpc.dimX;
-				currentPiece.y = gpc.dimY;
+				// Select only pieces that aren't 0 and are in the playable grid
+				if (gpc.type != 0 && (gpc.dimX >= 1 && gpc.dimX <= gridSize.x && gpc.dimY >= 0 && gpc.dimY < gridSize.y)) {
 
-				// CHECK FOR A MATCH
-				if (DEBUG) {
-					Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
-					Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
-				}
-				if (lastPiece.x != -1) {
-					if (Match(gridObjects, (int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
-						Debug.Log("THEY MATCH!");
+					// if it's not new, toggle the selection
+					if (gpc.dimX == currentPiece.x && gpc.dimY == currentPiece.y) {
+						gpc.selected = false;
+						ResetCurrentLastPieces();
 					}
 					else {
-						Debug.Log("NO MATCH...");
-					}
-				}
-			}
-			/*
-			// TESTING REMOVING PIECES.  HIT P TO TOGGLE THIS FUNCTIONALITY
-			else if (Input.GetMouseButtonDown(0) && removePiece) {
-				if (gpc.dimX != -100 && gpc.dimY != -100)
-					RemovePieceAtPosition(gpc.dimX, gpc.dimY);
-			}
-			// TESTING ADDING PIECES. HIT O TO TOGGLE THIS FUNCTIONALITY
-			else if (Input.GetMouseButtonDown(0) && addPiece) {
-				for (int i = 1; i <= gridSize.x; i++) {
-					GameObject go = null;
-					for (int j = 0; j <= gridSize.y; j++) {
-						if (gridObjects[i, j] == null) {
-							go = AddPieceAtPostion(i, j, -1);
-							break;
+						gpc.selected = true;
+
+						if (currentPiece.x != -1 && currentPiece.y != -1) {
+							lastPiece.x = currentPiece.x;
+							lastPiece.y = currentPiece.y;
 						}
+						currentPiece.x = gpc.dimX;
+						currentPiece.y = gpc.dimY;
 					}
-					if (go)
-						break;
+				
+					if (DEBUG) {
+						Debug.Log("----------------------Clicked Playgrid Piece----------------------------");
+						Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
+						Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
+					}
 				}
 			}
-			*/
+
 		}
 		else {
 			// The mouse is not hovering over any of the objects, you dehighlight any of them
@@ -208,8 +147,7 @@ public class PlaygridController : MonoBehaviour {
 			}
 			// If you click away, it deselects any piece
 			if (Input.GetMouseButtonDown(0)) {
-				currentPiece = new Vector2(-1, -1);
-				lastPiece = new Vector2(-1, -1);
+				ResetCurrentLastPieces();
 				for (int i = 1; i <= gridSize.x; i++) {
 					for (int j = 0; j < gridSize.y; j++)
 						if (gridObjects[i,j])
@@ -217,6 +155,40 @@ public class PlaygridController : MonoBehaviour {
 				}
 			}
 		}
+
+		// Move the highlighted and selected indicator to their proper positions.
+		bool highlightedPiece = false;
+		bool selectedPiece = false;
+		for (int i = 1; i <= gridSize.x; i++) {
+			for (int j = 0; j < gridSize.y; j++) {
+				if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().highlighted) {
+					highlighter.transform.position = gridPositions[i, j];
+					highlightedPiece = true;
+				}
+				if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().selected) {
+					selector.transform.position = gridPositions[i, j];
+					selectedPiece = true;
+				}
+			}
+		}
+		if (!highlightedPiece)
+			highlighter.transform.position = new Vector3(-10, 10, 0);
+		if (!selectedPiece)
+			selector.transform.position = new Vector3(-10, 10, 0);
+
+
+
+		// Check for matches
+		if (lastPiece.x > -1) {
+			if (Match(gridObjects, (int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
+				Debug.Log("THEY MATCH!");
+			}
+			else {
+				Debug.Log("NO MATCH...");
+			}
+		}
+
+
 	}
 
     // do the two blocks match?
@@ -225,7 +197,7 @@ public class PlaygridController : MonoBehaviour {
     {
         if (DEBUG)
         {
-            Debug.Log("---------------------------------------------------------------");
+            Debug.Log("----------------------------Running Matching Algorithm-----------------------------------");
         }
         bool match = false;
         // make sure the pieces are all valid pieces
@@ -261,7 +233,7 @@ public class PlaygridController : MonoBehaviour {
                 {
                     if (DEBUG)
                     {
-                        Debug.Log("Not adjacent so checking match trails");
+                        Debug.Log("Not adjacent or a straight shot so checking match trails");
                     }
                     // create the match trails
                     match = CheckMatchTrails(board, CreateMatchTrail(board, x1, y1), CreateMatchTrail(board, x2, y2));
@@ -280,10 +252,15 @@ public class PlaygridController : MonoBehaviour {
             gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().type = 0;
             gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
             // make sure we deselect and unhighlight last piece
-            gpc.selected = false;
-            gpc.highlighted = false;
-            ProcessBoard(board);
+			gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().selected = false;
+			// Make sure we reset current piece
+			currentPiece.x = -1;
+			currentPiece.y = -1;
+            //ProcessBoard(board);
         }
+		// Reset the last piece so that we aren't checking for a match every frame
+		lastPiece.x = -1;
+		lastPiece.y = -1;
         MatchTrailCleanup(board);
         return match;
     }
@@ -536,9 +513,10 @@ public class PlaygridController : MonoBehaviour {
         }
     }
 
-    // Check if there are any other non-blank blocks above this one
+    // Returns true if there are no empty blocks above this one in the playable game space.
+	// Returns false otherwise
     // UNTESTED
-    bool TopBlock(GameObject[,] board, int x, int y)
+    bool OnlyEmptySpaceAboveBlock(GameObject[,] board, int x, int y)
     {
         bool onTop = true;
         for (int i = y + 1; i < gridSize.y; i++)
@@ -561,10 +539,10 @@ public class PlaygridController : MonoBehaviour {
         // find all blank spaces in the board with a block above them and move above blocks down a line
         for (int i = 1; i <= gridSize.x; i++) 
         {
-            for (int j = 0; j <= gridSize.y; j++) 
+            for (int j = 0; j < gridSize.y; j++) 
             {
                 // if there is a blank space we go up to the top and move each block down one space 
-				if (gridObjects[i,j].GetComponent<GridpieceController>().type == 0 && !TopBlock(board, i, j))
+				if (gridObjects[i,j].GetComponent<GridpieceController>().type == 0 && !OnlyEmptySpaceAboveBlock(board, i, j))
                 {
                     // first get rid of the piece
                     RemovePieceAtPosition(i, j);
@@ -578,7 +556,7 @@ public class PlaygridController : MonoBehaviour {
                         }
                         MovePieceToPosition(board[i, y], i, y - 1);
                         // if the piece is the top piece we can stop
-                        if (TopBlock(board, i, y))
+                        if (OnlyEmptySpaceAboveBlock(board, i, y))
                         {
                             // create a new blank block
                             AddPieceAtPostion(i, y, 0);
@@ -651,5 +629,10 @@ public class PlaygridController : MonoBehaviour {
 			piece.transform.position = Vector3.Lerp(startPos, gridPositions[x, y], counter);
 			yield return null;
 		}
+	}
+
+	public void ResetCurrentLastPieces() {
+		currentPiece = Vector2.one * -1;
+		lastPiece = Vector2.one * -1;
 	}
 }
