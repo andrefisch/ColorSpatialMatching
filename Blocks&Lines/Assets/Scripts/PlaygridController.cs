@@ -182,6 +182,7 @@ public class PlaygridController : MonoBehaviour {
 		if (lastPiece.x > -1) {
 			if (Match(gridObjects, (int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
 				Debug.Log("THEY MATCH!");
+				ProcessBoard(gridObjects);
 			}
 			else {
 				Debug.Log("NO MATCH...");
@@ -256,7 +257,6 @@ public class PlaygridController : MonoBehaviour {
 			// Make sure we reset current piece
 			currentPiece.x = -1;
 			currentPiece.y = -1;
-            //ProcessBoard(board);
         }
 		// Reset the last piece so that we aren't checking for a match every frame
 		lastPiece.x = -1;
@@ -505,7 +505,7 @@ public class PlaygridController : MonoBehaviour {
         {
             for (int j = 0; j < gridSize.y + extraY; j++)
             {
-                if (board[i, j].GetComponent<GridpieceController>().type == -1)
+				if (board[i,j] && board[i, j].GetComponent<GridpieceController>().type == -1)
                 {
                     board[i, j].GetComponent<GridpieceController>().type = 0;
                 }
@@ -535,45 +535,51 @@ public class PlaygridController : MonoBehaviour {
     // UNTESTED
     void ProcessBoard(GameObject[,] board)
     {
-        // List<Vector2> movedObjects;
-        // find all blank spaces in the board with a block above them and move above blocks down a line
-        for (int i = 1; i <= gridSize.x; i++) 
-        {
-            for (int j = 0; j < gridSize.y; j++) 
-            {
-                // if there is a blank space we go up to the top and move each block down one space 
-				if (gridObjects[i,j].GetComponent<GridpieceController>().type == 0 && !OnlyEmptySpaceAboveBlock(board, i, j))
-                {
+		if (DEBUG)
+			Debug.Log("-------------------------- Processing Board ----------------------------");
+        // First remove all the grey pieces in the playable grid
+        for (int i = 1; i <= gridSize.x; i++) {
+            for (int j = 0; j < gridSize.y; j++) {
+				if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().type == 0)
                     // first get rid of the piece
                     RemovePieceAtPosition(i, j);
-                    // then move the rest of the pieces down
-                    for (int y = j + 1; i <= gridSize.y; y++)
-                    {
-                        // move piece one space down
-                        if (DEBUG)
-                        {
-                            Debug.Log("Moving piece from position " + i + ", " + y + " to " + i + ", " + (y - 1));
-                        }
-                        MovePieceToPosition(board[i, y], i, y - 1);
-                        // if the piece is the top piece we can stop
-                        if (OnlyEmptySpaceAboveBlock(board, i, y))
-                        {
-                            // create a new blank block
-                            AddPieceAtPostion(i, y, 0);
-                            // break the loop 
-                            break;
-                        }
-                    }
-                }
             }
         }
+		// Next, move pieces down.  I'm currently not accounting for any pieces larger than 1x1
+		// TODO:  FOR ANDREW-- This part mostly works.  It needs to be updated for moving pieces further down than one place without being buggy
+		// Iterate through the grid
+		for (int i = 1; i <= gridSize.x; i++) {
+			for (int j = 0; j < gridSize.y; j++) {
+				// If you come across a gap in the grid that isn't in the top row, bring the objects down
+				if (gridObjects[i, j] == null && j+1 < gridSize.y) {
+					if (gridObjects[i, j + 1] == null && j + 2 < gridSize.y && gridObjects[i, j+2] != null) {
+						MovePieceToPosition(gridObjects[i, j + 2], i, j);
+						i++;
+					}
+					else if (gridObjects[i, j+1] != null)
+						MovePieceToPosition(gridObjects[i, j + 1], i, j);
+				}
+			}
+		}
+		// Finally, fill the board back up with grey pieces
+		/*  This part should be implmented once the above move-pieces works perfectly
+		for (int i = 1; i <= gridSize.x; i++) {
+			for (int j = 0; j < gridSize.y; j++) {
+				if (gridObjects[i, j] == null)
+					AddPieceAtPostion(i, j, 0);
+			}
+		}
+		*/
     }
 
 	// Removes any piece
 	public void RemovePieceAtPosition(int x, int y) {
 		if (DEBUG)
 			Debug.Log("Removing block at space " + x + ", " + y);
-		GameObject.Destroy(gridObjects[x, y]);
+		if (gridObjects[x, y]) {
+			GameObject.Destroy(gridObjects[x, y]);
+			gridObjects[x, y] = null;
+		}
 	}
 
     // Add a piece
@@ -583,27 +589,24 @@ public class PlaygridController : MonoBehaviour {
 		GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[x, y], Quaternion.identity);
 		GridpieceController gpc = go.GetComponent<GridpieceController>();
         if (num < 0)
-        {
 			gpc.type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
-        }
         else
-        {
             gpc.type = num;
-        }
+        
 		gpc.dimX = x;
 		gpc.dimY = y;
 		gridObjects[x, y] = go;
-		if (DEBUG)
-			Debug.Log("Created Piece at position: " + x + ", " + y);
+		//if (DEBUG)
+		//	Debug.Log("Created Piece at position: " + x + ", " + y);
 		return go;
 	}
 
 
 	public void MovePieceToPosition(GameObject piece, int x, int y) {
-		if (DEBUG)
-			Debug.Log("Moving Piece");
-
-		if (y < 0 || y >= gridSize.y + extraY)
+		
+		if (piece == null)
+			Debug.Log("Warning, piece given in MovePiece method does not exist");
+		else if (y < 0 || y >= gridSize.y + extraY)
 			Debug.Log("Warning, trying to move piece below or above grid Y limits");
 		else if (x < 0 || x >= gridSize.x + extraX)
 			Debug.Log("Warning, trying to move piece below or above grid X limits");
@@ -611,6 +614,10 @@ public class PlaygridController : MonoBehaviour {
 			Debug.Log("Warning, trying to move piece into occupied space " + x + ", " + y);
 		else {
 			GridpieceController gpc = piece.GetComponent<GridpieceController>();
+
+			if (DEBUG)
+				Debug.Log("Moving Piece: [" + gpc.dimX + ", " + gpc.dimY + "] to [" + x + ", " + y + "]");
+
 			gridObjects[gpc.dimX, gpc.dimY] = null;
 			gridObjects[x, y] = piece;
 			gpc.dimX = x;
