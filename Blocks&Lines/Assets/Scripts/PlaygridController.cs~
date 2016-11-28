@@ -60,25 +60,20 @@ public class PlaygridController : MonoBehaviour {
 		// Set up the edge pieces
 		// Go from 0 to size on the left edge
 		for (int i = 0; i < gridSize.y; i++) {
-			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[0, i], Quaternion.identity);
-			go.GetComponent<GridpieceController>().type = 0;
-			gridObjects[0, i] = go;
+            AddPieceAtPosition(0, i, 0);
 		}
 		// Go from 0 to size on the right edge
 		for (int i = 0; i < gridSize.y; i++) {
-			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[(int)gridSize.x + extraX - 1, i], Quaternion.identity);
-			go.GetComponent<GridpieceController>().type = 0;
-			gridObjects[(int)gridSize.x + extraX - 1, i] = go;
+            AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0);
 		}
 		// Go from 0 to size on the top
 		for (int i = 0; i < gridSize.x + extraX; i++) {
-			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[i, (int)gridSize.y + extraY - 1], Quaternion.identity);
-			go.GetComponent<GridpieceController>().type = 0;
-			gridObjects[i, (int)gridSize.y + extraY - 1] = go;
+            AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0);
 		}
     }
 
 	// Update is called once per frame
+    // NO KNOWN BUGS
 	void Update () {
 		/*
 		// FOR TESTING ADDING AND REMOVAL OF PIECES
@@ -94,7 +89,22 @@ public class PlaygridController : MonoBehaviour {
 		}
 		// DONE WITH TESTING
 		*/
-
+        // check to see if there are any null blocks
+        if (Input.GetKeyDown("a")) {
+            AddRow();
+        }
+        if (Input.GetKeyDown("c")) {
+            CheckPieces();
+        }
+        // move down pieces
+        if (Input.GetKeyDown("m")) {
+            MovePiecesDown();
+        }
+        // process combos
+        if (Input.GetKeyDown("p")) {
+            ProcessCombos();
+        }
+	
 		// This part deals with the highlighting and selecting of objects
 		RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
 		if (hit.collider != null) {
@@ -178,13 +188,12 @@ public class PlaygridController : MonoBehaviour {
 		if (!selectedPiece)
 			selector.transform.position = new Vector3(-10, 10, 0);
 
-
-
 		// Check for matches
 		if (lastPiece.x > -1) {
 			if (Match((int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
 				// Debug.Log("THEY MATCH!");
-				MovePiecesDown();
+                // CHANGED FOR TESTING
+				// MovePiecesDown();
 			}
 			else {
 				// Debug.Log("NO MATCH...");
@@ -275,7 +284,7 @@ public class PlaygridController : MonoBehaviour {
     
 
     // are the two blocks adjacent?
-    // WORKS
+    // NO KNOWN BUGS
     bool Adjacent(int x1, int y1, int x2, int y2)
     {
         if ((Mathf.Abs(x1 - x2) == 1 && Mathf.Abs(y1 - y2) == 0) || (Mathf.Abs(x1 - x2) == 0 && Mathf.Abs(y1 - y2) == 1))
@@ -301,7 +310,7 @@ public class PlaygridController : MonoBehaviour {
 
     // THE DIRECTIONS NEED TO BE CHANGED
     // creates a trail of -1's from all possible directions of input block
-    // WORKS
+    // NO KNOWN BUGS
     List<Vector2> CreateMatchTrail(int x1, int y1)
     {
         List<Vector2> output = new List<Vector2>();
@@ -417,7 +426,7 @@ public class PlaygridController : MonoBehaviour {
     // checks to see if there is anything but 0's between the two spots
     // will even work with indeces that are one out of bounds so we can
     // test blocks on the edge against each other
-    // WORKS
+    // NO KNOWN BUGS
     bool StraightShot(int x1, int y1, int x2, int y2)
     {
         bool output = false;
@@ -474,7 +483,7 @@ public class PlaygridController : MonoBehaviour {
 
 
     // checks to see if there is a straightShot between any -1 in list1 and list2
-    // WORKS
+    // NO KNOWN BUGS
     bool CheckMatchTrails(List<Vector2> list1, List<Vector2> list2)
     {
         bool match = false;
@@ -506,7 +515,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // remove all -1's from the board
-    // WORKS
+    // NO KNOWN BUGS
     void MatchTrailCleanup()
     {
         for (int i = 0; i < gridSize.x + extraX; i++)
@@ -523,8 +532,8 @@ public class PlaygridController : MonoBehaviour {
 
     // Returns true if there are no empty blocks above this one in the playable game space.
 	// Returns false otherwise
-    // UNTESTED
-    bool OnlyEmptySpaceAboveBlock(int x, int y)
+    // UNTESTED/UNUSED
+    bool OnlyEmptySpaceAbovePiece(int x, int y)
     {
         bool onTop = true;
         for (int i = y + 1; i < gridSize.y; i++)
@@ -540,7 +549,7 @@ public class PlaygridController : MonoBehaviour {
 
     // Move all blocks that can be moved down as far as possible
     // Keep track of which blocks moved so that we can combo later
-    // WORKS
+    // NO KNOWN BUGS
     void MovePiecesDown()
     {
 		if (DEBUG){
@@ -585,12 +594,14 @@ public class PlaygridController : MonoBehaviour {
 					AddPieceAtPosition(i, j, 0);
 			}
 		}
-        ProcessCombos();
+        // ProcessCombos();
     }
 
     // Process the combos
+    // NO KNOWN BUGS
     public void ProcessCombos()
     {
+        Debug.Log("How many items are in movedObjects?: " + movedObjects.Count);
         // first move items from movedObjects to objectsToProcess
         for (int i = 0; i < movedObjects.Count; i++)
         {
@@ -616,6 +627,7 @@ public class PlaygridController : MonoBehaviour {
             y = objectsToProcess[i].GetComponent<GridpieceController>().dimY;
             type = objectsToProcess[i].GetComponent<GridpieceController>().type;
             combo = false;
+            Debug.Log("Now processing a block of type " + type + " at coordinates " + x + ", " + y);
             // check left
             if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().type == type)
             {
@@ -666,9 +678,64 @@ public class PlaygridController : MonoBehaviour {
                 gridObjects[x, y].GetComponent<GridpieceController>().sr.color = Color.gray;
             }
         }
+        objectsToProcess.Clear();
         if (anyCombo)
         {
             // MovePiecesDown();
+        }
+    }
+
+    // checks each grid position to see if there is a blank block there
+    // NO KNOWN BUGS
+    void CheckPieces()
+    {
+        int count = 0;
+        for (int i = 0; i < gridSize.x + extraX; i++) 
+        {
+            for (int j = 0; j < gridSize.y + extraY; j++) 
+            {
+                if (!gridObjects[i, j])
+                {
+                    Debug.Log("Missing a piece at " + i + ", " + j);
+                }
+                else
+                {
+                    count++;
+                }
+            }
+        }
+        Debug.Log(count + " valid pieces on the game board right now");
+    }
+
+    // Adds a new row to bottom
+    // NO KNOWN BUGS
+    void AddRow()
+    {
+        // DELETE TOP ROW
+        for (int i = 1; i <= gridSize.x; i++)
+        {
+            RemovePieceAtPosition(i, (int)gridSize.y);
+        }
+        // MOVE ALL PIECES UP
+        for (int i = 1; i <= gridSize.x; i++) 
+        {
+            for (int j = (int)(gridSize.y) - 1; j >= 0; j--) 
+            {
+                MovePieceToPosition(gridObjects[i, j], i, j + 1);
+            }
+        }
+        // ADD BOTTOM ROW
+        for (int i = 1; i <= gridSize.x; i++)
+        {
+            AddPieceAtPosition(i, 0, -1);
+        }
+        // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
+        for (int i = 1; i <= gridSize.x; i++)
+        {
+            if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().type != 0)
+            {
+                Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
+            }
         }
     }
 
@@ -695,11 +762,12 @@ public class PlaygridController : MonoBehaviour {
         else
         {
             gpc.type = num;
-            gpc.sr.color = Color.gray;
         }
         
 		gpc.dimX = x;
 		gpc.dimY = y;
+        gpc.highlighted = false;
+        gpc.selected = false;
 		gridObjects[x, y] = go;
 		//if (DEBUG)
 		//	Debug.Log("Created Piece at position: " + x + ", " + y);
@@ -708,7 +776,6 @@ public class PlaygridController : MonoBehaviour {
 
 
 	public void MovePieceToPosition(GameObject piece, int x, int y) {
-		
 		if (piece == null)
 			Debug.Log("Warning, piece given in MovePiece method does not exist");
 		else if (y < 0 || y >= gridSize.y + extraY)
