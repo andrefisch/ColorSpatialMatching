@@ -32,8 +32,6 @@ public class PlaygridController : MonoBehaviour {
 
 	private bool removePiece;
 	private bool addPiece;
-	private int selectedX;
-	private int selectedY;
 
     // Use this for initialization
     void Start () {
@@ -93,6 +91,7 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("a")) {
             AddRow();
         }
+        // FOR DEBUGGING MAKES SURE THERE ARE NO BLANK SPACES IN THE GRID
         if (Input.GetKeyDown("c")) {
             CheckPieces();
         }
@@ -103,6 +102,22 @@ public class PlaygridController : MonoBehaviour {
         // process combos
         if (Input.GetKeyDown("p")) {
             ProcessCombos();
+        }
+        // remove row of selected piece
+        if (Input.GetKeyDown("q")) {
+            RemoveRow();
+        }
+        // remove column of selected piece
+        if (Input.GetKeyDown("w")) {
+            RemoveColumn();
+        }
+        // remove row and column of selected piece
+        if (Input.GetKeyDown("e")) {
+            RemoveRowAndColumn();
+        }
+        // remove blocks same color as selected piece
+        if (Input.GetKeyDown("r")) {
+            RemoveOneColor();
         }
 	
 		// This part deals with the highlighting and selecting of objects
@@ -735,6 +750,67 @@ public class PlaygridController : MonoBehaviour {
             if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().type != 0)
             {
                 Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
+            }
+        }
+    }
+
+    // Removes row of highlighted piece
+    // NO KNOWN BUGS
+    void RemoveRow()
+    {
+        // turn all objects in the row gray and empty
+        for (int x = 1; x <= gridSize.x; x++)
+        {
+            gridObjects[x, (int)currentPiece.y].GetComponent<GridpieceController>().type = 0;
+            gridObjects[x, (int)currentPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
+        }
+    }
+
+    // Removes column of highlighted piece
+    // NO KNOWN BUGS
+    void RemoveColumn()
+    {
+        // turn all objects in the row gray and empty
+        for (int y = 0; y < gridSize.y; y++)
+        {
+            gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().type = 0;
+            gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().sr.color = Color.gray;
+        }
+    }
+
+    // Removes both row and column of highlighted piece
+    // NO KNOWN BUGS
+    void RemoveRowAndColumn()
+    {
+        // turn all objects in the row gray and empty
+        for (int x = 1; x <= gridSize.x; x++)
+        {
+            gridObjects[x, (int)currentPiece.y].GetComponent<GridpieceController>().type = 0;
+            gridObjects[x, (int)currentPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
+        }
+        // turn all objects in the row gray and empty
+        for (int y = 0; y < gridSize.y; y++)
+        {
+            gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().type = 0;
+            gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().sr.color = Color.gray;
+        }
+    }
+
+    // Remove all blocks of currentPiece color 
+    // WILL NEED TO BE CHANGED TO BLOCKS OF LASTPIECE LATER
+    // NO KNOWN BUGS
+    void RemoveOneColor()
+    {
+        int color = gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().type;
+        for (int i = 1; i <= gridSize.x; i++)
+        {
+            for (int j = 0; j < gridSize.y; j++)
+            {
+                if (color == gridObjects[i, j].GetComponent<GridpieceController>().type)
+                {
+                    gridObjects[i, j].GetComponent<GridpieceController>().type = 0;
+                    gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.gray;
+                }
             }
         }
     }
