@@ -56,12 +56,12 @@ public class PlaygridController : MonoBehaviour {
             }
         } 
         // Set up the actual pieces
-        for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 0; j <= gridSize.y - 1; j++) {
+		for (int i = (int)gridSize.x; i >= 1; i--) {
+			for (int j = (int)gridSize.y - 1; j >= 0; j--) {
 				if (!gridObjects[i, j]) {
-					if (i < gridSize.x && j < gridSize.y - 1 && includeBigPieces)
+					if (i >= 1 && j > 0 && includeBigPieces)
 						AddPieceAtPosition(i, j, -1, -1);
-					else
+					else 
 						AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
 				}
             }
@@ -214,19 +214,19 @@ public class PlaygridController : MonoBehaviour {
 							highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
 						}
 						else if (gpcHighlightSize == GridpieceController.ONExTWO) {
-							highlighters[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y + 1], 0.5f);
+							highlighters[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y - 1], 0.5f);
 							highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
 							highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
 							highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
 						}
 						else if (gpcHighlightSize == GridpieceController.TWOxONE) {
-							highlighters[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x + 1, (int)highlightedPiece.y], 0.5f);
+							highlighters[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x - 1, (int)highlightedPiece.y], 0.5f);
 							highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
 							highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
 							highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
 						}
 						else if (gpcHighlightSize == GridpieceController.TWOxTWO) {
-							highlighters[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x + 1, (int)highlightedPiece.y + 1], 0.5f);
+							highlighters[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x - 1, (int)highlightedPiece.y - 1], 0.5f);
 							highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
 							highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
 							highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
@@ -241,19 +241,19 @@ public class PlaygridController : MonoBehaviour {
 							selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
 						}
 						else if (gpcSelectSize == GridpieceController.ONExTWO) {
-							selectors[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX, gpc.dimY + 1], 0.5f);
+							selectors[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX, gpc.dimY - 1], 0.5f);
 							selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
 							selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
 							selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
 						}
 						else if (gpcSelectSize == GridpieceController.TWOxONE) {
-							selectors[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX + 1, gpc.dimY], 0.5f);
+							selectors[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY], 0.5f);
 							selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
 							selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
 							selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
 						}
 						else if (gpcSelectSize == GridpieceController.TWOxTWO) {
-							selectors[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX + 1, gpc.dimY + 1], 0.5f);
+							selectors[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY - 1], 0.5f);
 							selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
 							selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
 							selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
@@ -904,26 +904,28 @@ public class PlaygridController : MonoBehaviour {
 			Debug.Log("Removing block at space " + x + ", " + y);
 		if (gridObjects[x, y]) {
 			GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
+			int xPos = gpc.dimX;
+			int yPos = gpc.dimY;
 			if (gpc.size == GridpieceController.ONExONE) {
-				GameObject.Destroy(gridObjects[x, y]);
-				gridObjects[x, y] = null;
+				GameObject.Destroy(gridObjects[xPos, yPos]);
+				gridObjects[xPos, yPos] = null;
 			}
 			else if (gpc.size == GridpieceController.ONExTWO) {
-				GameObject.Destroy(gridObjects[x, y]);
-				gridObjects[x, y] = null;
-				gridObjects[x, y + 1] = null;
+				GameObject.Destroy(gridObjects[xPos, yPos]);
+				gridObjects[xPos, yPos] = null;
+				gridObjects[xPos, yPos - 1] = null;
 			}
 			else if (gpc.size == GridpieceController.TWOxONE) {
-				GameObject.Destroy(gridObjects[x, y]);
-				gridObjects[x, y] = null;
-				gridObjects[x + 1, y] = null;
+				GameObject.Destroy(gridObjects[xPos, yPos]);
+				gridObjects[xPos, yPos] = null;
+				gridObjects[xPos - 1, yPos] = null;
 			}
 			else if (gpc.size == GridpieceController.TWOxTWO) {
 				GameObject.Destroy(gridObjects[x, y]);
-				gridObjects[x, y] = null;
-				gridObjects[x, y + 1] = null;
-				gridObjects[x + 1, y] = null;
-				gridObjects[x + 1, y + 1] = null;
+				gridObjects[xPos, yPos] = null;
+				gridObjects[xPos, yPos - 1] = null;
+				gridObjects[xPos - 1, yPos] = null;
+				gridObjects[xPos - 1, yPos - 1] = null;
 			}
 		}
 	}
@@ -944,16 +946,27 @@ public class PlaygridController : MonoBehaviour {
         {
             gpc.type = num;
         }
+		gpc.SetColor();
 		if (size < 0) {
-			if (x < gridSize.x && y < gridSize.y - 1) {
-				if (!gridObjects[x, y + 1])
+			if (x > 1 && y > 0) {
+				if (!gridObjects[x, y - 1])
 					gpc.size = (int)Mathf.Floor(Random.Range(0, 3.99999999f));
 				else {
 					if (Random.value > 0.5f)
 						gpc.size = GridpieceController.TWOxONE;
-					else 
+					else
 						gpc.size = GridpieceController.ONExONE;
 				}	
+			}
+			else if (x == 1) {
+				if (!gridObjects[x, y - 1]) {
+					if (Random.value > 0.5f)
+						gpc.size = GridpieceController.ONExTWO;
+					else
+						gpc.size = GridpieceController.ONExONE;
+				}
+				else 
+					gpc.size = GridpieceController.ONExONE;
 			}
 			else
 				gpc.size = GridpieceController.ONExONE;
@@ -967,18 +980,18 @@ public class PlaygridController : MonoBehaviour {
 		gridObjects[x, y] = go;
 
 		if (gpc.size == GridpieceController.ONExTWO) {
-			gridObjects[x, y + 1] = go;
-			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x, y + 1], 0.5f);
+			gridObjects[x, y - 1] = go;
+			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x, y - 1], 0.5f);
 		}
 		else if (gpc.size == GridpieceController.TWOxONE) {
-			gridObjects[x + 1, y] = go;
-			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x + 1, y], 0.5f);
+			gridObjects[x - 1, y] = go;
+			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y], 0.5f);
 		}
 		else if (gpc.size == GridpieceController.TWOxTWO) {
-			gridObjects[x + 1, y] = go;
-			gridObjects[x, y + 1] = go;
-			gridObjects[x + 1, y + 1] = go;
-			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x + 1, y + 1], 0.5f);
+			gridObjects[x - 1, y] = go;
+			gridObjects[x, y - 1] = go;
+			gridObjects[x - 1, y - 1] = go;
+			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y - 1], 0.5f);
 		}
 		//if (DEBUG)
 		//	Debug.Log("Created Piece at position: " + x + ", " + y);

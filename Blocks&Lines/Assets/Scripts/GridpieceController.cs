@@ -40,20 +40,7 @@ public class GridpieceController : MonoBehaviour {
 	void Update () {
 	
 		if (!setColor) {
-			if (type == EDGE) {
-				//sr.color = new Color(1, 0, 0, .5f);
-				sr.color = Color.gray;
-			}
-			else if (type == RED)
-				sr.color = Color.red;
-			else if (type == BLUE)
-				sr.color = Color.blue;
-			else if (type == GREEN)
-				sr.color = Color.green;
-			else if (type == YELLOW)
-				sr.color = Color.yellow;
-		
-			setColor = true;
+			SetColor();
 		}
 
 		if (!setSize) {
@@ -67,5 +54,53 @@ public class GridpieceController : MonoBehaviour {
 				transform.localScale = new Vector3(1f, 0.6f, 1);
 			setSize = true;
 		}
+	}
+
+
+	public void SetColor() {
+		sr = GetComponent<SpriteRenderer>();
+		if (type == EDGE) {
+			//sr.color = new Color(1, 0, 0, .5f);
+			//sr.color = Color.gray;
+			sr.color = Color.clear;
+			GetComponent<BoxCollider2D>().enabled = false;
+		}
+		else if (type == RED)
+			sr.color = Color.red;
+		else if (type == BLUE)
+			sr.color = Color.blue;
+		else if (type == GREEN)
+			sr.color = Color.green;
+		else if (type == YELLOW)
+			sr.color = Color.yellow;
+
+		setColor = true;
+	}
+
+	// Returns an array of positions of the block based on the size and the dimX and dimY
+	public Vector2[] GetPositions() {
+		Vector2[] returner = new Vector2[0];
+		if (size == ONExONE) {
+			returner = new Vector2[1];
+			returner[0] = new Vector2(dimX, dimY);
+		}
+		else if (size == ONExTWO) {
+			returner = new Vector2[2];
+			returner[0] = new Vector2(dimX, dimY);
+			returner[1] = new Vector2(dimX, dimY-1);
+		}
+		else if (size == TWOxONE) {
+			returner = new Vector2[2];
+			returner[0] = new Vector2(dimX, dimY);
+			returner[1] = new Vector2(dimX - 1, dimY);
+		}
+		else if (size == TWOxTWO) {
+			returner = new Vector2[4];
+			returner[0] = new Vector2(dimX, dimY);
+			returner[1] = new Vector2(dimX, dimY-1);
+			returner[2] = new Vector2(dimX-1, dimY);
+			returner[3] = new Vector2(dimX-1, dimY-1);
+		}
+		return returner;
 	}
 }
