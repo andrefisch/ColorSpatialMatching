@@ -870,20 +870,21 @@ public class PlaygridController : MonoBehaviour {
 			gridObjects[x, y] = piece;
 			gpc.dimX = x;
 			gpc.dimY = y;
-			piece.transform.position = gridPositions[x, y];
+			//piece.transform.position = gridPositions[x, y];
 			// Can swap the line above for the line below in order to create a moving piece
-			//StartCoroutine(MovePiece(piece, x, y));
+			StartCoroutine(MovePiece(piece, x, y));
 		}
 	}
 
 	public IEnumerator MovePiece(GameObject piece, int x, int y) {
 		float timeForPieceToMove = 0.5f;
 		Vector3 startPos = piece.transform.position;
-		for (float i = 0; i < timeForPieceToMove; i += Time.deltaTime) {
+		for (float i = 0; i <= timeForPieceToMove; i += Time.deltaTime) {
 			float counter = i / timeForPieceToMove;
 			piece.transform.position = Vector3.Lerp(startPos, gridPositions[x, y], counter);
 			yield return null;
 		}
+		piece.transform.position = gridPositions[x, y];
 	}
 
 	public void ResetCurrentLastPieces() {
