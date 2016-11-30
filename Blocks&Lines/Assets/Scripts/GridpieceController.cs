@@ -11,15 +11,22 @@ public class GridpieceController : MonoBehaviour {
 
 	public int type;
 
+	public const int ONExONE = 0;
+	public const int ONExTWO = 1;
+	public const int TWOxONE = 2;
+	public const int TWOxTWO = 3;
+
+	public int size;
+
     public int dimX = -100;
     public int dimY = -100;
 
-	public bool highlighted;
 	public bool selected;
 
 	//public Vector2 placeInGrid;
 
 	private bool setColor;
+	private bool setSize;
 	public SpriteRenderer sr;
 
 	// Use this for initialization
@@ -47,6 +54,18 @@ public class GridpieceController : MonoBehaviour {
 				sr.color = Color.yellow;
 		
 			setColor = true;
+		}
+
+		if (!setSize) {
+			if (size == ONExONE)
+				transform.localScale = new Vector3(0.5f, 0.3f, .3f);
+			else if (size == ONExTWO)
+				transform.localScale = new Vector3(0.5f, 0.6f, 1);
+			else if (size == TWOxONE)
+				transform.localScale = new Vector3(1f, 0.3f, 1);
+			else if (size == TWOxTWO)
+				transform.localScale = new Vector3(1f, 0.6f, 1);
+			setSize = true;
 		}
 	}
 }
