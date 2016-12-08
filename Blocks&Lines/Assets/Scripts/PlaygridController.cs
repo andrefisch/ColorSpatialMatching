@@ -166,6 +166,15 @@ public class PlaygridController : MonoBehaviour {
 					else {
 						gpcSelectSize = gpc.size;
 						gpc.selected = true;
+                        if (DEBUG)
+                        {
+                            Debug.Log("Grid spaces of this block are:");
+                            Vector2[] gridSpaces = gpc.GetComponent<GridpieceController>().GetPositions();
+                            for (int i = 0; i < gridSpaces.Length; i++)
+                            {
+                                Debug.Log((int)gridSpaces[i].x + ", " + (int)gridSpaces[i].y);
+                            }
+                        }
 
 						if (currentPiece.x != -1 && currentPiece.y != -1) {
 							lastPiece.x = currentPiece.x;
@@ -293,8 +302,7 @@ public class PlaygridController : MonoBehaviour {
 	}
 
     // do the two blocks match?
-    // NO KNOWN BUGS
-	// - NOT UPDATED FOR MULTIPLE SIZES
+    // TRAIL MATCHING DOES NOT ALWAYS WORK
     bool Match(int x1, int y1, int x2, int y2)
     {
         if (DEBUG)
@@ -311,67 +319,108 @@ public class PlaygridController : MonoBehaviour {
             // if the blocks arent the same type no more checking needs to be done
             if (gridObjects[x1, y1] && gridObjects[x2, y2] && gridObjects[x1, y1].GetComponent<GridpieceController>().type == gridObjects[x2, y2].GetComponent<GridpieceController>().type)
             {
+                Vector2[] object1 = gridObjects[x1, y1].GetComponent<GridpieceController>().GetPositions();
+                Vector2[] object2 = gridObjects[x2, y2].GetComponent<GridpieceController>().GetPositions();
                 if (DEBUG)
                 {
                     // Debug.Log("Now checking adjacency of " + x1 + ", " + y1 + " and " + x2 + ", " + y2);
                 }
                 // if the blocks are adjacent we are done and no more checking needs to happen
-                if (Adjacent(x1, y1, x2, y2))
+                for (int i = 0; i < object1.Length; i++)
                 {
-                    // gridObjects[x1, y1] = null;
-                    // gridObjects[x2, y2] = null;
-                    if (DEBUG)
+                    for (int j = 0; j < object2.Length; j++)
                     {
-                        // Debug.Log("They are adjacent so we have a match!");
+                        if (Adjacent((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
+                        {
+                            if (DEBUG)
+                            {
+                                Debug.Log("They are ADJACENT so we have a match!");
+                            }
+                            match = true;
+                        }
                     }
-                    match = true;
                 }
-                // then we check to see if there is a straight shot from A to B
-                else if (StraightShot(x1, y1, x2, y2))
+                if (!match)
                 {
-                    match = true;
-                }
-                else
-                {
-                    if (DEBUG)
+                    for (int i = 0; i < object1.Length; i++)
                     {
-                        // Debug.Log("Not adjacent or a straight shot so checking match trails");
+                        for (int j = 0; j < object2.Length; j++)
+                        {
+                            // then we check to see if there is a straight shot from A to B
+                            if (StraightShot((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
+                            {
+                                if (DEBUG)
+                                {
+                                    Debug.Log("There is a STRAIGHTSHOT so we have a match!");
+                                }
+                                match = true;
+                            }
+                        }
                     }
+                }
+                if (!match)
+                {
+                    List<Vector2> list1 = new List<Vector2>();
+                    List<Vector2> list2 = new List<Vector2>();
                     // create the match trails
-                    match = CheckMatchTrails(CreateMatchTrail(x1, y1), CreateMatchTrail(x2, y2));
+                    for (int i = 0; i < object1.Length; i++)
+                    {
+                        list1.AddRange(CreateMatchTrail((int)object1[i].x, (int)object1[i].y));
+                    }
+                    for (int j = 0; j < object2.Length; j++)
+                    {
+                        list2.AddRange(CreateMatchTrail((int)object2[j].x, (int)object2[j].y));
+                    }
+                    if (DEBUG)
+                    {
+                        Debug.Log("These spaces are being processed...");
+                        for (int i = 0; i < list1.Count; i++)
+                        {
+                            Debug.Log((int)list1[i].x + ", " + (int)list1[i].y);
+                        }
+                        Debug.Log("Against these spaces");
+                        for (int i = 0; i < list2.Count; i++)
+                        {
+                            Debug.Log((int)list2[i].x + ", " + (int)list2[i].y);
+                        }
+                    }
+                    match = CheckMatchTrails(list1, list2);
+                    if (DEBUG && match)
+                    {
+                        Debug.Log("MATCHTRAILS line up so we have a match!");
+                    }
+                }
+                if (match)
+                {
+                    // make sure we set the pieces to 0 and gray
+                    // RIENZI: PRETTY SURE THE PROBLEM IS SOMEWHERE IN THE NEXT TWO FOR LOOPS
+                    for (int i = 0; i < object1.Length; i++)
+                    {
+                        Debug.Log("Now turning this space from FIRST piece gray: " + (int)object1[i].x + ", " + (int)object1[i].y);
+                        gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().type = 0;
+                        gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
+                    }
+                    // make sure we deselect and unhighlight last piece
+                    gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().selected = false;
+                    for (int i = 0; i < object2.Length; i++)
+                    {
+                        Debug.Log("Now turning this space from SECOND piece gray: " + (int)object2[i].x + ", " + (int)object2[i].y);
+                        gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().type = 0;
+                        gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
+                    }
+                    // Make sure we reset current piece
+                    currentPiece.x = -1;
+                    currentPiece.y = -1;
                 }
             }
         }
-        if (DEBUG)
-        {
-            // Debug.Log("Do we have a match?: " + match);
-        }
-        if (match)
-        {
-            // make sure we set the pieces to 0 and gray
-            if (gridObjects[(int)currentPiece.x, (int)currentPiece.y])
-            {
-                gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().type = 0;
-                gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
-                // make sure we deselect and unhighlight last piece
-                gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().selected = false;
-            }
-            if (gridObjects[(int)lastPiece.x, (int)lastPiece.y])
-            {
-                gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().type = 0;
-                gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().sr.color = Color.gray;
-            }
-			// Make sure we reset current piece
-			currentPiece.x = -1;
-			currentPiece.y = -1;
-        }
-		// Reset the last piece so that we aren't checking for a match every frame
-		lastPiece.x = -1;
-		lastPiece.y = -1;
+        // Reset the last piece so that we aren't checking for a match every frame
+        lastPiece.x = -1;
+        lastPiece.y = -1;
         MatchTrailCleanup();
         return match;
     }
-    
+
 
     // are the two blocks adjacent?
     // NO KNOWN BUGS
@@ -410,7 +459,7 @@ public class PlaygridController : MonoBehaviour {
         // check down only if we are not at the bottom row
         if (DEBUG)
         { 
-            // Debug.Log ("now checking down from " + x1 + ", " + y1); 
+            Debug.Log ("now checking down from " + x1 + ", " + y1); 
         }
         for (int i = y1 - 1; i > 0; i--)
         {
@@ -435,7 +484,7 @@ public class PlaygridController : MonoBehaviour {
         // check up
         if (DEBUG)
         {
-            // Debug.Log ("now checking up from " + x1 + ", " + y1);
+            Debug.Log ("now checking up from " + x1 + ", " + y1);
         }
         for (int i = y1 + 1; i < gridSize.y + extraY; i++)
         {
@@ -460,7 +509,7 @@ public class PlaygridController : MonoBehaviour {
         // check right
         if (DEBUG)
         {
-            // Debug.Log("now checking right from " + x1 + ", " + y1);
+            Debug.Log("now checking right from " + x1 + ", " + y1);
         }
         for (int i = x1 + 1; i < gridSize.x + extraX; i++)
         {
@@ -485,7 +534,7 @@ public class PlaygridController : MonoBehaviour {
         // check left
         if (DEBUG)
         {
-            // Debug.Log("now checking left from " + x1 + ", " + y1);
+            Debug.Log("now checking left from " + x1 + ", " + y1);
         }
         for (int i = x1 - 1; i > -1; i--)
         {
