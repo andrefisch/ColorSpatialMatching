@@ -40,7 +40,8 @@ public class PlaygridController : MonoBehaviour {
 	private Vector2 highlightedPiece;
 
     // Use this for initialization
-    void Start () {
+    void Start (){
+        // includeBigPieces = false;
         currentPiece = new Vector2(-1, -1);
         lastPiece = new Vector2(-1, -1);
 
@@ -393,19 +394,26 @@ public class PlaygridController : MonoBehaviour {
                 if (match)
                 {
                     // make sure we set the pieces to 0 and gray
+                    // RIENZI: PRETTY SURE THE PROBLEM IS SOMEWHERE IN THE NEXT TWO FOR LOOPS
+                    // for (int i = object1.Length - 1; i >= 0; i--)
                     for (int i = 0; i < object1.Length; i++)
                     {
-                        Debug.Log("Now turning this space from FIRST piece gray: " + (int)object1[i].x + ", " + (int)object1[i].y);
-                        gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().type = 0;
-                        gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
+                        Debug.Log("Now removing 1st piece at " + (int)object1[i].x + ", " + (int)object1[i].y);
+                        RemovePieceAtPosition((int)object1[i].x, (int)object1[i].y);
+                        AddPieceAtPosition((int)object1[i].x, (int)object1[i].y, 0, GridpieceController.ONExONE);
+                        // gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().type = 0;
+                        // gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
                     }
                     // make sure we deselect and unhighlight last piece
                     gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().selected = false;
+                    // for (int i = object2.Length - 1; i >= 0; i--)
                     for (int i = 0; i < object2.Length; i++)
                     {
-                        Debug.Log("Now turning this space from SECOND piece gray: " + (int)object2[i].x + ", " + (int)object2[i].y);
-                        gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().type = 0;
-                        gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
+                        Debug.Log("Now removing 2nd piece " + (int)object2[i].x + ", " + (int)object2[i].y);
+                        RemovePieceAtPosition((int)object2[i].x, (int)object2[i].y);
+                        AddPieceAtPosition((int)object2[i].x, (int)object2[i].y, 0, GridpieceController.ONExONE);
+                        // gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().type = 0;
+                        // gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
                     }
                     // Make sure we reset current piece
                     currentPiece.x = -1;
@@ -609,7 +617,7 @@ public class PlaygridController : MonoBehaviour {
             }
             else
             {
-                for (int x = x2 + 1; x < x2; x++)
+                for (int x = x2 + 1; x < x1; x++)
                 {
                     if (gridObjects[x, y1] && gridObjects[x, y1].GetComponent<GridpieceController>().type != 0)
                     {
@@ -617,6 +625,7 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
             }
+            Debug.Log("There is a HORIZONTAL STRAIGHTSHOT");
             output = true;
         }
         return output;
@@ -949,7 +958,7 @@ public class PlaygridController : MonoBehaviour {
 	// Removes any piece - UPDATED FOR MULTIPLE SIZES
 	public void RemovePieceAtPosition(int x, int y) {
 		if (DEBUG)
-			Debug.Log("Removing block at space " + x + ", " + y);
+			// Debug.Log("Removing block at space " + x + ", " + y);
 		if (gridObjects[x, y]) {
 			GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
 			int xPos = gpc.dimX;
