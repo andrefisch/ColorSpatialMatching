@@ -399,7 +399,8 @@ public class PlaygridController : MonoBehaviour {
                     for (int i = 0; i < object1.Length; i++)
                     {
                         Debug.Log("Now removing 1st piece at " + (int)object1[i].x + ", " + (int)object1[i].y);
-                        RemovePieceAtPosition((int)object1[i].x, (int)object1[i].y);
+						if (i==0)
+							RemovePieceAtPosition((int)object1[i].x, (int)object1[i].y);
                         AddPieceAtPosition((int)object1[i].x, (int)object1[i].y, 0, GridpieceController.ONExONE);
                         // gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().type = 0;
                         // gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
@@ -410,7 +411,8 @@ public class PlaygridController : MonoBehaviour {
                     for (int i = 0; i < object2.Length; i++)
                     {
                         Debug.Log("Now removing 2nd piece " + (int)object2[i].x + ", " + (int)object2[i].y);
-                        RemovePieceAtPosition((int)object2[i].x, (int)object2[i].y);
+						if (i==0)
+							RemovePieceAtPosition((int)object2[i].x, (int)object2[i].y);
                         AddPieceAtPosition((int)object2[i].x, (int)object2[i].y, 0, GridpieceController.ONExONE);
                         // gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().type = 0;
                         // gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().sr.color = Color.gray;
@@ -957,7 +959,7 @@ public class PlaygridController : MonoBehaviour {
 
 	// Removes any piece - UPDATED FOR MULTIPLE SIZES
 	public void RemovePieceAtPosition(int x, int y) {
-		if (DEBUG)
+		//if (DEBUG)
 			// Debug.Log("Removing block at space " + x + ", " + y);
 		if (gridObjects[x, y]) {
 			GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
@@ -985,111 +987,178 @@ public class PlaygridController : MonoBehaviour {
 				gridObjects[xPos - 1, yPos - 1] = null;
 			}
 		}
+		else if (DEBUG)
+			Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block that isn't there");
 	}
 
     // Add a piece - UPDATED FOR MULTIPLE SIZES
     // - if the num supplied is negative we choose a number randomly
     // - otherwise the type is the num we supplied
-	// - if size supplied is negative, we choose a size randomy
+	// - if size supplied is negative, we choose a size randomly based on what can fit in the space provided
 	// - otherwise the size is the size we supplied
+	// - Gives warning and does nothing if the block specified can't fit in the space provided
 	public GameObject AddPieceAtPosition(int x, int y, int num, int size) {
-		GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[x, y], Quaternion.identity);
-		GridpieceController gpc = go.GetComponent<GridpieceController>();
-        if (num < 0)
-        {
-			gpc.type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
-        }
-        else
-        {
-            gpc.type = num;
-        }
-		gpc.SetColor();
-		if (size < 0) {
-			if (x > 1 && y > 0) {
-				if (!gridObjects[x, y - 1])
-					gpc.size = (int)Mathf.Floor(Random.Range(0, 3.99999999f));
-				else {
-					if (Random.value > 0.5f)
-						gpc.size = GridpieceController.TWOxONE;
-					else
-						gpc.size = GridpieceController.ONExONE;
-				}	
+		if (size == GridpieceController.TWOxTWO && (gridObjects[x, y] || gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])) {
+			if (DEBUG)
+				Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x2 block in a place where it won't fit - nothing done");
+			return null;
+		}
+		else if (size == GridpieceController.ONExTWO && (gridObjects[x, y] || gridObjects[x, y - 1])) {
+			if (DEBUG)
+				Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 1x2 block in a place where it won't fit - nothing done");
+			return null;
+		}
+		else if (size == GridpieceController.TWOxONE && (gridObjects[x, y] || gridObjects[x - 1, y])) {
+			if (DEBUG)
+				Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x1 block in a place where it won't fit - nothing done");
+			return null;
+		}
+		else if ((size == GridpieceController.ONExONE || size < 0) && (gridObjects[x, y])) {
+			if (DEBUG)
+				Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 1x1 or random block in a place where it won't fit - nothing done");
+			return null;
+		}
+		else {
+			GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[x, y], Quaternion.identity);
+			GridpieceController gpc = go.GetComponent<GridpieceController>();
+			if (num < 0) {
+				gpc.type = (int)Mathf.Floor(Random.Range(1, 4.99999999f));
 			}
-			else if (x == 1) {
-				if (!gridObjects[x, y - 1]) {
-					if (Random.value > 0.5f)
-						gpc.size = GridpieceController.ONExTWO;
+			else {
+				gpc.type = num;
+			}
+			gpc.SetColor();
+			if (size < 0) {
+				if (x > 1 && y > 0) {
+					if (!gridObjects[x, y - 1])
+						gpc.size = (int)Mathf.Floor(Random.Range(0, 3.99999999f));
+					else {
+						if (Random.value > 0.5f)
+							gpc.size = GridpieceController.TWOxONE;
+						else
+							gpc.size = GridpieceController.ONExONE;
+					}	
+				}
+				else if (x == 1) {
+					if (!gridObjects[x, y - 1]) {
+						if (Random.value > 0.5f)
+							gpc.size = GridpieceController.ONExTWO;
+						else
+							gpc.size = GridpieceController.ONExONE;
+					}
 					else
 						gpc.size = GridpieceController.ONExONE;
 				}
-				else 
+				else
 					gpc.size = GridpieceController.ONExONE;
 			}
 			else
-				gpc.size = GridpieceController.ONExONE;
-		}
-		else
-			gpc.size = size;
+				gpc.size = size;
         
-		gpc.dimX = x;
-		gpc.dimY = y;
-        gpc.selected = false;
-		gridObjects[x, y] = go;
-
-		if (gpc.size == GridpieceController.ONExTWO) {
-			gridObjects[x, y - 1] = go;
-			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x, y - 1], 0.5f);
-		}
-		else if (gpc.size == GridpieceController.TWOxONE) {
-			gridObjects[x - 1, y] = go;
-			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y], 0.5f);
-		}
-		else if (gpc.size == GridpieceController.TWOxTWO) {
-			gridObjects[x - 1, y] = go;
-			gridObjects[x, y - 1] = go;
-			gridObjects[x - 1, y - 1] = go;
-			go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y - 1], 0.5f);
-		}
-		//if (DEBUG)
-		//	Debug.Log("Created Piece at position: " + x + ", " + y);
-		return go;
-	}
-
-	// NOT UPDATED FOR MULTIPLE SIZES
-	public void MovePieceToPosition(GameObject piece, int x, int y) {
-		if (piece == null)
-			Debug.Log("Warning, piece given in MovePiece method does not exist");
-		else if (y < 0 || y >= gridSize.y + extraY)
-			Debug.Log("Warning, trying to move piece below or above grid Y limits");
-		else if (x < 0 || x >= gridSize.x + extraX)
-			Debug.Log("Warning, trying to move piece below or above grid X limits");
-		else if (gridObjects[x, y] != null)
-			Debug.Log("Warning, trying to move piece into occupied space " + x + ", " + y);
-		else {
-			GridpieceController gpc = piece.GetComponent<GridpieceController>();
-
-			if (DEBUG)
-				Debug.Log("Moving Piece: [" + gpc.dimX + ", " + gpc.dimY + "] to [" + x + ", " + y + "]");
-
-			gridObjects[gpc.dimX, gpc.dimY] = null;
-			gridObjects[x, y] = piece;
 			gpc.dimX = x;
 			gpc.dimY = y;
-			//piece.transform.position = gridPositions[x, y];
-			// Can swap the line above for the line below in order to create a moving piece
-			StartCoroutine(MovePiece(piece, x, y));
+			gpc.selected = false;
+			gridObjects[x, y] = go;
+
+			if (gpc.size == GridpieceController.ONExTWO) {
+				gridObjects[x, y - 1] = go;
+				go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x, y - 1], 0.5f);
+			}
+			else if (gpc.size == GridpieceController.TWOxONE) {
+				gridObjects[x - 1, y] = go;
+				go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y], 0.5f);
+			}
+			else if (gpc.size == GridpieceController.TWOxTWO) {
+				gridObjects[x - 1, y] = go;
+				gridObjects[x, y - 1] = go;
+				gridObjects[x - 1, y - 1] = go;
+				go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y - 1], 0.5f);
+			}
+			//if (DEBUG)
+			//	Debug.Log("Created Piece at position: " + x + ", " + y);
+			return go;
 		}
 	}
 
-	public IEnumerator MovePiece(GameObject piece, int x, int y) {
+	// UPDATED FOR MULTIPLE SIZES
+	public void MovePieceToPosition(GameObject piece, int x, int y) {
+		if (piece == null)
+			Debug.Log("Warning (MovePieceToPosition): piece given does not exist - nothing done");
+		else {
+			GridpieceController gpc = piece.GetComponent<GridpieceController>();
+			int pieceSize = gpc.size;
+			if ((y < 0 || y >= gridSize.y + extraY) || ((pieceSize == GridpieceController.ONExTWO || pieceSize == GridpieceController.TWOxTWO) && y < 1))
+				Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
+			else if ((x < 1 || x >= gridSize.x + extraX) || ((pieceSize == GridpieceController.TWOxONE || pieceSize == GridpieceController.TWOxTWO) && x < 2))
+				Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
+			else if (gridObjects[x, y] != null)
+				Debug.Log("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
+			else if ((pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1]) || (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y]) || (pieceSize == GridpieceController.TWOxTWO && (gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])))
+				Debug.Log("Warning (MovePieceToPosition): peice of given size cannot fit into space provided because another block is in the way - nothing done");
+			else {
+				if (DEBUG)
+					Debug.Log("Moving Piece: [" + gpc.dimX + ", " + gpc.dimY + "] to [" + x + ", " + y + "]");
+
+				Vector2[] originalPositions = gpc.GetPositions();
+				for (int i = 0; i < originalPositions.Length; i++)
+					gridObjects[(int)originalPositions[i].x, (int)originalPositions[i].y] = null;
+				gpc.dimX = x;
+				gpc.dimY = y;
+				Vector2[] newPositions = gpc.GetPositions();
+				for (int i = 0; i < newPositions.Length; i++)
+					gridObjects[(int)newPositions[i].x, (int)newPositions[i].y] = piece;
+
+				//StartCoroutine(MovePiece(piece, pieceSize, x, y, true));
+				// Can swap the line above for the line below in order to create a moving piece
+				StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
+
+				/*
+				if (pieceSize == GridpieceController.ONExONE) {
+					
+					gridObjects[gpc.dimX, gpc.dimY] = null;
+					gridObjects[x, y] = piece;
+					gpc.dimX = x;
+					gpc.dimY = y;
+
+					piece.transform.position = gridPositions[x, y];
+					// Can swap the line above for the line below in order to create a moving piece
+					//StartCoroutine(MovePiece(piece, x, y));
+				}
+				else if (pieceSize == GridpieceController.ONExTWO) {
+					piece.transform.position = gridPositions[x, y];
+				}
+				else if (pieceSize == GridpieceController.TWOxONE) {
+					piece.transform.position = gridPositions[x, y];
+				}
+				else if (pieceSize == GridpieceController.TWOxTWO) {
+					piece.transform.position = gridPositions[x, y];
+				}
+				*/
+			}
+		}
+	}
+
+	public IEnumerator MovePiece(GameObject piece, int pieceSize, int x, int y, bool instantly) {
 		float timeForPieceToMove = 0.5f;
 		Vector3 startPos = piece.transform.position;
-		for (float i = 0; i <= timeForPieceToMove; i += Time.deltaTime) {
-			float counter = i / timeForPieceToMove;
-			piece.transform.position = Vector3.Lerp(startPos, gridPositions[x, y], counter);
-			yield return null;
+		Vector3 endPos;
+		if (pieceSize == GridpieceController.ONExONE)
+			endPos = gridPositions[x, y];
+		else if (pieceSize == GridpieceController.ONExTWO)
+			endPos = (gridPositions[x, y] + gridPositions[x, y-1]) / 2;
+		else if (pieceSize == GridpieceController.TWOxONE)
+			endPos = (gridPositions[x, y] + gridPositions[x-1, y]) / 2;
+		else
+			endPos = (gridPositions[x, y] + gridPositions[x-1, y-1]) / 2;
+
+		if (!instantly) {
+			for (float i = 0; i <= timeForPieceToMove; i += Time.deltaTime) {
+				float counter = i / timeForPieceToMove;
+				piece.transform.position = Vector3.Lerp(startPos, endPos, counter);
+				yield return null;
+			}
 		}
-		piece.transform.position = gridPositions[x, y];
+		piece.transform.position = endPos;
 	}
 
 	public void ResetCurrentLastPieces() {
