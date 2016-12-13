@@ -87,7 +87,7 @@ public class GridpieceController : MonoBehaviour {
 		else if (size == ONExTWO) {
 			returner = new Vector2[2];
 			returner[0] = new Vector2(dimX, dimY);
-			returner[1] = new Vector2(dimX, dimY-1);
+			returner[1] = new Vector2(dimX, dimY - 1);
 		}
 		else if (size == TWOxONE) {
 			returner = new Vector2[2];
@@ -97,9 +97,9 @@ public class GridpieceController : MonoBehaviour {
 		else if (size == TWOxTWO) {
 			returner = new Vector2[4];
 			returner[0] = new Vector2(dimX, dimY);
-			returner[1] = new Vector2(dimX, dimY-1);
-			returner[2] = new Vector2(dimX-1, dimY);
-			returner[3] = new Vector2(dimX-1, dimY-1);
+			returner[1] = new Vector2(dimX - 1, dimY);
+            returner[2] = new Vector2(dimX, dimY - 1);
+			returner[3] = new Vector2(dimX - 1, dimY - 1);
 		}
 		return returner;
 	}

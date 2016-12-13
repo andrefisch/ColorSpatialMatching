@@ -61,8 +61,8 @@ public class GridpieceController : MonoBehaviour {
 		sr = GetComponent<SpriteRenderer>();
 		if (type == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
-			//sr.color = Color.gray;
-			sr.color = Color.clear;
+			sr.color = Color.gray;
+			//sr.color = Color.clear;
 			GetComponent<BoxCollider2D>().enabled = false;
 		}
 		else if (type == RED)
