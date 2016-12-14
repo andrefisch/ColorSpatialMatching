@@ -77,9 +77,9 @@ public class PlaygridController : MonoBehaviour {
             AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0, GridpieceController.ONExONE);
         }
         // Go from 0 to size on the bottom
-        for (int i = 0; i < gridSize.x + extraX; i++) {
-            AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
-        }
+        //for (int i = 0; i < gridSize.x + extraX; i++) {
+        //    AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
+        //}
         // Go from 0 to size on the top
         for (int i = 0; i < gridSize.x + extraX; i++) {
             AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
@@ -699,6 +699,7 @@ public class PlaygridController : MonoBehaviour {
         if (DEBUG){
             Debug.Log("-------------------------- Moving Pieces Down ----------------------------");
         }
+		//movedObjects.Clear();
         // First remove all the grey pieces in the playable grid
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 0; j < gridSize.y; j++) {
@@ -712,9 +713,11 @@ public class PlaygridController : MonoBehaviour {
         // Iterate through the grid
         for (int i = 1; i <= gridSize.x; i++) 
         {
+			// We start a y = 1 because you can't move down if y = 0
             for (int j = 1; j < gridSize.y; j++) 
             {
 				if (gridObjects[i, j] != null) {
+					//Debug.Log("Found Piece at: " + i + ", " + j);
 					GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
 					int pieceSize = gpc.size;
 					int moveDown = 0;
@@ -733,11 +736,20 @@ public class PlaygridController : MonoBehaviour {
 						}
 					}
 					else {
-					
-					
-					
-					
-					
+						if (i == gpc.dimX ) {
+							while (j - 1 - moveDown >= 0 && !gridObjects[i, j - 1 - moveDown] && !gridObjects[i - 1, j - 1 - moveDown])
+								moveDown++;
+							if (moveDown > 0) {
+								if (pieceSize == GridpieceController.TWOxONE) {
+									MovePieceToPosition(gridObjects[i, j], i, j - moveDown);
+									movedObjects.Add(gridObjects[i, j - moveDown]);
+								}
+								else {
+									MovePieceToPosition(gridObjects[i, j], i, (j - moveDown) + 1);
+									movedObjects.Add(gridObjects[i, (j - moveDown) + 1]);
+								}
+							}
+						}
 					}
 				}
 
@@ -1282,9 +1294,14 @@ public class PlaygridController : MonoBehaviour {
                 Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
             else if ((x < 1 || x >= gridSize.x + extraX) || ((pieceSize == GridpieceController.TWOxONE || pieceSize == GridpieceController.TWOxTWO) && x < 2))
                 Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
-            else if (gridObjects[x, y] != null)
+			else if (gridObjects[x, y] != null && !gridObjects[x, y].Equals(piece))
                 Debug.Log("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
-            else if ((pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1]) || (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y]) || (pieceSize == GridpieceController.TWOxTWO && (gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])))
+			else if( (pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
+					 (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
+					 (pieceSize == GridpieceController.TWOxTWO && 
+																( (gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
+																  (gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
+																  (gridObjects[x - 1, y - 1] && !gridObjects[x - 1, y-1].Equals(piece)) ) ) )
                 Debug.Log("Warning (MovePieceToPosition): piece of given size cannot fit into space provided because another block is in the way - nothing done");
             else {
                 if (DEBUG)
