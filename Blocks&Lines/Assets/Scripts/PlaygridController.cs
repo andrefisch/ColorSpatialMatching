@@ -712,8 +712,38 @@ public class PlaygridController : MonoBehaviour {
         // Iterate through the grid
         for (int i = 1; i <= gridSize.x; i++) 
         {
-            for (int j = 0; j < gridSize.y; j++) 
+            for (int j = 1; j < gridSize.y; j++) 
             {
+				if (gridObjects[i, j] != null) {
+					GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+					int pieceSize = gpc.size;
+					int moveDown = 0;
+					if (pieceSize == GridpieceController.ONExONE || pieceSize == GridpieceController.ONExTWO) {
+						while (j - 1 - moveDown >= 0 && !gridObjects[i, j - 1 - moveDown])
+							moveDown++;
+						if (moveDown > 0) {
+							if (pieceSize == GridpieceController.ONExONE) {
+								MovePieceToPosition(gridObjects[i, j], i, j - moveDown);
+								movedObjects.Add(gridObjects[i, j - moveDown]);
+							}
+							else {
+								MovePieceToPosition(gridObjects[i, j], i, (j - moveDown) + 1);
+								movedObjects.Add(gridObjects[i, (j - moveDown) + 1]);
+							}
+						}
+					}
+					else {
+					
+					
+					
+					
+					
+					}
+				}
+
+
+
+				/* ---- FOR ANDREW:  I DON'T LIKE HOW THIS WORKS, SO I'M TRYING TO REDO IT
                 // If we come across a gap in the grid that isn't in the top row, bring the objects down
                 for (int k = (int)gridSize.y - 1; k >= j; k--)
                 {
@@ -780,10 +810,12 @@ public class PlaygridController : MonoBehaviour {
                                 MovePieceToPosition(gridObjects[trueX, k], trueX, k - 1);
                             }
                         }
-                        */
+                        *//*
+
                     }
                 }
                 // Otherwise we find the minimum max distance that the two sides can fall then move the block down by that much
+		*/
             }
         }
         movedObjects = movedObjects.Distinct().ToList();
