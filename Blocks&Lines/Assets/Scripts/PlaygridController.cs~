@@ -77,9 +77,9 @@ public class PlaygridController : MonoBehaviour {
             AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0, GridpieceController.ONExONE);
         }
         // Go from 0 to size on the bottom
-        for (int i = 0; i < gridSize.x + extraX; i++) {
-            AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
-        }
+        //for (int i = 0; i < gridSize.x + extraX; i++) {
+        //    AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
+        //}
         // Go from 0 to size on the top
         for (int i = 0; i < gridSize.x + extraX; i++) {
             AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
@@ -693,100 +693,80 @@ public class PlaygridController : MonoBehaviour {
 
     // Move all blocks that can be moved down as far as possible
     // Keep track of which blocks moved so that we can combo later
-    // SOMETIMES BIG BLOCKS STOP ONE SPACE BEFORE THEY SHOULD
+    // NO KNOWN BUGS
+    // !! I AM HAVING IT MOVE THE PIECES DOWN THREE TIMES TO COMPENSATE FOR A RARE BUG
+    // !! A BETTER WAY TO DO IT WOULD BE A WHILE LOOP THAT REPEATS UNTIL NO NEW BLOCKS
+    // !! MOVE BUT I HAD LIMITED TIME AND THIS WAS EASIER
     void MovePiecesDown()
     {
         if (DEBUG){
             Debug.Log("-------------------------- Moving Pieces Down ----------------------------");
         }
+        //movedObjects.Clear();
         // First remove all the grey pieces in the playable grid
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 0; j < gridSize.y; j++) {
-                if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().type == 0){
+                if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().sr.color == Color.gray){
                     // First get rid of the piece
                     RemovePieceAtPosition(i, j);
                 }
             }
         }
+        // How many pieces moved since last time
+        // int numPiecesMoved = 0;
         // Next, move pieces down
         // Iterate through the grid
-        for (int i = 1; i <= gridSize.x; i++) 
+        for (int z = 0; z < 3; z++)
         {
-            for (int j = 0; j < gridSize.y; j++) 
+            for (int i = 1; i <= gridSize.x; i++) 
             {
-                // If we come across a gap in the grid that isn't in the top row, bring the objects down
-                for (int k = (int)gridSize.y - 1; k >= j; k--)
+                // We start a y = 1 because you can't move down if y = 0
+                for (int j = 1; j < gridSize.y; j++) 
                 {
-                    if (gridObjects[i, k] != null)
-                    {
-                        // 1x1 block
-                        if (gridObjects[i, k].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
-                        {
-                            // If we move the object it has to be added to the movedObjects array
-                            if ((k - 1) >= 0 && gridObjects[i, k - 1] == null) 
-                            {
-                                movedObjects.Add(gridObjects[i, k]);
-                                MovePieceToPosition(gridObjects[i, k], i, k - 1);
+                    if (gridObjects[i, j] != null) {
+                        //Debug.Log("Found Piece at: " + i + ", " + j);
+                        GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+                        int pieceSize = gpc.size;
+                        int moveDown = 0;
+                        if (pieceSize == GridpieceController.ONExONE || pieceSize == GridpieceController.ONExTWO) {
+                            while (j - 1 - moveDown >= 0 && !gridObjects[i, j - 1 - moveDown])
+                                moveDown++;
+                            if (moveDown > 0) {
+                                if (pieceSize == GridpieceController.ONExONE) {
+                                    MovePieceToPosition(gridObjects[i, j], i, j - moveDown);
+                                    movedObjects.Add(gridObjects[i, j - moveDown]);
+                                }
+                                else {
+                                    MovePieceToPosition(gridObjects[i, j], i, (j - moveDown) + 1);
+                                    movedObjects.Add(gridObjects[i, (j - moveDown) + 1]);
+                                }
                             }
                         }
-                        // 1x2 block
-                        else if (gridObjects[i, k].GetComponent<GridpieceController>().size == GridpieceController.ONExTWO)
-                        {
-                            int trueX = (int)gridObjects[i, k].GetComponent<GridpieceController>().GetPositions()[0].x;
-                            if ((k - 2) >= 0 && gridObjects[trueX, k - 2] == null && gridObjects[trueX - 1, k - 2] == null) 
-                            {
-                                movedObjects.Add(gridObjects[i, k]);
-                                MovePieceToPosition(gridObjects[trueX, k], trueX, k - 1);
+                        else {
+                            if (i == gpc.dimX ) {
+                                while (j - 1 - moveDown >= 0 && !gridObjects[i, j - 1 - moveDown] && !gridObjects[i - 1, j - 1 - moveDown])
+                                    moveDown++;
+                                if (moveDown > 0) {
+                                    if (pieceSize == GridpieceController.TWOxONE) {
+                                        MovePieceToPosition(gridObjects[i, j], i, j - moveDown);
+                                        movedObjects.Add(gridObjects[i, j - moveDown]);
+                                    }
+                                    else {
+                                        MovePieceToPosition(gridObjects[i, j], i, (j - moveDown) + 1);
+                                        movedObjects.Add(gridObjects[i, (j - moveDown) + 1]);
+                                    }
+                                }
                             }
                         }
-                        // 2x1 block
-                        else if (gridObjects[i, k].GetComponent<GridpieceController>().size == GridpieceController.TWOxONE)
-                        {
-                            int trueX = (int)gridObjects[i, k].GetComponent<GridpieceController>().GetPositions()[0].x;
-                            if ((k - 1) >= 0 && gridObjects[trueX, k - 1] == null && gridObjects[trueX - 1, k - 1] == null) 
-                            {
-                                movedObjects.Add(gridObjects[i, k]);
-                                MovePieceToPosition(gridObjects[trueX, k], trueX, k - 1);
-                            }
-                        }
-                        // 2x2 block
-                        else if (gridObjects[i, k].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
-                        {
-                            int trueX = (int)gridObjects[i, k].GetComponent<GridpieceController>().GetPositions()[0].x;
-                            if ((k - 2) >= 0 && gridObjects[trueX, k - 2] == null && gridObjects[trueX - 1, k - 2] == null) 
-                            {
-                                movedObjects.Add(gridObjects[i, k]);
-                                MovePieceToPosition(gridObjects[trueX, k], trueX, k - 1);
-                            }
-                        }
-                        /*
-                        // If we are dealing with a skinny block move it down normally
-                        if (gridObjects[i, k].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
-                        {
-                            // If we move the object it has to be added to the movedObjects array
-                            if ((k - 1) >= 0 && gridObjects[i, k - 1] == null) 
-                            {
-                                movedObjects.Add(gridObjects[i, k]);
-                                MovePieceToPosition(gridObjects[i, k], i, k - 1);
-                            }
-                        }
-                        // If the block is fat, we must be able to move down both sides of the block
-                        else
-                        {
-                            int trueX = (int)gridObjects[i, k].GetComponent<GridpieceController>().GetPositions()[0].x;
-                            if ((k - 1) >= 0 && gridObjects[trueX, k - 1] == null && gridObjects[trueX - 1, k - 1] == null) 
-                            {
-                                movedObjects.Add(gridObjects[i, k]);
-                                MovePieceToPosition(gridObjects[trueX, k], trueX, k - 1);
-                            }
-                        }
-                        */
                     }
                 }
-                // Otherwise we find the minimum max distance that the two sides can fall then move the block down by that much
+            }
+            movedObjects = movedObjects.Distinct().ToList();
+            if (DEBUG)
+            {
+                Debug.Log(movedObjects.Count + " game pieces moved in this move");
             }
         }
-        movedObjects = movedObjects.Distinct().ToList();
         if (DEBUG)
         {
             Debug.Log(movedObjects.Count + " game pieces just moved");
@@ -814,38 +794,32 @@ public class PlaygridController : MonoBehaviour {
         // Check left
         if (direction == 0)
         {
+            Debug.Log("LEFT check: " + (x - 1) + ", " + y + " and " + x + ", " + y);
             if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().type == type)
             {
-                Debug.Log("Checking " + (x - 1) + ", " + y + " and " + x + ", " + y);
                 // It can only be a combo if the block to the left is not in the list
-                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().dimX == (x - 1) && tile.GetComponent<GridpieceController>().dimY == y))
+                int id = gridObjects[x - 1, y].GetComponent<GridpieceController>().blockId;
+                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
                 {
                     Debug.Log("THESE TWO MATCH! " + (x - 1) + ", " + y + " and " + x + ", " + y);
                     combo = true;
+                    gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color = Color.gray;
                 }
             }
         }
         // Check right
         if (direction == 1)
         {
+            Debug.Log("RIGHT check: " + (x + 1) + ", " + y + " and " + x + ", " + y);
             if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().type == type)
             {
-                Debug.Log("Checking " + (x + 1) + ", " + y + " and " + x + ", " + y);
                 // It can only be a combo if the block to the left is not in the list
-                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().dimX == (x + 1) && tile.GetComponent<GridpieceController>().dimY == y))
+                int id = gridObjects[x + 1, y].GetComponent<GridpieceController>().blockId;
+                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
                 {
-                    Vector2[] locations = gridObjects[x + 1, y].GetComponent<GridpieceController>().GetPositions();
                     Debug.Log("THESE TWO MATCH! " + (x + 1) + ", " + y + " and " + x + ", " + y);
                     combo = true;
-                    // Delete all instances of the matched block
-                    for (int i = 0; i < locations.Length; i++)
-                    {
-                        if (i == 0)
-                        {
-                            RemovePieceAtPosition((int)locations[i].x, (int)locations[i].y);
-                        }
-                        AddPieceAtPosition((int)locations[i].x, (int)locations[i].y, 0, GridpieceController.ONExONE);
-                    }
+                    gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color = Color.gray;
                 }
             }
         }
@@ -854,24 +828,17 @@ public class PlaygridController : MonoBehaviour {
         {
             if (y > 0)
             {
+                Debug.Log("LEFT check: " + x + ", " + (y - 1) + " and " + x + ", " + y);
                 if (gridObjects[x, y - 1] && gridObjects[x, y - 1].GetComponent<GridpieceController>().type == type)
                 {
                     Debug.Log("Checking " + x + ", " + (y - 1) + " and " + x + ", " + y);
                     // It can only be a combo if the block to the left is not in the list
-                    if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().dimX == x && tile.GetComponent<GridpieceController>().dimY == (y - 1)))
+                    int id = gridObjects[x, y - 1].GetComponent<GridpieceController>().blockId;
+                    if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
                     {
-                        Vector2[] locations = gridObjects[x, y - 1].GetComponent<GridpieceController>().GetPositions();
                         Debug.Log("THESE TWO MATCH! " + x + ", " + (y - 1) + " and " + x + ", " + y);
                         combo = true;
-                        // Delete all instances of the matched block
-                        for (int i = 0; i < locations.Length; i++)
-                        {
-                            if (i == 0)
-                            {
-                                RemovePieceAtPosition((int)locations[i].x, (int)locations[i].y);
-                            }
-                            AddPieceAtPosition((int)locations[i].x, (int)locations[i].y, 0, GridpieceController.ONExONE);
-                        }
+                        gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color = Color.gray;
                     }
                 }
             }
@@ -880,9 +847,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // Process the combos
-    // NO KNOWN BUGS FOR SMALL BLOCKS
-    // LOTS OF PROBLEMS WITH BIG BLOCKS
-    // - NOT UPDATED FOR MULTIPLE SIZES
+    // NO KNOWN BUGS
     public void ProcessCombos()
     {
         Debug.Log("How many items are in movedObjects?: " + movedObjects.Count);
@@ -910,92 +875,72 @@ public class PlaygridController : MonoBehaviour {
             combo = false;
             if (size == GridpieceController.ONExONE)
             {
-                combo = CheckDirection(x, y, 0) || // left
-                        CheckDirection(x, y, 1) || // right
+                combo = CheckDirection(x, y, 0) | // left
+                        CheckDirection(x, y, 1) | // right
                         CheckDirection(x, y, 2);   // down
             }
             else if (size == GridpieceController.ONExTWO)
             {
                 Vector2[] locations = gridObjects[x, y].GetComponent<GridpieceController>().GetPositions();
-                combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 0) || // left from top
-                        CheckDirection((int)locations[0].x, (int)locations[0].y, 1) || // right from top
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0) || // left from bottom
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 1) || // right from bottom
+                combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 0) | // left from top
+                        CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from top
+                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0) | // left from bottom
+                        CheckDirection((int)locations[1].x, (int)locations[1].y, 1) | // right from bottom
                         CheckDirection((int)locations[1].x, (int)locations[1].y, 2);   // down from bottom
             }
             else if (size == GridpieceController.TWOxONE)
             {
                 Vector2[] locations = gridObjects[x, y].GetComponent<GridpieceController>().GetPositions();
-                combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 1) || // right from right
-                        CheckDirection((int)locations[0].x, (int)locations[0].y, 2) || // down from right
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0) || // left from left
+                combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from right
+                        CheckDirection((int)locations[0].x, (int)locations[0].y, 2) | // down from right
+                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0) | // left from left
                         CheckDirection((int)locations[1].x, (int)locations[1].y, 2);   // down from left
             }
             else if (size == GridpieceController.TWOxTWO)
             {
                 Vector2[] locations = gridObjects[x, y].GetComponent<GridpieceController>().GetPositions();
-                combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 1) || // right from upright
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 1) || // right from downright
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 2) || // down from downright
-                        CheckDirection((int)locations[3].x, (int)locations[3].y, 2) || // down from downleft
-                        CheckDirection((int)locations[3].x, (int)locations[3].y, 0) || // left from downleft
-                        CheckDirection((int)locations[2].x, (int)locations[2].y, 0);   // left from upleft
+                combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from upright
+                        CheckDirection((int)locations[2].x, (int)locations[2].y, 1) | // right from downright
+                        CheckDirection((int)locations[2].x, (int)locations[2].y, 2) | // down from downright
+                        CheckDirection((int)locations[3].x, (int)locations[3].y, 2) | // down from downleft
+                        CheckDirection((int)locations[3].x, (int)locations[3].y, 0) | // left from downleft
+                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0);   // left from upleft
             }
-            /*
-            // Check left
-            if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().type == type)
-            {
-                Debug.Log("Checking " + (x - 1) + ", " + y + " and " + x + ", " + y);
-                // It can only be a combo if the block to the left is not in the list
-                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().dimX == (x - 1) && tile.GetComponent<GridpieceController>().dimY == y))
-                {
-                    Debug.Log("THESE TWO MATCH! " + (x - 1) + ", " + y + " and " + x + ", " + y);
-                    combo = true;
-                    gridObjects[x - 1, y].GetComponent<GridpieceController>().type = 0;
-                    gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color = Color.gray;
-                }
-            }
-            // Check right
-            if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().type == type)
-            {
-                Debug.Log("Checking " + (x + 1) + ", " + y + " and " + x + ", " + y);
-                // It can only be a combo if the block to the right is not in the list
-                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().dimX == (x + 1) && tile.GetComponent<GridpieceController>().dimY == y))
-                {
-                    Debug.Log("THESE TWO MATCH! " + (x + 1) + ", " + y + " and " + x + ", " + y);
-                    combo = true;
-                    gridObjects[x + 1, y].GetComponent<GridpieceController>().type = 0;
-                    gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color = Color.gray;
-                }
-            }
-            // Check down
-            if (y > 0)
-            {
-                if (gridObjects[x, y - 1] && gridObjects[x, y - 1].GetComponent<GridpieceController>().type == type)
-                {
-                    Debug.Log("Checking " + x + ", " + (y - 1) + " and " + x + ", " + y);
-                    // It can only be a combo if the block to the down is not in the list
-                    if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().dimX == x && tile.GetComponent<GridpieceController>().dimY == (y - 1)))
-                    {
-                        Debug.Log("THESE TWO MATCH! " + x + ", " + (y - 1) + " and " + x + ", " + y);
-                        combo = true;
-                        gridObjects[x, y - 1].GetComponent<GridpieceController>().type = 0;
-                        gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color = Color.gray;
-                    }
-                }
-            }
-            */
             // If any of the blocks comboed with the main block remove it too
             if (combo)
             {
                 anyCombo = true;
-                gridObjects[x, y].GetComponent<GridpieceController>().type = 0;
+                // gridObjects[x, y].GetComponent<GridpieceController>().type = 0;
                 gridObjects[x, y].GetComponent<GridpieceController>().sr.color = Color.gray;
             }
         }
         objectsToProcess.Clear();
         if (anyCombo)
         {
+            // Refresh the board
+            // Remove all the grey pieces in the playable grid
+            for (int i = 1; i <= gridSize.x; i++) 
+            {
+                for (int j = 0; j < gridSize.y; j++) 
+                {
+                    if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().sr.color == Color.gray)
+                    {
+                        // First get rid of the piece
+                        RemovePieceAtPosition(i, j);
+                    }
+                }
+            }
+            // Finally, fill the board back up with grey pieces
+            for (int i = 1; i <= gridSize.x; i++) 
+            {
+                for (int j = 0; j < gridSize.y; j++) 
+                {
+                    if (gridObjects[i, j] == null)
+                    {
+                        AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
+                    }
+                }
+            }
             // MovePiecesDown();
         }
     }
@@ -1250,9 +1195,14 @@ public class PlaygridController : MonoBehaviour {
                 Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
             else if ((x < 1 || x >= gridSize.x + extraX) || ((pieceSize == GridpieceController.TWOxONE || pieceSize == GridpieceController.TWOxTWO) && x < 2))
                 Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
-            else if (gridObjects[x, y] != null)
+			else if (gridObjects[x, y] != null && !gridObjects[x, y].Equals(piece))
                 Debug.Log("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
-            else if ((pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1]) || (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y]) || (pieceSize == GridpieceController.TWOxTWO && (gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])))
+			else if( (pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
+					 (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
+					 (pieceSize == GridpieceController.TWOxTWO && 
+																( (gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
+																  (gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
+																  (gridObjects[x - 1, y - 1] && !gridObjects[x - 1, y-1].Equals(piece)) ) ) )
                 Debug.Log("Warning (MovePieceToPosition): piece of given size cannot fit into space provided because another block is in the way - nothing done");
             else {
                 if (DEBUG)

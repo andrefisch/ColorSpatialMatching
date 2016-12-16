@@ -3,6 +3,9 @@ using System.Collections;
 
 public class GridpieceController : MonoBehaviour {
 
+    public static int blockCount;
+    public int blockId;
+
 	public const int EDGE = 0;
 	public const int RED = 1;
 	public const int BLUE = 2;
@@ -31,9 +34,9 @@ public class GridpieceController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+        blockCount++;
+        blockId = blockCount;
 		sr = GetComponent<SpriteRenderer>();
-
 	}
 	
 	// Update is called once per frame
