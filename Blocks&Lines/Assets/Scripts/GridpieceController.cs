@@ -106,4 +106,10 @@ public class GridpieceController : MonoBehaviour {
 		}
 		return returner;
 	}
+
+
+	// Returns true if block is tall and partially on the grid, false if otherwise
+	public bool IsPartiallyOn() {
+		return (size == ONExTWO || size == TWOxTWO) && dimY == 1;
+	}
 }

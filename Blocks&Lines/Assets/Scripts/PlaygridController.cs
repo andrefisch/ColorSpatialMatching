@@ -13,7 +13,7 @@ public class PlaygridController : MonoBehaviour {
 
     // HOW MANY EXTRA ROWS AND COLUMNS THERE ARE
     public const int extraX = 2;
-    public const int extraY = 1;
+    public const int extraY = 2;
 
     public Vector2 gridSize;
     public Vector2 gridSpacing;
@@ -26,11 +26,12 @@ public class PlaygridController : MonoBehaviour {
 
     // This is how you do a 2D array in C# ---  int[][] is an array of arrays
     public GameObject[,] gridObjects;
+
     // Keep track of which objects fell down for combo checking
     public List<GameObject> movedObjects;
     public List<GameObject> objectsToProcess;
 
-    //private GridpieceController[,] objectControllers;
+
     private Vector3[,] gridPositions;
 
     private bool removePiece;
@@ -56,9 +57,22 @@ public class PlaygridController : MonoBehaviour {
                 gridPositions[i, j] = new Vector3( i * gridSpacing.x, j * gridSpacing.y, 0);
             }
         } 
+
+		// Set up the edge pieces
+		// Go from 0 to size on the left and right edges
+		for (int i = 1; i < gridSize.y+1; i++) {
+			AddPieceAtPosition(0, i, 0, GridpieceController.ONExONE);
+			AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0, GridpieceController.ONExONE);
+		}
+		// Go from 0 to size on the top and bottom
+		for (int i = 0; i < gridSize.x + extraX; i++) {
+			AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
+			AddPieceAtPosition(i, 0, 0, GridpieceController.ONExONE);
+		}
+
         // Set up the actual pieces
         for (int i = (int)gridSize.x; i >= 1; i--) {
-            for (int j = (int)gridSize.y - 1; j >= 0; j--) {
+            for (int j = (int)gridSize.y; j >= 1; j--) {
                 if (!gridObjects[i, j]) {
                     if (i >= 1 && j > 0 && includeBigPieces)
                         AddPieceAtPosition(i, j, -1, -1);
@@ -66,23 +80,6 @@ public class PlaygridController : MonoBehaviour {
                         AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
                 }
             }
-        }
-        // Set up the edge pieces
-        // Go from 0 to size on the left edge
-        for (int i = 0; i < gridSize.y; i++) {
-            AddPieceAtPosition(0, i, 0, GridpieceController.ONExONE);
-        }
-        // Go from 0 to size on the right edge
-        for (int i = 0; i < gridSize.y; i++) {
-            AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0, GridpieceController.ONExONE);
-        }
-        // Go from 0 to size on the bottom
-        //for (int i = 0; i < gridSize.x + extraX; i++) {
-        //    AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
-        //}
-        // Go from 0 to size on the top
-        for (int i = 0; i < gridSize.x + extraX; i++) {
-            AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
         }
     }
 
@@ -706,7 +703,7 @@ public class PlaygridController : MonoBehaviour {
         //movedObjects.Clear();
         // First remove all the grey pieces in the playable grid
         for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 0; j < gridSize.y; j++) {
+            for (int j = 1; j <= gridSize.y; j++) {
                 if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().sr.color == Color.gray){
                     // First get rid of the piece
                     RemovePieceAtPosition(i, j);
@@ -722,7 +719,7 @@ public class PlaygridController : MonoBehaviour {
             for (int i = 1; i <= gridSize.x; i++) 
             {
                 // We start a y = 1 because you can't move down if y = 0
-                for (int j = 1; j < gridSize.y; j++) 
+                for (int j = 1; j <= gridSize.y; j++) 
                 {
                     if (gridObjects[i, j] != null) {
                         //Debug.Log("Found Piece at: " + i + ", " + j);
@@ -730,7 +727,7 @@ public class PlaygridController : MonoBehaviour {
                         int pieceSize = gpc.size;
                         int moveDown = 0;
                         if (pieceSize == GridpieceController.ONExONE || pieceSize == GridpieceController.ONExTWO) {
-                            while (j - 1 - moveDown >= 0 && !gridObjects[i, j - 1 - moveDown])
+                            while (j - 1 - moveDown >= 1 && !gridObjects[i, j - 1 - moveDown])
                                 moveDown++;
                             if (moveDown > 0) {
                                 if (pieceSize == GridpieceController.ONExONE) {
@@ -745,7 +742,7 @@ public class PlaygridController : MonoBehaviour {
                         }
                         else {
                             if (i == gpc.dimX ) {
-                                while (j - 1 - moveDown >= 0 && !gridObjects[i, j - 1 - moveDown] && !gridObjects[i - 1, j - 1 - moveDown])
+                                while (j - 1 - moveDown >= 1 && !gridObjects[i, j - 1 - moveDown] && !gridObjects[i - 1, j - 1 - moveDown])
                                     moveDown++;
                                 if (moveDown > 0) {
                                     if (pieceSize == GridpieceController.TWOxONE) {
@@ -774,7 +771,7 @@ public class PlaygridController : MonoBehaviour {
         }
         // Finally, fill the board back up with grey pieces
         for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 0; j < gridSize.y; j++) {
+            for (int j = 0; j <= gridSize.y; j++) {
                 if (gridObjects[i, j] == null)
                     AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
             }
@@ -1066,7 +1063,9 @@ public class PlaygridController : MonoBehaviour {
     public void RemovePieceAtPosition(int x, int y) {
         //if (DEBUG)
         // Debug.Log("Removing block at space " + x + ", " + y);
-        if (gridObjects[x, y]) {
+		if (x < 0 || y < 0)
+			Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block outside the playgrid - nothing done");
+        else if (gridObjects[x, y]) {
             GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
             int xPos = gpc.dimX;
             int yPos = gpc.dimY;
@@ -1075,9 +1074,9 @@ public class PlaygridController : MonoBehaviour {
                 gridObjects[xPos, yPos] = null;
             }
             else if (gpc.size == GridpieceController.ONExTWO) {
-                GameObject.Destroy(gridObjects[xPos, yPos]);
-                gridObjects[xPos, yPos] = null;
-                gridObjects[xPos, yPos - 1] = null;
+				GameObject.Destroy(gridObjects[xPos, yPos]);
+				gridObjects[xPos, yPos] = null;
+				gridObjects[xPos, yPos - 1] = null;
             }
             else if (gpc.size == GridpieceController.TWOxONE) {
                 GameObject.Destroy(gridObjects[xPos, yPos]);
@@ -1087,13 +1086,14 @@ public class PlaygridController : MonoBehaviour {
             else if (gpc.size == GridpieceController.TWOxTWO) {
                 GameObject.Destroy(gridObjects[x, y]);
                 gridObjects[xPos, yPos] = null;
-                gridObjects[xPos, yPos - 1] = null;
-                gridObjects[xPos - 1, yPos] = null;
-                gridObjects[xPos - 1, yPos - 1] = null;
+				gridObjects[xPos - 1, yPos] = null;
+				gridObjects[xPos, yPos - 1] = null;
+				gridObjects[xPos - 1, yPos - 1] = null;
+				
             }
         }
         else if (DEBUG)
-            Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block that isn't there");
+			Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block that isn't there");
     }
 
     // Add a piece - UPDATED FOR MULTIPLE SIZES
