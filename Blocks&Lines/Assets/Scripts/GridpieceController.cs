@@ -10,7 +10,12 @@ public class GridpieceController : MonoBehaviour {
 	public const int RED = 1;
 	public const int BLUE = 2;
 	public const int GREEN = 3;
-	public const int YELLOW = 4;
+    public const int YELLOW = 4;
+    public const int ORANGE = 5;
+    public const int PURPLE = 6;
+    public const int MAGENTA = 7;
+    public const int CYAN = 8;
+    public const int WHITE = 9;
 
 	public int type;
 
@@ -74,8 +79,21 @@ public class GridpieceController : MonoBehaviour {
 			sr.color = Color.blue;
 		else if (type == GREEN)
 			sr.color = Color.green;
-		else if (type == YELLOW)
-			sr.color = Color.yellow;
+		else if (type == YELLOW){
+            sr.color = new Color(1.0f, 1.0f, 0f);
+        }
+        else if (type == ORANGE){
+            sr.color = new Color(1.0f, 140.0f / 255.0f, 0f);
+        }
+        else if (type == PURPLE){
+            sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
+        }
+        else if (type == MAGENTA)
+            sr.color = Color.magenta;
+        else if (type == CYAN)
+            sr.color = Color.cyan;
+        else if (type == WHITE)
+            sr.color = Color.white;
 
 		setColor = true;
 	}
