@@ -29,6 +29,11 @@ public class PlaygridController : MonoBehaviour {
 
     public bool includeBigPieces;
 
+    // COUNTER TO KEEP TRACK OF WHEN THE BLOCKS FALL
+    private bool startCounting;
+    private int counter;
+    private int timingInterval;
+
     //public GridpieceController gpc;
     private Vector2 currentPiece;
     private Vector2 lastPiece;
@@ -60,6 +65,10 @@ public class PlaygridController : MonoBehaviour {
         comboScore = 0;
         matchesMade = 0;
         blocksDestroyed = 0;
+
+        startCounting = false;
+        counter = 0;
+        timingInterval = 20;
 
         currentPiece = new Vector2(-1, -1);
         lastPiece = new Vector2(-1, -1);
@@ -102,6 +111,26 @@ public class PlaygridController : MonoBehaviour {
         }
     }
 
+    // Update at a fixed interval so we can count accurately
+    // NO KNOWN BUGS
+    void FixedUpdate()
+    {
+        if (startCounting)
+        {
+            counter++;
+        }
+        if (movedObjects.Count == 0 && counter >= timingInterval)
+        {
+            Debug.Log("Count at time of piece moving is: " + counter);
+            MovePiecesDown();
+        }
+        else if (movedObjects.Count > 0 && counter >= timingInterval)
+        {
+            Debug.Log("Count at time of combo processing is: " + counter);
+            ProcessCombos();
+        }
+    }   
+
     // Update is called once per frame
     // NO KNOWN BUGS
     void Update () {
@@ -134,6 +163,10 @@ public class PlaygridController : MonoBehaviour {
         // process combos
         if (Input.GetKeyDown("p")) {
             ProcessCombos();
+        }
+        // start the counting clock
+        if (Input.GetKeyDown("s")) {
+            startCounting = true;
         }
         // remove row of selected piece
         if (Input.GetKeyDown("q")) {
@@ -312,6 +345,7 @@ public class PlaygridController : MonoBehaviour {
             if (Match((int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
                 // Debug.Log("THEY MATCH!");
                 // CHANGED FOR TESTING
+                // startCounting = true;
                 // MovePiecesDown();
             }
             else {
@@ -474,6 +508,8 @@ public class PlaygridController : MonoBehaviour {
                     // Make sure we reset current piece
                     currentPiece.x = -1;
                     currentPiece.y = -1;
+                    // Start the clock
+                    startCounting = true;
                 }
             }
         }
@@ -830,6 +866,11 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        counter = 0;
+        if (movedObjects.Count == 0)
+        {
+            startCounting = false;
+        }
         // ProcessCombos();
     }
 
@@ -1005,6 +1046,7 @@ public class PlaygridController : MonoBehaviour {
             }
             // Increment combos and move pieces down
             combos++;
+            counter = 0;
             // MovePiecesDown();
         }
     }
@@ -1042,9 +1084,9 @@ public class PlaygridController : MonoBehaviour {
             RemovePieceAtPosition(i, (int)gridSize.y);
         }
         // MOVE ALL PIECES UP
-        for (int i = 1; i <= gridSize.x; i++) 
+        for (int i = (int)(gridSize.x); i >= 1; i--) 
         {
-            for (int j = (int)(gridSize.y) - 1; j >= 1; j--) 
+            for (int j = (int)(gridSize.y); j >= 1; j--) 
             {
                 MovePieceToPosition(gridObjects[i, j], i, j + 1);
             }
@@ -1228,7 +1270,6 @@ public class PlaygridController : MonoBehaviour {
                         gpc.size = GridpieceController.ONExONE;
                     }
                 }
-                /*
                 else if (x == 1) 
                 {
                     if (!gridObjects[x, y - 1]) 
@@ -1248,7 +1289,6 @@ public class PlaygridController : MonoBehaviour {
                     else
                         gpc.size = GridpieceController.ONExONE;
                 }
-                */
                 else
                     gpc.size = GridpieceController.ONExONE;
             }
@@ -1313,9 +1353,9 @@ public class PlaygridController : MonoBehaviour {
                 for (int i = 0; i < newPositions.Length; i++)
                     gridObjects[(int)newPositions[i].x, (int)newPositions[i].y] = piece;
 
-                //StartCoroutine(MovePiece(piece, pieceSize, x, y, true));
+                StartCoroutine(MovePiece(piece, pieceSize, x, y, true));
                 // Can swap the line above for the line below in order to create a moving piece
-                StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
+                // StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
 
                 /*
                    if (pieceSize == GridpieceController.ONExONE) {
