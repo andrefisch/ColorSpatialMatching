@@ -156,6 +156,11 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("c")) {
             CheckPieces();
         }
+		// for debugging, check a certain method or line specifically
+		if (Input.GetKeyDown("x")) {
+			//RemovePieceAtPosition(0, (int)gridSize.y);
+		}
+
         // move down pieces
         if (Input.GetKeyDown("m")) {
             MovePiecesDown();
@@ -1075,28 +1080,58 @@ public class PlaygridController : MonoBehaviour {
 
     // Adds a new row to bottom
     // NO KNOWN BUGS
-    // - NOT UPDATED FOR MULTIPLE SIZES
+	// UPDATED FOR MULTIPLE SIZES
     void AddRow()
     {
         // DELETE TOP ROW
-        for (int i = 1; i <= gridSize.x; i++)
+        /*
+		for (int i = 1; i <= gridSize.x; i++)
         {
             RemovePieceAtPosition(i, (int)gridSize.y);
         }
+        */
+		// REMOVE ALL PLACEHOLDER PIECES FIRST
+		for (int i = 1; i <= gridSize.x; i++) {
+			// START ON j=0 BECAUSE WE WANT TO REMOVE THE BOTTOM ROW IN ORDER TO CREATE BIGGER PIECES
+			// USED THE TERNARY OPERATOR TO DECIDE WHETHER TO USE BIG PIECES IN THE ROW METHOD
+			for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) {
+				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+				if (gpc.type == 0)
+					RemovePieceAtPosition(i, j);
+			}
+		}
         // MOVE ALL PIECES UP
-        for (int i = (int)(gridSize.x); i >= 1; i--) 
-        {
-            for (int j = (int)(gridSize.y); j >= 1; j--) 
-            {
-                MovePieceToPosition(gridObjects[i, j], i, j + 1);
-            }
-        }
+		// We iterate through the grid horizontally instead of vertically for this one.
+		for (int i = (int)(gridSize.y)-1; i >= 1; i--) 
+		{
+			for (int j = (int)(gridSize.x); j >= 1; j--) 
+			{
+				if (gridObjects[j, i]) {
+					GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
+					MovePieceToPosition(gridObjects[j, i], j, i + 1);
+					// If the piece was a big piece, we skip it next time by moving the i counter over once more so it doesn't move it up twice
+					if (gpc.size == GridpieceController.TWOxTWO)
+						j--;
+				}
+			}
+		}
+
         // ADD BOTTOM ROW
-        for (int i = 1; i <= gridSize.x; i++)
+		for (int i = (int)gridSize.x; i > 0; i--)
         {
             AddPieceAtPosition(i, 1, -1, -1);
         }
+
+		// ADD IN ALL PLACEHOLDER PIECES AGAIN
+		for (int i = 1; i <= gridSize.x; i++) {
+			for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) {
+				if (!gridObjects[i, j])
+					AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
+			}
+		}
+
         // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
+		// NOTE-FOR ANDREW- MY MOVEPIECE METHOD DOESN'T ALLOW YOU TO MOVE ABOVE THE TOP ROW.  
         for (int i = 1; i <= gridSize.x; i++)
         {
             if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().type != 0)
