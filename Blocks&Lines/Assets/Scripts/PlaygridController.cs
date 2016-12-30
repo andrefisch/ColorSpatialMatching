@@ -1246,7 +1246,7 @@ public class PlaygridController : MonoBehaviour {
     // - otherwise the size is the size we supplied
     // - Gives warning and does nothing if the block specified can't fit in the space provided
     public GameObject AddPieceAtPosition(int x, int y, int num, int size) {
-        if (size == GridpieceController.TWOxTWO && (gridObjects[x, y] || gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])) {
+		if (size == GridpieceController.TWOxTWO && (gridObjects[x, y] || gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])) {
             if (DEBUG)
                 Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x2 block in a place where it won't fit - nothing done");
             return null;
@@ -1277,12 +1277,13 @@ public class PlaygridController : MonoBehaviour {
             }
             gpc.SetColor();
             if (size < 0) {
+				/*
                 if (x > 1 && y > 1) {
                     if (!gridObjects[x, y - 1])
                     {
                         if (Random.Range(0, 7.999999999f) > 7)
                         {
-                            gpc.size = (int)Mathf.Floor(Random.Range(0, (shapeLevel - 0.00000001f)));
+                            
                         }
                         else
                         {
@@ -1326,6 +1327,41 @@ public class PlaygridController : MonoBehaviour {
                 }
                 else
                     gpc.size = GridpieceController.ONExONE;
+                    */
+				if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1] && !gridObjects[x - 1, y - 1]) {
+					float val = Random.value;
+					if (val < 0.25f)
+						gpc.size = GridpieceController.ONExONE;
+					else if (val < .5f)
+						gpc.size = GridpieceController.ONExTWO;
+					else if (val < 0.75)
+						gpc.size = GridpieceController.TWOxONE;
+					else
+						gpc.size = GridpieceController.TWOxTWO;
+				}
+				else if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1]) {
+					float val = Random.value;
+					if (val < 0.3333f)
+						gpc.size = GridpieceController.ONExONE;
+					else if (val < .66666f)
+						gpc.size = GridpieceController.ONExTWO;
+					else
+						gpc.size = GridpieceController.TWOxONE;
+				}
+				else if (!gridObjects[x, y - 1]) {
+					if (Random.value < 0.5f)
+						gpc.size = GridpieceController.ONExONE;
+					else
+						gpc.size = GridpieceController.ONExTWO;
+				}
+				else if (!gridObjects[x - 1, y]) {
+					if (Random.value < 0.5f)
+						gpc.size = GridpieceController.ONExONE;
+					else
+						gpc.size = GridpieceController.TWOxONE;
+				}
+				else
+					gpc.size = GridpieceController.ONExONE;
             }
             else
                 gpc.size = size;
