@@ -15,7 +15,7 @@ public class GridpieceController : MonoBehaviour {
     public const int PURPLE = 6;
     public const int MAGENTA = 7;
     public const int CYAN = 8;
-    public const int WHITE = 9;
+    public const int AQUA = 9;
 
 	public int type;
 
@@ -92,8 +92,8 @@ public class GridpieceController : MonoBehaviour {
             sr.color = Color.magenta;
         else if (type == CYAN)
             sr.color = Color.cyan;
-        else if (type == WHITE)
-            sr.color = Color.white;
+        else if (type == AQUA)
+            sr.color = new Color(0f, 1f, 1f);
 
 		setColor = true;
 	}

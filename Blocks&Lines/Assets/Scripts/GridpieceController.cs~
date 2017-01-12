@@ -15,14 +15,14 @@ public class GridpieceController : MonoBehaviour {
     public const int PURPLE = 6;
     public const int MAGENTA = 7;
     public const int CYAN = 8;
-    public const int WHITE = 9;
+    public const int AQUA = 9;
 
 	public int type;
 
-	public const int ONExONE = 1;
-	public const int ONExTWO = 2;
-	public const int TWOxONE = 3;
-	public const int TWOxTWO = 4;
+	public const int ONExONE = 0;
+	public const int ONExTWO = 1;
+	public const int TWOxONE = 2;
+	public const int TWOxTWO = 3;
 
 	public int size;
 
@@ -92,8 +92,8 @@ public class GridpieceController : MonoBehaviour {
             sr.color = Color.magenta;
         else if (type == CYAN)
             sr.color = Color.cyan;
-        else if (type == WHITE)
-            sr.color = Color.white;
+        else if (type == AQUA)
+            sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
 
 		setColor = true;
 	}

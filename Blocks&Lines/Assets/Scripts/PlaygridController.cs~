@@ -1,19 +1,21 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 public class PlaygridController : MonoBehaviour {
 
-    private bool DEBUG = true;
     public GameObject gridPiece;
     // 1x1 is 0, 1x2 is 1, 2x1 is 2, 2x2 is 3
     public GameObject[] highlighters;
     public GameObject[] selectors;
 
     // SCORE STUFF
+    public Text scoreText;
     public int colorLevel;
     public int shapeLevel;
+    public int[] colorThresholds;
     public int score;
     public int combos;
     public int comboScore;
@@ -55,16 +57,25 @@ public class PlaygridController : MonoBehaviour {
     private Vector2 highlightedPiece;
 
     // Use this for initialization
-    void Start (){
-        // includeBigPieces = false;
+    void Start(){
+        includeBigPieces = false;
         // SCORE STUFF
         colorLevel = 4;
-        shapeLevel = 4;
+        shapeLevel = 1;
         score = 0;
         combos = 1;
         comboScore = 0;
         matchesMade = 0;
         blocksDestroyed = 0;
+        UpdateScore();
+
+        colorThresholds = new int[6];
+        colorThresholds[0] = 0;
+        colorThresholds[1] = 50;
+        colorThresholds[2] = 100;
+        colorThresholds[3] = 150;
+        colorThresholds[4] = 200;
+        colorThresholds[5] = 250;
 
         startCounting = false;
         counter = 0;
@@ -115,18 +126,26 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void FixedUpdate()
     {
+        bool DEFIXEDUPDATE = false;
         if (startCounting)
         {
             counter++;
         }
         if (movedObjects.Count == 0 && counter >= timingInterval)
         {
-            Debug.Log("Count at time of piece moving is: " + counter);
+            if (DEFIXEDUPDATE)
+            {
+                // Debug.Log("Count at time of piece moving is: " + counter);
+            }
             MovePiecesDown();
         }
         else if (movedObjects.Count > 0 && counter >= timingInterval)
         {
-            Debug.Log("Count at time of combo processing is: " + counter);
+            if (DEFIXEDUPDATE)
+            {
+                // Debug.Log("Count at time of combo processing is: " + counter);
+                Debug.Log("Combos at time of combo processing is: " + combos);
+            }
             ProcessCombos();
         }
     }   
@@ -134,6 +153,7 @@ public class PlaygridController : MonoBehaviour {
     // Update is called once per frame
     // NO KNOWN BUGS
     void Update () {
+        bool DEUPDATE = false;
         /*
         // FOR TESTING ADDING AND REMOVAL OF PIECES
         if (Input.GetKeyDown("p")) {
@@ -156,6 +176,11 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("c")) {
             CheckPieces();
         }
+		// for debugging, check a certain method or line specifically
+		if (Input.GetKeyDown("x")) {
+			//RemovePieceAtPosition(0, (int)gridSize.y);
+		}
+
         // move down pieces
         if (Input.GetKeyDown("m")) {
             MovePiecesDown();
@@ -181,8 +206,36 @@ public class PlaygridController : MonoBehaviour {
             RemoveRowAndColumn();
         }
         // remove blocks same color as selected piece
-        if (Input.GetKeyDown("r")) {
+        if (Input.GetKeyDown("r")) 
+        {
             RemoveOneColor();
+        }
+        if (score > colorThresholds[0])
+        {
+            colorLevel = 5;
+            shapeLevel = 2;
+        }
+        if (score > colorThresholds[1])
+        {
+            colorLevel = 6;
+            shapeLevel = 3;
+        }
+        if (score > colorThresholds[2])
+        {
+            colorLevel = 6;
+            shapeLevel = 4;
+        }
+        if (score > colorThresholds[3])
+        {
+            colorLevel = 7;
+        }
+        if (score > colorThresholds[4])
+        {
+            colorLevel = 8;
+        }
+        if (score > colorThresholds[5])
+        {
+            colorLevel = 9;
         }
 
         // This part deals with the highlighting and selecting of objects
@@ -220,7 +273,7 @@ public class PlaygridController : MonoBehaviour {
                     else {
                         gpcSelectSize = gpc.size;
                         gpc.selected = true;
-                        if (DEBUG)
+                        if (DEUPDATE)
                         {
                             Debug.Log("Grid spaces of this block are:");
                             Vector2[] gridSpaces = gpc.GetComponent<GridpieceController>().GetPositions();
@@ -238,7 +291,7 @@ public class PlaygridController : MonoBehaviour {
                         currentPiece.y = gpc.dimY;
                     }
 
-                    if (DEBUG) {
+                    if (DEUPDATE) {
                         // Debug.Log("----------------------Clicked Playgrid Piece----------------------------");
                         // Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
                         // Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
@@ -360,18 +413,29 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     int ScoreBlock(int x, int y)
     {
+        bool DESCOREBLOCK = true;
         GridpieceController piece = gridObjects[x, y].GetComponent<GridpieceController>();
         int toAdd = 0;
         // Pieces are worth exactly how many gridspaces they take up
-        // So small and big pieces are worth 1 and 4 respectively
-        if (piece.size == 0 || piece.size == 3)
+        // Small pieces are worth a point each
+        if (piece.size == 0)
         {
-            toAdd = piece.size + 1;
+            toAdd = 1;
+        }
+        // Large pieces are worth 4 each
+        else if (piece.size == 3)
+        {
+            toAdd = 4;
         }
         // Long pieces are always worth 2
         else
         {
             toAdd = 2;
+        }
+        if (DESCOREBLOCK)
+        {
+            Debug.Log("Value to add: " + toAdd);
+            Debug.Log("Combo value: " + combos);
         }
         // Obviously add the score
         score += (toAdd * combos);
@@ -380,11 +444,17 @@ public class PlaygridController : MonoBehaviour {
         return toAdd;
     }
 
+    void UpdateScore ()
+    {
+        scoreText.text = "Score: " + score.ToString();
+    }
+
     // Do the two blocks match?
     // NO KNOWN BUGS
     bool Match(int x1, int y1, int x2, int y2)
     {
-        if (DEBUG)
+        bool DEMATCH = false;
+        if (DEMATCH)
         {
             Debug.Log("----------------------------Running Matching Algorithm-----------------------------------");
         }
@@ -400,7 +470,7 @@ public class PlaygridController : MonoBehaviour {
             {
                 Vector2[] object1 = gridObjects[x1, y1].GetComponent<GridpieceController>().GetPositions();
                 Vector2[] object2 = gridObjects[x2, y2].GetComponent<GridpieceController>().GetPositions();
-                if (DEBUG)
+                if (DEMATCH)
                 {
                     // Debug.Log("Now checking adjacency of " + x1 + ", " + y1 + " and " + x2 + ", " + y2);
                 }
@@ -411,7 +481,7 @@ public class PlaygridController : MonoBehaviour {
                     {
                         if (Adjacent((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
                         {
-                            if (DEBUG)
+                            if (DEMATCH)
                             {
                                 Debug.Log("They are ADJACENT so we have a match!");
                             }
@@ -428,7 +498,7 @@ public class PlaygridController : MonoBehaviour {
                             // Then we check to see if there is a straight shot from A to B
                             if (StraightShot((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
                             {
-                                if (DEBUG)
+                                if (DEMATCH)
                                 {
                                     Debug.Log("There is a STRAIGHTSHOT so we have a match!");
                                 }
@@ -450,7 +520,7 @@ public class PlaygridController : MonoBehaviour {
                     {
                         list2.AddRange(CreateMatchTrail((int)object2[j].x, (int)object2[j].y));
                     }
-                    if (DEBUG)
+                    if (DEMATCH)
                     {
                         Debug.Log("These spaces are being processed...");
                         for (int i = 0; i < list1.Count; i++)
@@ -464,7 +534,7 @@ public class PlaygridController : MonoBehaviour {
                         }
                     }
                     match = CheckMatchTrails(list1, list2);
-                    if (DEBUG && match)
+                    if (DEMATCH && match)
                     {
                         Debug.Log("MATCHTRAILS line up so we have a match!");
                     }
@@ -476,13 +546,20 @@ public class PlaygridController : MonoBehaviour {
                     int second = ScoreBlock((int)object2[0].x, (int)object2[0].y);
                     // Here is where we would display do userfeedback stuff with the block
                     // DisplayScore(first + second) 
-                    Debug.Log("MATCH WORTH " + (first + second));
+                    if (DEMATCH)
+                    {
+                        Debug.Log("MATCH WORTH " + (first + second));
+                    }
                     matchesMade++;
+                    UpdateScore();
                     // Make sure we set the pieces to 0 and gray
                     // for (int i = object1.Length - 1; i >= 0; i--)
                     for (int i = 0; i < object1.Length; i++)
                     {
-                        Debug.Log("Now removing 1st piece at " + (int)object1[i].x + ", " + (int)object1[i].y);
+                        if (DEMATCH)
+                        {
+                            Debug.Log("Now removing 1st piece at " + (int)object1[i].x + ", " + (int)object1[i].y);
+                        }
                         if (i == 0)
                         {
                             RemovePieceAtPosition((int)object1[i].x, (int)object1[i].y);
@@ -496,7 +573,10 @@ public class PlaygridController : MonoBehaviour {
                     // for (int i = object2.Length - 1; i >= 0; i--)
                     for (int i = 0; i < object2.Length; i++)
                     {
-                        Debug.Log("Now removing 2nd piece " + (int)object2[i].x + ", " + (int)object2[i].y);
+                        if (DEMATCH)
+                        {
+                            Debug.Log("Now removing 2nd piece " + (int)object2[i].x + ", " + (int)object2[i].y);
+                        }
                         if (i == 0)
                         {
                             RemovePieceAtPosition((int)object2[i].x, (int)object2[i].y);
@@ -510,6 +590,7 @@ public class PlaygridController : MonoBehaviour {
                     currentPiece.y = -1;
                     // Start the clock
                     startCounting = true;
+                    combos++;
                 }
             }
         }
@@ -526,9 +607,10 @@ public class PlaygridController : MonoBehaviour {
     // - NOT UPDATED FOR MULTIPLE SIZES
     bool Adjacent(int x1, int y1, int x2, int y2)
     {
+        bool DEADJACENT = false;
         if ((Mathf.Abs(x1 - x2) == 1 && Mathf.Abs(y1 - y2) == 0) || (Mathf.Abs(x1 - x2) == 0 && Mathf.Abs(y1 - y2) == 1))
         {
-            if (DEBUG)
+            if (DEADJACENT)
             {
                 // Debug.Log("Now comparing " + x1 + "; " + y1 + " and " + x2 + ", " + y2);
             }
@@ -553,10 +635,11 @@ public class PlaygridController : MonoBehaviour {
     // - NOT UPDATED FOR MULTIPLE SIZES
     List<Vector2> CreateMatchTrail(int x1, int y1)
     {
+        bool DECREATEMATCHTRAIL = false;
         List<Vector2> output = new List<Vector2>();
         // Create a trail in up to 4 possible directions for both blocks
         // Check down only if we are not at the bottom row
-        if (DEBUG)
+        if (DECREATEMATCHTRAIL)
         { 
             Debug.Log ("now checking down from " + x1 + ", " + y1); 
         }
@@ -564,13 +647,13 @@ public class PlaygridController : MonoBehaviour {
         {
             for (int i = y1 - 1; i > 0; i--)
             {
-                if (DEBUG)
+                if (DECREATEMATCHTRAIL)
                 {
                     // Debug.Log ("Now checking " + x1 + ", " + i);
                 }
                 if (gridObjects[x1, i] && gridObjects[x1, i].GetComponent<GridpieceController>().type == 0)
                 {
-                    if (DEBUG)
+                    if (DECREATEMATCHTRAIL)
                     {
                         // Debug.Log("Added a -1!");
                     }
@@ -584,19 +667,19 @@ public class PlaygridController : MonoBehaviour {
             }
         }
         // Check up
-        if (DEBUG)
+        if (DECREATEMATCHTRAIL)
         {
             Debug.Log ("now checking up from " + x1 + ", " + y1);
         }
         for (int i = y1 + 1; i < gridSize.y + extraY; i++)
         {
-            if (DEBUG)
+            if (DECREATEMATCHTRAIL)
             {
                 // Debug.Log ("Now checking " + x1 + ", " + i);
             }
             if (gridObjects[x1, i] && gridObjects[x1, i].GetComponent<GridpieceController>().type == 0)
             {
-                if (DEBUG)
+                if (DECREATEMATCHTRAIL)
                 {
                     // Debug.Log("Added a -1!");
                 }
@@ -609,19 +692,19 @@ public class PlaygridController : MonoBehaviour {
             }
         }
         // Check right
-        if (DEBUG)
+        if (DECREATEMATCHTRAIL)
         {
             Debug.Log("now checking right from " + x1 + ", " + y1);
         }
         for (int i = x1 + 1; i < gridSize.x + extraX; i++)
         {
-            if (DEBUG)
+            if (DECREATEMATCHTRAIL)
             {
                 // Debug.Log ("Now checking " + i + ", " + y1);
             }
             if (gridObjects[i, y1] && gridObjects[i, y1].GetComponent<GridpieceController>().type == 0)
             {
-                if (DEBUG)
+                if (DECREATEMATCHTRAIL)
                 {
                     // Debug.Log("Added a -1!");
                 }
@@ -634,19 +717,19 @@ public class PlaygridController : MonoBehaviour {
             }
         }
         // Check left
-        if (DEBUG)
+        if (DECREATEMATCHTRAIL)
         {
             Debug.Log("now checking left from " + x1 + ", " + y1);
         }
         for (int i = x1 - 1; i > -1; i--)
         {
-            if (DEBUG)
+            if (DECREATEMATCHTRAIL)
             {
                 // Debug.Log("Now checking " + x1 + ", " + i);
             }
             if (gridObjects[i, y1] && gridObjects[i, y1].GetComponent<GridpieceController>().type == 0)
             {
-                if (DEBUG)
+                if (DECREATEMATCHTRAIL)
                 {
                     // Debug.Log("Added a -1!");
                 }
@@ -673,6 +756,7 @@ public class PlaygridController : MonoBehaviour {
     // - NOT UPDATED FOR MULTIPLE SIZES
     bool StraightShot(int x1, int y1, int x2, int y2)
     {
+        bool DESTRAIGHTSHOT = false;
         bool output = false;
         if (x1 == x2)
         {
@@ -720,7 +804,10 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
             }
-            Debug.Log("There is a HORIZONTAL STRAIGHTSHOT");
+            if (DESTRAIGHTSHOT)
+            {
+                Debug.Log("There is a HORIZONTAL STRAIGHTSHOT");
+            }
             output = true;
         }
         return output;
@@ -732,8 +819,9 @@ public class PlaygridController : MonoBehaviour {
     // - NOT UPDATED FOR MULTIPLE SIZES
     bool CheckMatchTrails(List<Vector2> list1, List<Vector2> list2)
     {
+        bool DECHECKMATCHTRAILS = false;
         bool match = false;
-        if (DEBUG)
+        if (DECHECKMATCHTRAILS)
         {
             // Debug.Log("Checking this list");
             for (int i = 0; i < list1.Count; i++)
@@ -786,14 +874,15 @@ public class PlaygridController : MonoBehaviour {
     // !! MOVE BUT I HAD LIMITED TIME AND THIS WAS EASIER
     void MovePiecesDown()
     {
-        if (DEBUG){
+        bool DEMOVEPIECESDOWN = false;
+        if (DEMOVEPIECESDOWN){
             Debug.Log("-------------------------- Moving Pieces Down ----------------------------");
         }
         //movedObjects.Clear();
         // First remove all the grey pieces in the playable grid
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 1; j <= gridSize.y; j++) {
-                if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().sr.color == Color.gray){
+                if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == Color.gray){
                     // First get rid of the piece
                     RemovePieceAtPosition(i, j);
                 }
@@ -849,12 +938,12 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
             movedObjects = movedObjects.Distinct().ToList();
-            if (DEBUG)
+            if (DEMOVEPIECESDOWN)
             {
                 Debug.Log(movedObjects.Count + " game pieces moved in this move");
             }
         }
-        if (DEBUG)
+        if (DEMOVEPIECESDOWN)
         {
             Debug.Log(movedObjects.Count + " game pieces just moved");
         }
@@ -881,20 +970,30 @@ public class PlaygridController : MonoBehaviour {
     // 2 is down
     public bool CheckDirection(int x, int y, int direction)
     {
+        bool DECHECKDIRECTION = false;
         int type = gridObjects[x, y].GetComponent<GridpieceController>().type;
         bool combo = false;
-        Debug.Log("Now processing a block of type " + type + " at coordinates " + x + ", " + y);
+        if (DECHECKDIRECTION)
+        {
+            Debug.Log("Now processing a block of type " + type + " at coordinates " + x + ", " + y);
+        }
         // Check left
         if (direction == 0)
         {
-            Debug.Log("LEFT check: " + (x - 1) + ", " + y + " and " + x + ", " + y);
+            if (DECHECKDIRECTION)
+            {
+                Debug.Log("LEFT check: " + (x - 1) + ", " + y + " and " + x + ", " + y);
+            }
             if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().type == type)
             {
                 // It can only be a combo if the block to the left is not in the list
                 int id = gridObjects[x - 1, y].GetComponent<GridpieceController>().blockId;
                 if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
                 {
-                    Debug.Log("THESE TWO MATCH! " + (x - 1) + ", " + y + " and " + x + ", " + y);
+                    if (DECHECKDIRECTION)
+                    {
+                        Debug.Log("THESE TWO MATCH! " + (x - 1) + ", " + y + " and " + x + ", " + y);
+                    }
                     combo = true;
                     comboScore += ScoreBlock(x - 1, y);
                     gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color = Color.gray;
@@ -904,14 +1003,20 @@ public class PlaygridController : MonoBehaviour {
         // Check right
         else if (direction == 1)
         {
-            Debug.Log("RIGHT check: " + (x + 1) + ", " + y + " and " + x + ", " + y);
+            if (DECHECKDIRECTION)
+            {
+                Debug.Log("RIGHT check: " + (x + 1) + ", " + y + " and " + x + ", " + y);
+            }
             if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().type == type)
             {
                 // It can only be a combo if the block to the left is not in the list
                 int id = gridObjects[x + 1, y].GetComponent<GridpieceController>().blockId;
                 if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
                 {
-                    Debug.Log("THESE TWO MATCH! " + (x + 1) + ", " + y + " and " + x + ", " + y);
+                    if (DECHECKDIRECTION)
+                    {
+                        Debug.Log("THESE TWO MATCH! " + (x + 1) + ", " + y + " and " + x + ", " + y);
+                    }
                     combo = true;
                     comboScore += ScoreBlock(x + 1, y);
                     gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color = Color.gray;
@@ -923,15 +1028,25 @@ public class PlaygridController : MonoBehaviour {
         {
             if (y > 1)
             {
-                Debug.Log("LEFT check: " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                
+                if (DECHECKDIRECTION)
+                {
+                    Debug.Log("LEFT check: " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                }
                 if (gridObjects[x, y - 1] && gridObjects[x, y - 1].GetComponent<GridpieceController>().type == type)
                 {
-                    Debug.Log("Checking " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                    if (DECHECKDIRECTION)
+                    {
+                        Debug.Log("Checking " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                    }
                     // It can only be a combo if the block to the left is not in the list
                     int id = gridObjects[x, y - 1].GetComponent<GridpieceController>().blockId;
                     if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
                     {
-                        Debug.Log("THESE TWO MATCH! " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                        if (DECHECKDIRECTION)
+                        {
+                            Debug.Log("THESE TWO MATCH! " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                        }
                         combo = true;
                         comboScore += ScoreBlock(x, y - 1);
                         gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color = Color.gray;
@@ -939,6 +1054,7 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        UpdateScore();
         return combo;
     }
 
@@ -946,7 +1062,11 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     public void ProcessCombos()
     {
-        Debug.Log("How many items are in movedObjects?: " + movedObjects.Count);
+        bool DEPROCESSCOMBOS = true;
+        if (DEPROCESSCOMBOS)
+        {
+            Debug.Log("How many items are in movedObjects?: " + movedObjects.Count);
+        }
         // First move items from movedObjects to objectsToProcess
         objectsToProcess.Clear();
         for (int i = 0; i < movedObjects.Count; i++)
@@ -954,7 +1074,10 @@ public class PlaygridController : MonoBehaviour {
             objectsToProcess.Add(movedObjects[i]);
         }
         movedObjects.Clear();
-        Debug.Log("How many items are in objectsToProcess?: " + objectsToProcess.Count);
+        if (DEPROCESSCOMBOS)
+        {
+            Debug.Log("How many items are in objectsToProcess?: " + objectsToProcess.Count);
+        }
         bool combo = false;
         bool anyCombo = false;
         // Check adjacency of each item in the list of objects to process
@@ -1011,10 +1134,14 @@ public class PlaygridController : MonoBehaviour {
                 anyCombo = true;
                 // gridObjects[x, y].GetComponent<GridpieceController>().type = 0;
                 int val = ScoreBlock(x, y);
+                UpdateScore();
                 gridObjects[x, y].GetComponent<GridpieceController>().sr.color = Color.gray;
                 // Here is where we will do userfeedback stuff for combo
                 // DisplayComboScore(val)
-                Debug.Log("COMBO WORTH " + (comboScore + val));
+                if (DEPROCESSCOMBOS)
+                {
+                    Debug.Log("COMBO WORTH " + ((comboScore + val) * combos));
+                }
             }
         }
         objectsToProcess.Clear();
@@ -1049,12 +1176,18 @@ public class PlaygridController : MonoBehaviour {
             counter = 0;
             // MovePiecesDown();
         }
+        // If there were no combos we return the combo multiplier to 0
+        else
+        {
+            combos = 1;
+        }
     }
 
     // Checks each grid position to see if there is a blank block there
     // NO KNOWN BUGS
     void CheckPieces()
     {
+        bool DECHECKPIECES = false;
         int count = 0;
         for (int i = 0; i < gridSize.x + extraX; i++) 
         {
@@ -1062,7 +1195,10 @@ public class PlaygridController : MonoBehaviour {
             {
                 if (!gridObjects[i, j])
                 {
-                    Debug.Log("Missing a piece at " + i + ", " + j);
+                    if (DECHECKPIECES)
+                    {
+                        Debug.Log("Missing a piece at " + i + ", " + j);
+                    }
                 }
                 else
                 {
@@ -1070,38 +1206,75 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
-        Debug.Log(count + " valid pieces on the game board right now");
+        if (DECHECKPIECES)
+        {
+            Debug.Log(count + " valid pieces on the game board right now");
+        }
     }
 
     // Adds a new row to bottom
     // NO KNOWN BUGS
-    // - NOT UPDATED FOR MULTIPLE SIZES
+	// UPDATED FOR MULTIPLE SIZES
     void AddRow()
     {
+        bool DEADDROW = false;
         // DELETE TOP ROW
-        for (int i = 1; i <= gridSize.x; i++)
+        /*
+		for (int i = 1; i <= gridSize.x; i++)
         {
             RemovePieceAtPosition(i, (int)gridSize.y);
         }
+        */
+		// REMOVE ALL PLACEHOLDER PIECES FIRST
+		for (int i = 1; i <= gridSize.x; i++) {
+			// START ON j=0 BECAUSE WE WANT TO REMOVE THE BOTTOM ROW IN ORDER TO CREATE BIGGER PIECES
+			// USED THE TERNARY OPERATOR TO DECIDE WHETHER TO USE BIG PIECES IN THE ROW METHOD
+			for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) {
+				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+				if (gpc.type == 0)
+					RemovePieceAtPosition(i, j);
+			}
+		}
         // MOVE ALL PIECES UP
-        for (int i = (int)(gridSize.x); i >= 1; i--) 
-        {
-            for (int j = (int)(gridSize.y); j >= 1; j--) 
-            {
-                MovePieceToPosition(gridObjects[i, j], i, j + 1);
-            }
-        }
+		// We iterate through the grid horizontally instead of vertically for this one.
+		for (int i = (int)(gridSize.y)-1; i >= 1; i--) 
+		{
+			for (int j = (int)(gridSize.x); j >= 1; j--) 
+			{
+				if (gridObjects[j, i]) {
+					GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
+					MovePieceToPosition(gridObjects[j, i], j, i + 1);
+					// If the piece was a big piece, we skip it next time by moving the i counter over once more so it doesn't move it up twice
+					if (gpc.size == GridpieceController.TWOxTWO)
+						j--;
+				}
+			}
+		}
+
         // ADD BOTTOM ROW
-        for (int i = 1; i <= gridSize.x; i++)
+		for (int i = (int)gridSize.x; i > 0; i--)
         {
             AddPieceAtPosition(i, 1, -1, -1);
         }
+
+		// ADD IN ALL PLACEHOLDER PIECES AGAIN
+		for (int i = 1; i <= gridSize.x; i++) {
+			for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) {
+				if (!gridObjects[i, j])
+					AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
+			}
+		}
+
         // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
+		// NOTE-FOR ANDREW- MY MOVEPIECE METHOD DOESN'T ALLOW YOU TO MOVE ABOVE THE TOP ROW.  
         for (int i = 1; i <= gridSize.x; i++)
         {
             if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().type != 0)
             {
-                Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
+                if (DEADDROW)
+                {
+                    Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
+                }
             }
         }
     }
@@ -1169,10 +1342,16 @@ public class PlaygridController : MonoBehaviour {
 
     // Removes any piece - UPDATED FOR MULTIPLE SIZES
     public void RemovePieceAtPosition(int x, int y) {
-        //if (DEBUG)
+        bool DEREMOVEPIECEATPOSITION = false;
+        //if (DEREMOVEPIECEATPOSITION)
         // Debug.Log("Removing block at space " + x + ", " + y);
 		if (x < 0 || y < 0)
-			Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block outside the playgrid - nothing done");
+        {
+            if (DEREMOVEPIECEATPOSITION)
+            {
+                Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block outside the playgrid - nothing done");
+            }
+        }
         else if (gridObjects[x, y]) {
             GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
             int xPos = gpc.dimX;
@@ -1200,7 +1379,7 @@ public class PlaygridController : MonoBehaviour {
 				
             }
         }
-        else if (DEBUG)
+        else if (DEREMOVEPIECEATPOSITION)
 			Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block that isn't there");
     }
 
@@ -1211,23 +1390,24 @@ public class PlaygridController : MonoBehaviour {
     // - otherwise the size is the size we supplied
     // - Gives warning and does nothing if the block specified can't fit in the space provided
     public GameObject AddPieceAtPosition(int x, int y, int num, int size) {
-        if (size == GridpieceController.TWOxTWO && (gridObjects[x, y] || gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])) {
-            if (DEBUG)
+        bool DEADDPIECEATPOSITION = false;
+		if (size == GridpieceController.TWOxTWO && (gridObjects[x, y] || gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])) {
+            if (DEADDPIECEATPOSITION)
                 Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x2 block in a place where it won't fit - nothing done");
             return null;
         }
         else if (size == GridpieceController.ONExTWO && (gridObjects[x, y] || gridObjects[x, y - 1])) {
-            if (DEBUG)
+            if (DEADDPIECEATPOSITION)
                 Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 1x2 block in a place where it won't fit - nothing done");
             return null;
         }
         else if (size == GridpieceController.TWOxONE && (gridObjects[x, y] || gridObjects[x - 1, y])) {
-            if (DEBUG)
+            if (DEADDPIECEATPOSITION)
                 Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x1 block in a place where it won't fit - nothing done");
             return null;
         }
         else if ((size == GridpieceController.ONExONE || size < 0) && (gridObjects[x, y])) {
-            if (DEBUG)
+            if (DEADDPIECEATPOSITION)
                 Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 1x1 or random block in a place where it won't fit - nothing done");
             return null;
         }
@@ -1242,12 +1422,13 @@ public class PlaygridController : MonoBehaviour {
             }
             gpc.SetColor();
             if (size < 0) {
+				/*
                 if (x > 1 && y > 1) {
                     if (!gridObjects[x, y - 1])
                     {
                         if (Random.Range(0, 7.999999999f) > 7)
                         {
-                            gpc.size = (int)Mathf.Floor(Random.Range(0, (shapeLevel - 0.00000001f)));
+                            
                         }
                         else
                         {
@@ -1291,6 +1472,41 @@ public class PlaygridController : MonoBehaviour {
                 }
                 else
                     gpc.size = GridpieceController.ONExONE;
+                    */
+				if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1] && !gridObjects[x - 1, y - 1]) {
+					float val = Random.value;
+					if (val < 0.25f)
+						gpc.size = GridpieceController.ONExONE;
+					else if (val < .5f)
+						gpc.size = GridpieceController.ONExTWO;
+					else if (val < 0.75)
+						gpc.size = GridpieceController.TWOxONE;
+					else
+						gpc.size = GridpieceController.TWOxTWO;
+				}
+				else if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1]) {
+					float val = Random.value;
+					if (val < 0.3333f)
+						gpc.size = GridpieceController.ONExONE;
+					else if (val < .66666f)
+						gpc.size = GridpieceController.ONExTWO;
+					else
+						gpc.size = GridpieceController.TWOxONE;
+				}
+				else if (!gridObjects[x, y - 1]) {
+					if (Random.value < 0.5f)
+						gpc.size = GridpieceController.ONExONE;
+					else
+						gpc.size = GridpieceController.ONExTWO;
+				}
+				else if (!gridObjects[x - 1, y]) {
+					if (Random.value < 0.5f)
+						gpc.size = GridpieceController.ONExONE;
+					else
+						gpc.size = GridpieceController.TWOxONE;
+				}
+				else
+					gpc.size = GridpieceController.ONExONE;
             }
             else
                 gpc.size = size;
@@ -1314,7 +1530,7 @@ public class PlaygridController : MonoBehaviour {
                 gridObjects[x - 1, y - 1] = go;
                 go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x - 1, y - 1], 0.5f);
             }
-            //if (DEBUG)
+            //if (DEADDPIECEATPOSITION)
             //	Debug.Log("Created Piece at position: " + x + ", " + y);
             return go;
         }
@@ -1322,26 +1538,51 @@ public class PlaygridController : MonoBehaviour {
 
     // UPDATED FOR MULTIPLE SIZES
     public void MovePieceToPosition(GameObject piece, int x, int y) {
+        bool DEMOVEPIECETOPOSITION = false;
         if (piece == null)
+        {
             Debug.Log("Warning (MovePieceToPosition): piece given does not exist - nothing done");
-        else {
+        }
+        else 
+        {
             GridpieceController gpc = piece.GetComponent<GridpieceController>();
             int pieceSize = gpc.size;
             if ((y < 0 || y >= gridSize.y + extraY) || ((pieceSize == GridpieceController.ONExTWO || pieceSize == GridpieceController.TWOxTWO) && y < 1))
-                Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
+            {
+                if (DEMOVEPIECETOPOSITION)
+                {
+                    Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
+                }
+            }
             else if ((x < 1 || x >= gridSize.x + extraX) || ((pieceSize == GridpieceController.TWOxONE || pieceSize == GridpieceController.TWOxTWO) && x < 2))
-                Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
-			else if (gridObjects[x, y] != null && !gridObjects[x, y].Equals(piece))
-                Debug.Log("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
-			else if( (pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
-					 (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
-					 (pieceSize == GridpieceController.TWOxTWO && 
-																( (gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
-																  (gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
-																  (gridObjects[x - 1, y - 1] && !gridObjects[x - 1, y-1].Equals(piece)) ) ) )
-                Debug.Log("Warning (MovePieceToPosition): piece of given size cannot fit into space provided because another block is in the way - nothing done");
-            else {
-                if (DEBUG)
+            {
+                if (DEMOVEPIECETOPOSITION)
+                {
+                    Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
+                }
+            }
+            else if (gridObjects[x, y] != null && !gridObjects[x, y].Equals(piece))
+            {
+                if (DEMOVEPIECETOPOSITION)
+                {
+                    Debug.Log("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
+                }
+            }
+            else if( (pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
+                    (pieceSize == GridpieceController.TWOxONE && gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
+                    (pieceSize == GridpieceController.TWOxTWO && 
+                     ( (gridObjects[x - 1, y] && !gridObjects[x - 1, y].Equals(piece)) || 
+                       (gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
+                       (gridObjects[x - 1, y - 1] && !gridObjects[x - 1, y-1].Equals(piece)) ) ) )
+            {
+                if (DEMOVEPIECETOPOSITION)
+                {
+                    Debug.Log("Warning (MovePieceToPosition): piece of given size cannot fit into space provided because another block is in the way - nothing done");
+                }
+            }
+            else 
+            {
+                if (DEMOVEPIECETOPOSITION)
                     Debug.Log("Moving Piece: [" + gpc.dimX + ", " + gpc.dimY + "] to [" + x + ", " + y + "]");
 
                 Vector2[] originalPositions = gpc.GetPositions();
