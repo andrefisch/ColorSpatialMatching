@@ -1254,7 +1254,10 @@ public class PlaygridController : MonoBehaviour {
         // ADD BOTTOM ROW
 		for (int i = (int)gridSize.x; i > 0; i--)
         {
-            AddPieceAtPosition(i, 1, -1, -1);
+			if (!includeBigPieces)
+				AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+			else 
+				AddPieceAtPosition(i, 1, -1, -1);
         }
 
 		// ADD IN ALL PLACEHOLDER PIECES AGAIN
