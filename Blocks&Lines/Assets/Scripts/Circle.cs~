@@ -34,10 +34,6 @@ public class Circle : MonoBehaviour
             }
             line.SetColors(color, color);
         }
-        else if (color.a <= 0)
-        {
-            GameObject.Destroy(this.gameObject);
-        }
 
         line.SetWidth(0.3f, 0.3f);
         line.SetPosition(0, Vector3.zero);

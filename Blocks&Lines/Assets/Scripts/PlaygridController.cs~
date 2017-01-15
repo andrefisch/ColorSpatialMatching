@@ -1367,7 +1367,6 @@ public class PlaygridController : MonoBehaviour {
             if (gpc.GetComponent<SpriteRenderer>().color != Color.grey)
             {
                 gpc.Explode();
-                gpc.ShockWave();
             }
             if (gpc.size == GridpieceController.ONExONE) {
                 GameObject.Destroy(gridObjects[xPos, yPos]);

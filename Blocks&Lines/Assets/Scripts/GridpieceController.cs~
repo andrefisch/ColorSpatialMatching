@@ -140,6 +140,6 @@ public class GridpieceController : MonoBehaviour {
 
     public GameObject ShockWave()
     {
-        return (GameObject)Instantiate(shockWave, transform.position, Quaternion.identity);
+        return (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
     }
 }
