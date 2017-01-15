@@ -5,12 +5,13 @@ public class Circle : MonoBehaviour
 {
     public int segments;
     public float radius;
-    LineRenderer line;
-    Color color;
+    public LineRenderer line;
+    public Color color;
 
     void Start ()
     {
-        color = gameObject.GetComponent<SpriteRenderer>().color;
+        // color = gameObject.GetComponent<SpriteRenderer>().color;
+        // color = Color.red;
         line = gameObject.GetComponent<LineRenderer>();
         line.SetColors(color, color);
         line.SetVertexCount (segments + 1);
@@ -21,7 +22,7 @@ public class Circle : MonoBehaviour
     void Update()
     {
         bool DEUPDATE = false;
-        if (radius < 4)
+        if (radius < 3)
         {
             radius += 0.13f;
         }
@@ -34,12 +35,8 @@ public class Circle : MonoBehaviour
             }
             line.SetColors(color, color);
         }
-        else if (color.a <= 0)
-        {
-            GameObject.Destroy(this.gameObject);
-        }
 
-        line.SetWidth(0.3f, 0.3f);
+        line.SetWidth(0.4f, 0.4f);
         line.SetPosition(0, Vector3.zero);
         line.SetPosition(1, Vector3.up);
         Material whiteDiffuseMat = new Material(Shader.Find("Particles/Additive (Soft)"));

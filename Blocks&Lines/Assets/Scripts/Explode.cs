@@ -8,7 +8,7 @@ public class Explode : MonoBehaviour {
 	public bool destroyOtherImmediately;
 	public float otherTimeLife = 1f;
 	public float thisTimeLife = 1f;
-    public Color color;
+    // public Color color;
 
     void Awake() 
     {
@@ -18,8 +18,8 @@ public class Explode : MonoBehaviour {
 	void Start () {
 
         // this.GetComponent<ParticleSystem>().startColor = gameObject.GetComponent<SpriteRenderer>().color;
-        color = Color.red;
-        this.GetComponent<ParticleSystem>().startColor = color;
+        // color = Color.red;
+        // this.GetComponent<ParticleSystem>().startColor = color;
 		StartCoroutine("PartExpl"); // This is for playing around with a particle explosion
 
 	}

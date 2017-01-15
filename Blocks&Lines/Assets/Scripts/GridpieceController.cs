@@ -71,8 +71,8 @@ public class GridpieceController : MonoBehaviour {
 		sr = GetComponent<SpriteRenderer>();
 		if (type == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
-			sr.color = Color.gray;
-			//sr.color = Color.clear;
+			//sr.color = Color.gray;
+			sr.color = Color.clear;
 			GetComponent<BoxCollider2D>().enabled = false;
 		}
 		else if (type == RED)
@@ -133,13 +133,18 @@ public class GridpieceController : MonoBehaviour {
 		return (size == ONExTWO || size == TWOxTWO) && dimY == 1;
 	}
 
-    public GameObject Explode()
+    public GameObject Explode(Color color)
     {
-        return (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
+        GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
+        go.GetComponent<ParticleSystem>().startColor = color;
+        return go;
     }
 
-    public GameObject ShockWave()
+    public GameObject ShockWave(Color color)
     {
-        return (GameObject)Instantiate(shockWave, transform.position, Quaternion.identity);
+        GameObject go = (GameObject)Instantiate(shockWave, transform.position, Quaternion.identity);
+        (go.GetComponent<Circle>() as Circle).color = color;
+        // go.GetComponent<LineRenderer>().SetColors(color, color);
+        return go;
     }
 }
