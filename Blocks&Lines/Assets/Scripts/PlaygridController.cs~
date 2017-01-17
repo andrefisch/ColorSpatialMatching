@@ -59,7 +59,7 @@ public class PlaygridController : MonoBehaviour {
 
     // Use this for initialization
     void Start(){
-        includeBigPieces = false;
+        // includeBigPieces = true;
         // SCORE STUFF
         colorLevel = 4;
         shapeLevel = 1;
@@ -68,7 +68,6 @@ public class PlaygridController : MonoBehaviour {
         comboScore = 0;
         matchesMade = 0;
         blocksDestroyed = 0;
-        UpdateScore();
 
         edgeColor = Color.clear;
         colorThresholds = new int[6];
@@ -111,6 +110,31 @@ public class PlaygridController : MonoBehaviour {
 		}
 
         // Set up the actual pieces
+        for (int i = (int)gridSize.x; i >= 1; i--) 
+        {
+            for (int j = (int)gridSize.y; j >= 1; j--) 
+            {
+                if (!gridObjects[i, j]) 
+                {
+                    // Add blocks normally to the bottom half of the grid, we dont want to start completely full
+                    if (i >= 1 && j > 0 && j <= gridSize.y / 2)
+                    {
+                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
+                    }
+                    // Add clear blocks above the half
+                    else if (j > (gridSize.y / 2))
+                    {
+                        AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
+                    } 
+                    else 
+                    {
+                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
+                    }
+                }
+            }
+        }
+        /*
+        // Set up the actual pieces
         for (int i = (int)gridSize.x; i >= 1; i--) {
             for (int j = (int)gridSize.y; j >= 1; j--) {
                 if (!gridObjects[i, j]) {
@@ -122,6 +146,7 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        */
     }
 
     // Update at a fixed interval so we can count accurately
@@ -129,6 +154,7 @@ public class PlaygridController : MonoBehaviour {
     void FixedUpdate()
     {
         bool DEFIXEDUPDATE = false;
+        UpdateScore();
         if (startCounting)
         {
             counter++;
@@ -415,7 +441,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     int ScoreBlock(int x, int y)
     {
-        bool DESCOREBLOCK = true;
+        bool DESCOREBLOCK = false;
         GridpieceController piece = gridObjects[x, y].GetComponent<GridpieceController>();
         int toAdd = 0;
         // Pieces are worth exactly how many gridspaces they take up
@@ -449,7 +475,8 @@ public class PlaygridController : MonoBehaviour {
     void UpdateScore ()
     {
         // scoreText.text = "Score: " + score.ToString();
-        scoreText.text = score.ToString() + ", " + combos.ToString() + ", " + movedObjects.Count.ToString();
+        scoreText.text = "Score: " + score.ToString() + "\nCombos: " + combos.ToString() + "\nMoved Objects: " + movedObjects.Count.ToString();
+        // scoreText.text = score.ToString() + ", " + combos.ToString() + ", " + movedObjects.Count.ToString();
     }
 
     // Do the two blocks match?
@@ -544,8 +571,8 @@ public class PlaygridController : MonoBehaviour {
                 }
                 if (match)
                 {
-                    // Reset the combo level back to 1
-                    combos = 1;
+                    // Reset the combo level back to 1 if there is a successful match
+                    // combos = 1;
                     // Score the blocks
                     int first  = ScoreBlock((int)object1[0].x, (int)object1[0].y);
                     int second = ScoreBlock((int)object2[0].x, (int)object2[0].y);
@@ -879,7 +906,7 @@ public class PlaygridController : MonoBehaviour {
     // !! MOVE BUT I HAD LIMITED TIME AND THIS WAS EASIER
     void MovePiecesDown()
     {
-        bool DEMOVEPIECESDOWN = true;
+        bool DEMOVEPIECESDOWN = false;
         if (DEMOVEPIECESDOWN){
             Debug.Log("-------------------------- Moving Pieces Down ----------------------------");
         }
@@ -943,6 +970,11 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
             movedObjects = movedObjects.Distinct().ToList();
+            // If nothing moved this iteration reset the combo count
+            if (movedObjects.Count == 0)
+            {
+                combos = 1;
+            }
             if (DEMOVEPIECESDOWN)
             {
                 Debug.Log(movedObjects.Count + " game pieces moved in this move");
@@ -1073,9 +1105,10 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     public void ProcessCombos()
     {
-        bool DEPROCESSCOMBOS = true;
+        bool DEPROCESSCOMBOS = false;
         if (DEPROCESSCOMBOS)
         {
+            Debug.Log("--------------------- NOW PROCESSING COMBOS ---------------------");
             Debug.Log("How many items are in movedObjects?: " + movedObjects.Count);
         }
         // First move items from movedObjects to objectsToProcess
@@ -1110,7 +1143,7 @@ public class PlaygridController : MonoBehaviour {
             {
                 combo = CheckDirection(x, y, 0) | // left
                         CheckDirection(x, y, 1) | // right
-                        CheckDirection(x, y, 2);   // down
+                        CheckDirection(x, y, 2);  // down
             }
             else if (size == GridpieceController.ONExTWO)
             {
@@ -1142,6 +1175,7 @@ public class PlaygridController : MonoBehaviour {
             // If any of the blocks comboed with the main block remove it too
             if (combo)
             {
+                // If anything has comboed keep track of it
                 anyCombo = true;
                 // gridObjects[x, y].GetComponent<GridpieceController>().type = 0;
                 int val = ScoreBlock(x, y);
@@ -1156,17 +1190,28 @@ public class PlaygridController : MonoBehaviour {
                     Debug.Log("COMBO WORTH " + ((comboScore + val) * combos));
                 }
             }
+            else
+            {
+                if (DEPROCESSCOMBOS)
+                {
+                    Debug.Log("There was no combo this loop");
+                }
+            }
         }
         objectsToProcess.Clear();
         if (anyCombo)
         {
+            if (DEPROCESSCOMBOS)
+            {
+                Debug.Log("Anycombo is true!");
+            }
             // Refresh the board
             // Remove all the grey pieces in the playable grid
             for (int i = 1; i <= gridSize.x; i++) 
             {
                 for (int j = 1; j <= gridSize.y; j++) 
                 {
-                    if (gridObjects[i,j] && gridObjects[i,j].GetComponent<GridpieceController>().sr.color == edgeColor)
+                    if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == edgeColor)
                     {
                         // First get rid of the piece
                         RemovePieceAtPosition(i, j);
@@ -1192,7 +1237,15 @@ public class PlaygridController : MonoBehaviour {
         // If there were no combos we return the combo multiplier to 0
         else
         {
+            if (DEPROCESSCOMBOS)
+            {
+                Debug.Log("Anycombo is false!");
+            }
             combos = 1;
+            if (DEPROCESSCOMBOS)
+            {
+                Debug.Log("Combos is: " + combos);
+            }
         }
     }
 
