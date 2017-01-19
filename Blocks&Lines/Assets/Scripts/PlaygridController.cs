@@ -16,6 +16,7 @@ public class PlaygridController : MonoBehaviour {
     public int colorLevel;
     public int shapeLevel;
     public int[] colorThresholds;
+    public float[] sizeFrequencies;
     public int score;
     public int combos;
     public int comboScore;
@@ -34,8 +35,10 @@ public class PlaygridController : MonoBehaviour {
 
     // COUNTER TO KEEP TRACK OF WHEN THE BLOCKS FALL
     private bool startCounting;
-    private int counter;
-    private int timingInterval;
+    private int newLineCounter;
+    private int newLineInterval;
+    private int processingCounter;
+    private int processingInterval;
 
     //public GridpieceController gpc;
     private Vector2 currentPiece;
@@ -78,9 +81,17 @@ public class PlaygridController : MonoBehaviour {
         colorThresholds[4] = 200;
         colorThresholds[5] = 250;
 
+        sizeFrequencies = new float[4];
+        sizeFrequencies[0] = 0.7f;
+        sizeFrequencies[1] = 0.8f;
+        sizeFrequencies[2] = 0.9f;
+        sizeFrequencies[3] = 1f;
+
         startCounting = false;
-        counter = 0;
-        timingInterval = 20;
+        processingCounter = 0;
+        newLineCounter = 0;
+        newLineInterval = 500;
+        processingInterval = 20;
 
         currentPiece = new Vector2(-1, -1);
         lastPiece = new Vector2(-1, -1);
@@ -155,26 +166,63 @@ public class PlaygridController : MonoBehaviour {
     {
         bool DEFIXEDUPDATE = false;
         UpdateScore();
+        newLineCounter++;
+        if (newLineCounter >= newLineInterval)
+        {
+            AddRow();
+        }
         if (startCounting)
         {
-            counter++;
+            processingCounter++;
         }
-        if (movedObjects.Count == 0 && counter >= timingInterval)
+        if (movedObjects.Count == 0 && processingCounter >= processingInterval)
         {
             if (DEFIXEDUPDATE)
             {
-                // Debug.Log("Count at time of piece moving is: " + counter);
+                // Debug.Log("Count at time of piece moving is: " + processingCounter);
             }
             MovePiecesDown();
         }
-        else if (movedObjects.Count > 0 && counter >= timingInterval)
+        else if (movedObjects.Count > 0 && processingCounter >= processingInterval)
         {
             if (DEFIXEDUPDATE)
             {
-                // Debug.Log("Count at time of combo processing is: " + counter);
+                // Debug.Log("Count at time of combo processing is: " + processingCounter);
                 Debug.Log("Combos at time of combo processing is: " + combos);
             }
             ProcessCombos();
+        }
+        // What color blocks are we using
+        if (score > colorThresholds[0])
+        {
+            colorLevel = 5;
+        }
+        if (score > colorThresholds[1])
+        {
+            colorLevel = 6;
+            shapeLevel = 2;
+            newLineInterval = 450;
+        }
+        if (score > colorThresholds[2])
+        {
+            colorLevel = 6;
+            newLineInterval = 400;
+        }
+        if (score > colorThresholds[3])
+        {
+            colorLevel = 7;
+            shapeLevel = 4;
+            newLineInterval = 350;
+        }
+        if (score > colorThresholds[4])
+        {
+            colorLevel = 8;
+            newLineInterval = 300;
+        }
+        if (score > colorThresholds[5])
+        {
+            colorLevel = 9;
+            newLineInterval = 250;
         }
     }   
 
@@ -237,33 +285,6 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("r")) 
         {
             RemoveOneColor();
-        }
-        if (score > colorThresholds[0])
-        {
-            colorLevel = 5;
-            shapeLevel = 2;
-        }
-        if (score > colorThresholds[1])
-        {
-            colorLevel = 6;
-            shapeLevel = 3;
-        }
-        if (score > colorThresholds[2])
-        {
-            colorLevel = 6;
-            shapeLevel = 4;
-        }
-        if (score > colorThresholds[3])
-        {
-            colorLevel = 7;
-        }
-        if (score > colorThresholds[4])
-        {
-            colorLevel = 8;
-        }
-        if (score > colorThresholds[5])
-        {
-            colorLevel = 9;
         }
 
         // This part deals with the highlighting and selecting of objects
@@ -992,7 +1013,7 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
-        counter = 0;
+        processingCounter = 0;
         if (movedObjects.Count == 0)
         {
             startCounting = false;
@@ -1231,7 +1252,7 @@ public class PlaygridController : MonoBehaviour {
             }
             // Increment combos and move pieces down
             combos++;
-            counter = 0;
+            processingCounter = 0;
             // MovePiecesDown();
         }
         // If there were no combos we return the combo multiplier to 0
@@ -1279,10 +1300,12 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // Adds a new row to bottom
-    // NO KNOWN BUGS
+    // BUG: SOMETIMES WHEN A NEW ROW IS ADDED A NULL POINTER EXCEPTION IS TRIGGERED
 	// UPDATED FOR MULTIPLE SIZES
     void AddRow()
     {
+        // Reset the new line counter when we add a new line
+        newLineCounter = 0;
         bool DEADDROW = false;
         // DELETE TOP ROW
         /*
@@ -1321,9 +1344,50 @@ public class PlaygridController : MonoBehaviour {
 		for (int i = (int)gridSize.x; i > 0; i--)
         {
 			if (!includeBigPieces)
+            {
 				AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+            }
 			else 
-				AddPieceAtPosition(i, 1, -1, -1);
+            {
+                float val = Random.value;
+                // At shapeLevel 1, only create small blocks
+                if (shapeLevel == 1)
+                {
+                    AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                }
+                // Then we add the huge ones
+                else if (shapeLevel == 2)
+                {
+                    if (val < sizeFrequencies[2])
+                    {
+                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                    }
+                    else 
+                    {
+                        AddPieceAtPosition(i, 1, -1, GridpieceController.TWOxTWO);
+                    }
+                }
+                // Then we add the skinny/long blocks
+                else if (shapeLevel == 4)
+                {
+                    if (val < sizeFrequencies[0])
+                    {
+                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                    }
+                    else if (val < sizeFrequencies[1])
+                    {
+                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExTWO);
+                    }
+                    else if (val < sizeFrequencies[2])
+                    {
+                        AddPieceAtPosition(i, 1, -1, GridpieceController.TWOxONE);
+                    }
+                    else
+                    {
+                        AddPieceAtPosition(i, 1, -1, GridpieceController.TWOxTWO);
+                    }
+                }
+            }
         }
 
 		// ADD IN ALL PLACEHOLDER PIECES AGAIN
@@ -1552,18 +1616,18 @@ public class PlaygridController : MonoBehaviour {
 					float val = Random.value;
 					if (val < 0.25f)
 						gpc.size = GridpieceController.ONExONE;
-					else if (val < .5f)
+					else if (val < 0.5f)
 						gpc.size = GridpieceController.ONExTWO;
-					else if (val < 0.75)
+					else if (val < 0.75f)
 						gpc.size = GridpieceController.TWOxONE;
 					else
 						gpc.size = GridpieceController.TWOxTWO;
 				}
 				else if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1]) {
 					float val = Random.value;
-					if (val < 0.3333f)
+					if (val < 0.333333f)
 						gpc.size = GridpieceController.ONExONE;
-					else if (val < .66666f)
+					else if (val < 0.666666f)
 						gpc.size = GridpieceController.ONExTWO;
 					else
 						gpc.size = GridpieceController.TWOxONE;
