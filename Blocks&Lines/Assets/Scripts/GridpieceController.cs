@@ -144,10 +144,15 @@ public class GridpieceController : MonoBehaviour {
     {
         GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 		go.GetComponent<ParticleSystem>().startColor = color;
+		go.transform.FindChild("ScorePart").gameObject.SetActive(false);
         return go;
     }
 
 	public GameObject ScoreExplode(Color color, int scoreAmount, int comboLevel) {
+		if (comboLevel > 10)
+			comboLevel = 10;
+		if (comboLevel < 1)
+			comboLevel = 1;
 		GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 		if (scoreAmount == 1)
 			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = oneSizeScoreMats[comboLevel - 1];
