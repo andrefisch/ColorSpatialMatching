@@ -34,6 +34,10 @@ public class GridpieceController : MonoBehaviour {
 
 	public bool selected;
 
+	public Material[] oneSizeScoreMats;
+	public Material[] twoSizeScoreMats;
+	public Material[] fourSizeScoreMats;
+
 	//public Vector2 placeInGrid;
 
 	private bool setColor;
@@ -139,9 +143,23 @@ public class GridpieceController : MonoBehaviour {
     public GameObject Explode(Color color)
     {
         GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
-        go.GetComponent<ParticleSystem>().startColor = color;
+		go.GetComponent<ParticleSystem>().startColor = color;
         return go;
     }
+
+	public GameObject ScoreExplode(Color color, int scoreAmount, int comboLevel) {
+		GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
+		if (scoreAmount == 1)
+			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = oneSizeScoreMats[comboLevel - 1];
+		else if (scoreAmount == 2)
+			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = twoSizeScoreMats[comboLevel - 1];
+		else if (scoreAmount == 4)
+			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = fourSizeScoreMats[comboLevel - 1];
+
+		go.GetComponent<ParticleSystem>().startColor = color;
+		return go;
+	}
+
 
     public GameObject ShockWave(Color color)
     {
