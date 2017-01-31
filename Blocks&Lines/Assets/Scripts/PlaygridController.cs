@@ -1288,8 +1288,11 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
             }
-            // Increment combos and move pieces down
-            combos++;
+            // If combo is less than 10, increment
+            if (combos < 10)
+            {
+                combos++;
+            }
             processingCounter = 0;
             // MovePiecesDown();
         }
