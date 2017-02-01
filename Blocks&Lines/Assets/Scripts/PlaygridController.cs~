@@ -41,8 +41,10 @@ public class PlaygridController : MonoBehaviour {
     private int processingInterval;
 
     //public GridpieceController gpc;
+    // MATCHING VARIABLES
     private Vector2 currentPiece;
     private Vector2 lastPiece;
+    public List<Vector2> matchTrack;
 
     // This is how you do a 2D array in C# ---  int[][] is an array of arrays
     public GameObject[,] gridObjects;
@@ -95,6 +97,7 @@ public class PlaygridController : MonoBehaviour {
 
         currentPiece = new Vector2(-1, -1);
         lastPiece = new Vector2(-1, -1);
+        matchTrack = new List<Vector2>();
 
         gridObjects = new GameObject[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
 
@@ -169,7 +172,7 @@ public class PlaygridController : MonoBehaviour {
         newLineCounter++;
         if (newLineCounter >= newLineInterval)
         {
-            AddRow();
+            // AddRow();
         }
         if (startCounting)
         {
@@ -181,7 +184,7 @@ public class PlaygridController : MonoBehaviour {
             {
                 // Debug.Log("Count at time of piece moving is: " + processingCounter);
             }
-            MovePiecesDown();
+            // MovePiecesDown();
         }
         else if (movedObjects.Count > 0 && processingCounter >= processingInterval)
         {
@@ -190,7 +193,7 @@ public class PlaygridController : MonoBehaviour {
                 // Debug.Log("Count at time of combo processing is: " + processingCounter);
                 Debug.Log("Combos at time of combo processing is: " + combos);
             }
-            ProcessCombos();
+            // ProcessCombos();
         }
         // What color blocks are we using
         if (score > colorThresholds[0])
@@ -504,13 +507,14 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     bool Match(int x1, int y1, int x2, int y2)
     {
+        matchTrack.Clear();
         bool DEMATCH = false;
         if (DEMATCH)
         {
             Debug.Log("----------------------------Running Matching Algorithm-----------------------------------");
         }
         bool match = false;
-        // Make sure the pieces are all valid pieces
+        // Make sure the pieces are both valid pieces
         if (x1 >= 0 && x1 <= gridSize.x + extraX - 1 &&
             x2 >= 0 && x2 <= gridSize.x + extraX - 1 &&
             y1 >= 0 && y1 <= gridSize.y + extraY - 1 &&
@@ -816,15 +820,24 @@ public class PlaygridController : MonoBehaviour {
     // - NOT UPDATED FOR MULTIPLE SIZES
     bool StraightShot(int x1, int y1, int x2, int y2)
     {
-        bool DESTRAIGHTSHOT = false;
+        bool DESTRAIGHTSHOT = true;
         bool output = false;
+        // Keep track of the coordinates we move through to get the match
+        List<Vector2> straightShotTrack = new List<Vector2>();
+        Vector2 one = new Vector2(x1, y1);
+        Vector2 two = new Vector2(x2, y2);
+        straightShotTrack.Add(one);
+        straightShotTrack.Add(two);
         if (x1 == x2)
         {
             if (y2 > y1)
             {
                 for (int y = y1 + 1; y < y2; y++)
                 {
-                    if (gridObjects[x1, y] && gridObjects[x1, y].GetComponent<GridpieceController>().type != 0)
+                    Vector2 temp = new Vector2(x1, y);
+                    straightShotTrack.Add(temp);
+                    if (gridObjects[x1, y] && gridObjects[x1, y].GetComponent<GridpieceController>().type != 0
+                                           && gridObjects[x1, y].GetComponent<GridpieceController>().type != -1)
                     {
                         return output;
                     }
@@ -834,7 +847,10 @@ public class PlaygridController : MonoBehaviour {
             {
                 for (int y = y2 + 1; y < y1; y++)
                 {
-                    if (gridObjects[x1, y] && gridObjects[x1, y].GetComponent<GridpieceController>().type != 0)
+                    Vector2 temp = new Vector2(x1, y);
+                    straightShotTrack.Add(temp);
+                    if (gridObjects[x1, y] && gridObjects[x1, y].GetComponent<GridpieceController>().type != 0
+                                           && gridObjects[x1, y].GetComponent<GridpieceController>().type != -1)
                     {
                         return output;
                     }
@@ -848,7 +864,10 @@ public class PlaygridController : MonoBehaviour {
             {
                 for (int x = x1 + 1; x < x2; x++)
                 {
-                    if (gridObjects[x, y1] && gridObjects[x, y1].GetComponent<GridpieceController>().type != 0)
+                    Vector2 temp = new Vector2(x, y1);
+                    straightShotTrack.Add(temp);
+                    if (gridObjects[x, y1] && gridObjects[x, y1].GetComponent<GridpieceController>().type != 0
+                                           && gridObjects[x, y1].GetComponent<GridpieceController>().type != -1)
                     {
                         return output;
                     }
@@ -858,7 +877,10 @@ public class PlaygridController : MonoBehaviour {
             {
                 for (int x = x2 + 1; x < x1; x++)
                 {
-                    if (gridObjects[x, y1] && gridObjects[x, y1].GetComponent<GridpieceController>().type != 0)
+                    Vector2 temp = new Vector2(x, y1);
+                    straightShotTrack.Add(temp);
+                    if (gridObjects[x, y1] && gridObjects[x, y1].GetComponent<GridpieceController>().type != 0
+                                           && gridObjects[x, y1].GetComponent<GridpieceController>().type != -1)
                     {
                         return output;
                     }
@@ -866,9 +888,17 @@ public class PlaygridController : MonoBehaviour {
             }
             if (DESTRAIGHTSHOT)
             {
-                Debug.Log("There is a HORIZONTAL STRAIGHTSHOT");
+                // Debug.Log("There is a HORIZONTAL STRAIGHTSHOT");
             }
             output = true;
+        }
+        if (output)
+        {
+            if (DESTRAIGHTSHOT)
+            {
+                Debug.Log("Added " + straightShotTrack.Count + " coordinates to match track");
+            }
+            matchTrack.AddRange(straightShotTrack);
         }
         return output;
     }
@@ -876,9 +906,9 @@ public class PlaygridController : MonoBehaviour {
 
     // Checks to see if there is a straightShot between any -1 in list1 and list2
     // NO KNOWN BUGS
-    // - NOT UPDATED FOR MULTIPLE SIZES
     bool CheckMatchTrails(List<Vector2> list1, List<Vector2> list2)
     {
+        //list1 is currentPiece, list2 is lastPiece
         bool DECHECKMATCHTRAILS = false;
         bool match = false;
         if (DECHECKMATCHTRAILS)
@@ -901,11 +931,62 @@ public class PlaygridController : MonoBehaviour {
             {
                 if (StraightShot((int)list1[i].x, (int)list1[i].y, (int)list2[j].x, (int)list2[j].y))
                 {
+                    // Need to do a straightshot from the first coordinate to current block to get matchTrack
+                    if (DECHECKMATCHTRAILS)
+                    {
+                        Debug.Log("Now processing match trails for current piece");
+                    }
+                    StraightShot((int)list1[i].x, (int)list1[i].y, (int)currentPiece.x, (int)currentPiece.y);
+                    // And to do a straightshot from the second coordinate to last block to fill matchTrack
+                    if (DECHECKMATCHTRAILS)
+                    {
+                        Debug.Log("Now processing match trails for last piece");
+                    }
+                    StraightShot((int)list2[i].x, (int)list2[i].y, (int)lastPiece.x, (int)lastPiece.y);
+                    HighlightMatchTrack();
                     return true;
                 }
             }
         }
         return match;
+    }
+
+    // Changes the color of the match track
+    // DOES NOT WORK FULLY CORRECTLY
+    void HighlightMatchTrack()
+    {
+        bool DEHIGHLIGHTMATCHTRACK = true;
+        foreach (Vector2 coordinate in matchTrack)
+        {
+            int i = (int)coordinate.x;
+            int j = (int)coordinate.y;
+            if (DEHIGHLIGHTMATCHTRACK)
+            {
+                Debug.Log("Now highlighting this block: " + i + ", " + j);
+            }
+            if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == edgeColor)
+            {
+                gridObjects[i, j].GetComponent<GridpieceController>().type = -2;
+                gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
+            }
+        }
+    }
+
+    // Changes back the match track to default color
+    // NO KNOWN BUGS
+    void UnhighlightMatchTrack()
+    {
+        for (int i = 0; i < gridSize.x + extraX; i++)
+        {
+            for (int j = 0; j < gridSize.y + extraY; j++)
+            {
+                if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().type == -2)
+                {
+                    gridObjects[i, j].GetComponent<GridpieceController>().type = 0;
+                    gridObjects[i, j].GetComponent<GridpieceController>().sr.color = edgeColor;
+                }
+            }
+        }
     }
 
     // Remove all -1's from the board
@@ -939,6 +1020,7 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("-------------------------- Moving Pieces Down ----------------------------");
         }
         movedObjects.Clear();
+        UnhighlightMatchTrack();
         // First remove all the grey pieces in the playable grid
         for (int i = 1; i <= gridSize.x; i++) {
             for (int j = 1; j <= gridSize.y; j++) {
@@ -1288,7 +1370,7 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
             }
-            // Increment combos and move pieces down
+            // If combo is less than 10, increment
             if (combos < 10)
             {
                 combos++;
