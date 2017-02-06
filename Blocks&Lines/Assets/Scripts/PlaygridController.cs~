@@ -172,7 +172,7 @@ public class PlaygridController : MonoBehaviour {
         newLineCounter++;
         if (newLineCounter >= newLineInterval)
         {
-            // AddRow();
+            AddRow();
         }
         if (startCounting)
         {
@@ -184,7 +184,7 @@ public class PlaygridController : MonoBehaviour {
             {
                 // Debug.Log("Count at time of piece moving is: " + processingCounter);
             }
-            // MovePiecesDown();
+            MovePiecesDown();
         }
         else if (movedObjects.Count > 0 && processingCounter >= processingInterval)
         {
@@ -193,7 +193,7 @@ public class PlaygridController : MonoBehaviour {
                 // Debug.Log("Count at time of combo processing is: " + processingCounter);
                 Debug.Log("Combos at time of combo processing is: " + combos);
             }
-            // ProcessCombos();
+            ProcessCombos();
         }
         // What color blocks are we using
         if (score > colorThresholds[0])
@@ -909,7 +909,7 @@ public class PlaygridController : MonoBehaviour {
     bool CheckMatchTrails(List<Vector2> list1, List<Vector2> list2)
     {
         //list1 is currentPiece, list2 is lastPiece
-        bool DECHECKMATCHTRAILS = false;
+        bool DECHECKMATCHTRAILS = true;
         bool match = false;
         if (DECHECKMATCHTRAILS)
         {
@@ -931,6 +931,11 @@ public class PlaygridController : MonoBehaviour {
             {
                 if (StraightShot((int)list1[i].x, (int)list1[i].y, (int)list2[j].x, (int)list2[j].y))
                 {
+                    if (DECHECKMATCHTRAILS)
+                    {
+                        Debug.Log("Two ends of trail: " + list1[i].x + ", " + list1[i].y + " and " +  list1[i].x + ", " + list1[i].y);
+                        Debug.Log("Current piece: " + currentPiece.x + ", " + currentPiece.y + " and Last piece: " +  lastPiece.x + ", " + lastPiece.y);
+                    }
                     // Need to do a straightshot from the first coordinate to current block to get matchTrack
                     if (DECHECKMATCHTRAILS)
                     {
@@ -942,7 +947,7 @@ public class PlaygridController : MonoBehaviour {
                     {
                         Debug.Log("Now processing match trails for last piece");
                     }
-                    StraightShot((int)list2[i].x, (int)list2[i].y, (int)lastPiece.x, (int)lastPiece.y);
+                    StraightShot((int)list2[j].x, (int)list2[j].y, (int)lastPiece.x, (int)lastPiece.y);
                     HighlightMatchTrack();
                     return true;
                 }
@@ -952,7 +957,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // Changes the color of the match track
-    // DOES NOT WORK FULLY CORRECTLY
+    // NO KNOWN BUGS
     void HighlightMatchTrack()
     {
         bool DEHIGHLIGHTMATCHTRACK = true;
@@ -991,7 +996,6 @@ public class PlaygridController : MonoBehaviour {
 
     // Remove all -1's from the board
     // NO KNOWN BUGS
-    // - NOT UPDATED FOR MULTIPLE SIZES
     void MatchTrailCleanup()
     {
         for (int i = 0; i < gridSize.x + extraX; i++)

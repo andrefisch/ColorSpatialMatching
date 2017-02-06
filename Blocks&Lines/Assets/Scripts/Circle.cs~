@@ -22,7 +22,7 @@ public class Circle : MonoBehaviour
     void Update()
     {
         bool DEUPDATE = false;
-        if (radius < 4)
+        if (radius < 3)
         {
             radius += 0.13f;
         }
@@ -34,6 +34,10 @@ public class Circle : MonoBehaviour
                 Debug.Log("Start color is: " + color.a);
             }
             line.SetColors(color, color);
+        }
+        else if (color.a <= 0)
+        {
+            Destroy(this.gameObject);
         }
 
         line.SetWidth(0.4f, 0.4f);
