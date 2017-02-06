@@ -293,7 +293,6 @@ public class PlaygridController : MonoBehaviour {
         // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
         int gpcHighlightSize = -1;
         highlightedPiece = Vector2.one * -1;
-        int gpcSelectSize = -1;
         if (hit.collider != null) {
 
             GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
@@ -321,7 +320,6 @@ public class PlaygridController : MonoBehaviour {
                         ResetCurrentLastPieces();
                     }
                     else {
-                        gpcSelectSize = gpc.size;
                         gpc.selected = true;
                         if (DEUPDATE)
                         {
@@ -361,7 +359,6 @@ public class PlaygridController : MonoBehaviour {
                         if (gridObjects[i, j])
                             gridObjects[i, j].GetComponent<GridpieceController>().selected = false;
                 }
-                gpcSelectSize = -1;
             }
         }
 
@@ -400,25 +397,26 @@ public class PlaygridController : MonoBehaviour {
                         highlighted = true;
                     }
                     if (gpc.selected) {
-                        if (gpcSelectSize == GridpieceController.ONExONE) {
-                            selectors[GridpieceController.ONExONE].transform.position = gridPositions[i, j];
+						
+						if (gpc.size == GridpieceController.ONExONE) {
+							selectors[GridpieceController.ONExONE].transform.position = gridPositions[i, j];
                             selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
                         }
-                        else if (gpcSelectSize == GridpieceController.ONExTWO) {
+						else if (gpc.size == GridpieceController.ONExTWO) {
                             selectors[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX, gpc.dimY - 1], 0.5f);
                             selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
                         }
-                        else if (gpcSelectSize == GridpieceController.TWOxONE) {
+						else if (gpc.size == GridpieceController.TWOxONE) {
                             selectors[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY], 0.5f);
                             selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
                         }
-                        else if (gpcSelectSize == GridpieceController.TWOxTWO) {
+						else if (gpc.size == GridpieceController.TWOxTWO) {
                             selectors[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY - 1], 0.5f);
                             selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
@@ -1472,6 +1470,12 @@ public class PlaygridController : MonoBehaviour {
 				}
 			}
 		}
+		// Bring the selected piece up
+		if (currentPiece.x != -1 && currentPiece.y < gridSize.y) {
+			currentPiece.y += 1;
+		}
+
+
         // ADD BOTTOM ROW
 		for (int i = (int)gridSize.x; i > 0; i--)
         {
