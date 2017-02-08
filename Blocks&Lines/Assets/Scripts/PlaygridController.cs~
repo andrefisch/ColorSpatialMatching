@@ -259,7 +259,6 @@ public class PlaygridController : MonoBehaviour {
 		if (Input.GetKeyDown("x")) {
 			//RemovePieceAtPosition(0, (int)gridSize.y);
 		}
-
         // move down pieces
         if (Input.GetKeyDown("m")) {
             MovePiecesDown();
@@ -289,13 +288,11 @@ public class PlaygridController : MonoBehaviour {
         {
             RemoveOneColor();
         }
-
         // This part deals with the highlighting and selecting of objects
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
         // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
         int gpcHighlightSize = -1;
         highlightedPiece = Vector2.one * -1;
-        int gpcSelectSize = -1;
         if (hit.collider != null) {
 
             GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
@@ -323,7 +320,6 @@ public class PlaygridController : MonoBehaviour {
                         ResetCurrentLastPieces();
                     }
                     else {
-                        gpcSelectSize = gpc.size;
                         gpc.selected = true;
                         if (DEUPDATE)
                         {
@@ -363,7 +359,6 @@ public class PlaygridController : MonoBehaviour {
                         if (gridObjects[i, j])
                             gridObjects[i, j].GetComponent<GridpieceController>().selected = false;
                 }
-                gpcSelectSize = -1;
             }
         }
 
@@ -402,25 +397,26 @@ public class PlaygridController : MonoBehaviour {
                         highlighted = true;
                     }
                     if (gpc.selected) {
-                        if (gpcSelectSize == GridpieceController.ONExONE) {
-                            selectors[GridpieceController.ONExONE].transform.position = gridPositions[i, j];
+						
+						if (gpc.size == GridpieceController.ONExONE) {
+							selectors[GridpieceController.ONExONE].transform.position = gridPositions[i, j];
                             selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
                         }
-                        else if (gpcSelectSize == GridpieceController.ONExTWO) {
+						else if (gpc.size == GridpieceController.ONExTWO) {
                             selectors[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX, gpc.dimY - 1], 0.5f);
                             selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
                         }
-                        else if (gpcSelectSize == GridpieceController.TWOxONE) {
+						else if (gpc.size == GridpieceController.TWOxONE) {
                             selectors[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY], 0.5f);
                             selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
                         }
-                        else if (gpcSelectSize == GridpieceController.TWOxTWO) {
+						else if (gpc.size == GridpieceController.TWOxTWO) {
                             selectors[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY - 1], 0.5f);
                             selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
                             selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
@@ -555,6 +551,9 @@ public class PlaygridController : MonoBehaviour {
                             // Then we check to see if there is a straight shot from A to B
                             if (StraightShot((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
                             {
+                                currentPiece = object1[i];
+                                lastPiece = object2[j];
+                                HighlightMatchTrack();
                                 if (DEMATCH)
                                 {
                                     Debug.Log("There is a STRAIGHTSHOT so we have a match!");
@@ -1013,10 +1012,6 @@ public class PlaygridController : MonoBehaviour {
     // Move all blocks that can be moved down as far as possible
     // Keep track of which blocks moved so that we can combo later
     // NO KNOWN BUGS
-    // RIENZI: 
-    // !! I AM HAVING IT MOVE THE PIECES DOWN THREE TIMES TO COMPENSATE FOR A RARE BUG
-    // !! A BETTER WAY TO DO IT WOULD BE A WHILE LOOP THAT REPEATS UNTIL NO NEW BLOCKS
-    // !! MOVE BUT I HAD LIMITED TIME AND THIS WAS EASIER
     void MovePiecesDown()
     {
         bool DEMOVEPIECESDOWN = false;
@@ -1316,7 +1311,6 @@ public class PlaygridController : MonoBehaviour {
                 anyCombo = true;
                 // gridObjects[x, y].GetComponent<GridpieceController>().type = 0;
                 int val = ScoreBlock(x, y);
-                // UpdateScore();
                 //gridObjects[x, y].GetComponent<GridpieceController>().Explode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color);
 
 				if (gridObjects[x, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
@@ -1477,6 +1471,12 @@ public class PlaygridController : MonoBehaviour {
 				}
 			}
 		}
+		// Bring the selected piece up
+		if (currentPiece.x != -1 && currentPiece.y < gridSize.y) {
+			currentPiece.y += 1;
+		}
+
+
         // ADD BOTTOM ROW
 		for (int i = (int)gridSize.x; i > 0; i--)
         {

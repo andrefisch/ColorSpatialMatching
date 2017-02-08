@@ -551,8 +551,7 @@ public class PlaygridController : MonoBehaviour {
                             // Then we check to see if there is a straight shot from A to B
                             if (StraightShot((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
                             {
-                                currentPiece = object1[i];
-                                lastPiece = object2[j];
+                                HighlightMatchTrack();
                                 if (DEMATCH)
                                 {
                                     Debug.Log("There is a STRAIGHTSHOT so we have a match!");
