@@ -18,7 +18,7 @@ public class GridpieceController : MonoBehaviour {
     public const int PURPLE = 6;
     public const int MAGENTA = 7;
     public const int CYAN = 8;
-    public const int AQUA = 9;
+    public const int SAND = 9;
 
 	public int type;
 
@@ -81,28 +81,45 @@ public class GridpieceController : MonoBehaviour {
 			GetComponent<BoxCollider2D>().enabled = false;
 		}
         else if (type == BAD)
+        {
             sr.color = Color.black;
+        }
 		else if (type == RED)
+        {
 			sr.color = Color.red;
+        }
 		else if (type == BLUE)
+        {
 			sr.color = Color.blue;
+        }
 		else if (type == GREEN)
+        {
 			sr.color = Color.green;
-		else if (type == YELLOW){
+        }
+		else if (type == YELLOW)
+        {
             sr.color = new Color(1.0f, 1.0f, 0f);
         }
-        else if (type == ORANGE){
+        else if (type == ORANGE)
+        {
             sr.color = new Color(1.0f, 140.0f / 255.0f, 0f);
         }
-        else if (type == PURPLE){
+        else if (type == PURPLE)
+        {
             sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
         }
         else if (type == MAGENTA)
+        {
             sr.color = Color.magenta;
+        }
         else if (type == CYAN)
+        {
             sr.color = Color.cyan;
-        else if (type == AQUA)
-            sr.color = new Color(0f, 1f, 1f);
+        }
+        else if (type == SAND)
+        {
+            sr.color = new Color(166.0f / 255.0f, 145.0f / 255.0f, 80.0f / 255.0f);
+        }
 
 		setColor = true;
 	}

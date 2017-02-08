@@ -6,6 +6,7 @@ using System.Linq;
 
 public class PlaygridController : MonoBehaviour {
 
+    public bool FREEZE;
     public GameObject gridPiece;
     // 1x1 is 0, 1x2 is 1, 2x1 is 2, 2x2 is 3
     public GameObject[] highlighters;
@@ -37,6 +38,7 @@ public class PlaygridController : MonoBehaviour {
     private bool startCounting;
     private int newLineCounter;
     private int newLineInterval;
+    private int newLineThreshold;
     private int processingCounter;
     private int processingInterval;
 
@@ -64,6 +66,7 @@ public class PlaygridController : MonoBehaviour {
 
     // Use this for initialization
     void Start(){
+        FREEZE = false;
         // includeBigPieces = true;
         // SCORE STUFF
         colorLevel = 4;
@@ -93,6 +96,7 @@ public class PlaygridController : MonoBehaviour {
         processingCounter = 0;
         newLineCounter = 0;
         newLineInterval = 500;
+        newLineThreshold = 20;
         processingInterval = 20;
 
         currentPiece = new Vector2(-1, -1);
@@ -170,7 +174,7 @@ public class PlaygridController : MonoBehaviour {
         bool DEFIXEDUPDATE = false;
         UpdateScore();
         newLineCounter++;
-        if (newLineCounter >= newLineInterval)
+        if (!FREEZE && newLineCounter >= newLineInterval)
         {
             AddRow();
         }
@@ -178,7 +182,7 @@ public class PlaygridController : MonoBehaviour {
         {
             processingCounter++;
         }
-        if (movedObjects.Count == 0 && processingCounter >= processingInterval)
+        if (!FREEZE && movedObjects.Count == 0 && processingCounter >= processingInterval)
         {
             if (DEFIXEDUPDATE)
             {
@@ -186,7 +190,7 @@ public class PlaygridController : MonoBehaviour {
             }
             MovePiecesDown();
         }
-        else if (movedObjects.Count > 0 && processingCounter >= processingInterval)
+        else if (!FREEZE && movedObjects.Count > 0 && processingCounter >= processingInterval)
         {
             if (DEFIXEDUPDATE)
             {
@@ -335,8 +339,16 @@ public class PlaygridController : MonoBehaviour {
                             lastPiece.x = currentPiece.x;
                             lastPiece.y = currentPiece.y;
                         }
-                        currentPiece.x = gpc.dimX;
-                        currentPiece.y = gpc.dimY;
+                        // If a new row was just added we select the piece above it instead
+                        if (newLineCounter > newLineThreshold)
+                        {
+                            currentPiece.x = gpc.dimX;
+                            currentPiece.y = gpc.dimY;
+                        }
+                        else 
+                        {
+                            currentPiece.y = gpc.dimY + 1;
+                        }
                     }
 
                     if (DEUPDATE) {
@@ -806,7 +818,11 @@ public class PlaygridController : MonoBehaviour {
         }
         */
         // Add the block itself to the list of blocks to check
-        output.Add(new Vector2(x1, y1));
+        if (gridObjects[x1, y1])
+        {
+            output.AddRange(gridObjects[x1, y1].GetComponent<GridpieceController>().GetPositions());
+        }
+        // output.Add(new Vector2(x1, y1));
         return output;
     }
 
@@ -938,13 +954,23 @@ public class PlaygridController : MonoBehaviour {
                     {
                         Debug.Log("Now processing match trails for current piece");
                     }
-                    StraightShot((int)list1[i].x, (int)list1[i].y, (int)currentPiece.x, (int)currentPiece.y);
+                    List<Vector2> temp = new List<Vector2>();
+                    temp.AddRange(gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().GetPositions());
+                    for (int k = 0; k < temp.Count; k++)
+                    {
+                        StraightShot((int)list1[i].x, (int)list1[i].y, (int)temp[k].x, (int)temp[k].y);
+                    }
                     // And to do a straightshot from the second coordinate to last block to fill matchTrack
                     if (DECHECKMATCHTRAILS)
                     {
                         Debug.Log("Now processing match trails for last piece");
                     }
-                    StraightShot((int)list2[j].x, (int)list2[j].y, (int)lastPiece.x, (int)lastPiece.y);
+                    temp.Clear();
+                    temp.AddRange(gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().GetPositions());
+                    for (int k = 0; k < temp.Count; k++)
+                    {
+                        StraightShot((int)list2[j].x, (int)list2[j].y, (int)temp[k].x, (int)temp[k].y);
+                    }
                     HighlightMatchTrack();
                     return true;
                 }
