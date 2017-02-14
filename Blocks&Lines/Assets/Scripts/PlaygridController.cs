@@ -36,9 +36,9 @@ public class PlaygridController : MonoBehaviour {
 
     // COUNTER TO KEEP TRACK OF WHEN THE BLOCKS FALL
     private bool startCounting;
-    private int newLineCounter;
-    private int newLineInterval;
-    private int newLineThreshold;
+    public int newLineCounter;
+    public int newLineInterval;
+    private int newLineBuffer;
     private int processingCounter;
     private int processingInterval;
 
@@ -96,7 +96,7 @@ public class PlaygridController : MonoBehaviour {
         processingCounter = 0;
         newLineCounter = 0;
         newLineInterval = 500;
-        newLineThreshold = 20;
+        newLineBuffer = 40;
         processingInterval = 20;
 
         currentPiece = new Vector2(-1, -1);
@@ -340,7 +340,7 @@ public class PlaygridController : MonoBehaviour {
                             lastPiece.y = currentPiece.y;
                         }
                         // If a new row was just added we select the piece above it instead
-                        if (newLineCounter > newLineThreshold)
+                        if (newLineCounter > newLineBuffer)
                         {
                             currentPiece.x = gpc.dimX;
                             currentPiece.y = gpc.dimY;
