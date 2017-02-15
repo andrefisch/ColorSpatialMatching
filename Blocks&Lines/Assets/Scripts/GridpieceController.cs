@@ -20,7 +20,7 @@ public class GridpieceController : MonoBehaviour {
     public const int CYAN = 8;
     public const int SAND = 9;
 
-	public int type;
+	public int blockColor;
 
 	public const int ONExONE = 0;
 	public const int ONExTWO = 1;
@@ -28,6 +28,13 @@ public class GridpieceController : MonoBehaviour {
 	public const int TWOxTWO = 3;
 
 	public int size;
+
+	public const int REG_BLOCK = 0;
+	public const int SQUIGLY_BLOCK = 1;
+	public const int HORIZ_BLOCK = 2;
+	public const int VERT_BLOCK = 3;
+
+	public int type = REG_BLOCK;
 
     public int dimX = -100;
     public int dimY = -100;
@@ -38,17 +45,24 @@ public class GridpieceController : MonoBehaviour {
 	public Material[] twoSizeScoreMats;
 	public Material[] fourSizeScoreMats;
 
+	public Sprite[] specialBlockSprites;
 	//public Vector2 placeInGrid;
 
 	private bool setColor;
 	private bool setSize;
-	public SpriteRenderer sr;
+	private SpriteRenderer sr;
+
+	void Awake() {
+
+	}
 
 	// Use this for initialization
 	void Start () {
         blockCount++;
         blockId = blockCount;
 		sr = GetComponent<SpriteRenderer>();
+		if (specialBlockSprites.Length > 0)
+			sr.sprite = specialBlockSprites[type];
 	}
 	
 	// Update is called once per frame
@@ -74,49 +88,49 @@ public class GridpieceController : MonoBehaviour {
 
 	public void SetColor() {
 		sr = GetComponent<SpriteRenderer>();
-		if (type == EDGE) {
+		if (blockColor == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
 			sr.color = Color.gray;
 			// sr.color = Color.clear;
 			GetComponent<BoxCollider2D>().enabled = false;
 		}
-        else if (type == BAD)
+        else if (blockColor == BAD)
         {
             sr.color = Color.black;
         }
-		else if (type == RED)
+		else if (blockColor == RED)
         {
 			sr.color = Color.red;
         }
-		else if (type == BLUE)
+		else if (blockColor == BLUE)
         {
 			sr.color = Color.blue;
         }
-		else if (type == GREEN)
+		else if (blockColor == GREEN)
         {
 			sr.color = Color.green;
         }
-		else if (type == YELLOW)
+		else if (blockColor == YELLOW)
         {
             sr.color = new Color(1.0f, 1.0f, 0f);
         }
-        else if (type == ORANGE)
+        else if (blockColor == ORANGE)
         {
             sr.color = new Color(1.0f, 140.0f / 255.0f, 0f);
         }
-        else if (type == PURPLE)
+        else if (blockColor == PURPLE)
         {
             sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
         }
-        else if (type == MAGENTA)
+        else if (blockColor == MAGENTA)
         {
             sr.color = Color.magenta;
         }
-        else if (type == CYAN)
+        else if (blockColor == CYAN)
         {
             sr.color = Color.cyan;
         }
-        else if (type == SAND)
+        else if (blockColor == SAND)
         {
             sr.color = new Color(166.0f / 255.0f, 145.0f / 255.0f, 80.0f / 255.0f);
         }
@@ -190,4 +204,12 @@ public class GridpieceController : MonoBehaviour {
         // go.GetComponent<LineRenderer>().SetColors(color, color);
         return go;
     }
+
+	public void AssignColor(int colType, Color col) {
+		blockColor = colType;
+		sr.color = col;
+	}
+	public Color GetColor() {
+		return sr.color;
+	}
 }
