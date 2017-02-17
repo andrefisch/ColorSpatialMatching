@@ -8,22 +8,17 @@ public class ProgressBar : MonoBehaviour {
     float total;
     float current;
 
-	private PlaygridController playgrid;
-
     // Use this for initialization
     void Start () 
     {
         fillImg = this.GetComponent<Image>();
-
-		playgrid = GameObject.FindGameObjectWithTag("GameController").GetComponent<PlaygridController>();
-
     }
 
     // Update is called once per frame
     void Update () 
     {
-		total = playgrid.newLineInterval;
-		current = playgrid.newLineCounter;
+        total = GameObject.Find("Playgrid").GetComponent<PlaygridController>().newLineInterval;
+        current = GameObject.Find("Playgrid").GetComponent<PlaygridController>().newLineCounter;
         fillImg.fillAmount = (total - current) / total;
     }
 }
