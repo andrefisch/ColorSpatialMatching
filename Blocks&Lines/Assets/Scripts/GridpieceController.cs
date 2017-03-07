@@ -176,9 +176,13 @@ public class GridpieceController : MonoBehaviour {
 
 	public GameObject ScoreExplode(Color color, int scoreAmount, int comboLevel) {
 		if (comboLevel > 10)
+        {
 			comboLevel = 10;
+        }
 		if (comboLevel < 1)
+        {
 			comboLevel = 1;
+        }
 		GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 		if (scoreAmount == 1)
 			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = oneSizeScoreMats[comboLevel - 1];

@@ -46,7 +46,12 @@ public class PlaygridController : MonoBehaviour {
     // MATCHING VARIABLES
     private Vector2 currentPiece;
     private Vector2 lastPiece;
-    public List<Vector2> matchTrack;
+    private List<Vector2> matchTrack;
+    /*
+    public List<Vector2> matchTrackBetween;
+    public List<Vector2> matchTrackFirst;
+    public List<Vector2> matchTrackSecond;
+    */
 
     // This is how you do a 2D array in C# ---  int[][] is an array of arrays
     public GameObject[,] gridObjects;
@@ -101,6 +106,11 @@ public class PlaygridController : MonoBehaviour {
 
         currentPiece = new Vector2(-1, -1);
         lastPiece = new Vector2(-1, -1);
+        /*
+        matchTrackBetween = new List<Vector2>();
+        matchTrackFirst   = new List<Vector2>();
+        matchTrackSecond  = new List<Vector2>();
+        */
         matchTrack = new List<Vector2>();
 
         gridObjects = new GameObject[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
@@ -339,6 +349,11 @@ public class PlaygridController : MonoBehaviour {
                             lastPiece.x = currentPiece.x;
                             lastPiece.y = currentPiece.y;
                         }
+                        // Make sure the current piece is the one selected
+                        currentPiece.x = gpc.dimX;
+                        currentPiece.y = gpc.dimY;
+                        /*
+                         * Tried this but found it was unnecessary with the countdown clock
                         // If a new row was just added we select the piece above it instead
                         if (newLineCounter > newLineBuffer)
                         {
@@ -349,6 +364,7 @@ public class PlaygridController : MonoBehaviour {
                         {
                             currentPiece.y = gpc.dimY + 1;
                         }
+                        */
                     }
 
                     if (DEUPDATE) {
@@ -515,6 +531,11 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     bool Match(int x1, int y1, int x2, int y2)
     {
+        /*
+        matchTrackBetween.Clear();
+        matchTrackFirst.Clear();
+        matchTrackSecond.Clear();
+        */
         matchTrack.Clear();
         bool DEMATCH = false;
         if (DEMATCH)
@@ -1499,8 +1520,6 @@ public class PlaygridController : MonoBehaviour {
 		if (currentPiece.x != -1 && currentPiece.y < gridSize.y) {
 			currentPiece.y += 1;
 		}
-
-
         // ADD BOTTOM ROW
 		for (int i = (int)gridSize.x; i > 0; i--)
         {
@@ -1618,6 +1637,8 @@ public class PlaygridController : MonoBehaviour {
             gridObjects[x, (int)currentPiece.y].GetComponent<GridpieceController>().blockColor = 0;
             gridObjects[x, (int)currentPiece.y].GetComponent<GridpieceController>().sr.color = edgeColor;
         }
+        startCounting = true;
+        combos++;
     }
 
     // Removes column of highlighted piece
@@ -1630,6 +1651,8 @@ public class PlaygridController : MonoBehaviour {
             gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().blockColor = 0;
             gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().sr.color = edgeColor;
         }
+        startCounting = true;
+        combos++;
     }
 
     // Removes both row and column of highlighted piece
@@ -1648,6 +1671,8 @@ public class PlaygridController : MonoBehaviour {
             gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().blockColor = 0;
             gridObjects[(int)currentPiece.x, y].GetComponent<GridpieceController>().sr.color = edgeColor;
         }
+        startCounting = true;
+        combos++;
     }
 
     // Remove all blocks of currentPiece color 
@@ -1667,6 +1692,8 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        startCounting = true;
+        combos++;
     }
 
     // Removes any piece - UPDATED FOR MULTIPLE SIZES

@@ -10,10 +10,10 @@ public class Circle : MonoBehaviour
 
     void Start ()
     {
-        // color = gameObject.GetComponent<SpriteRenderer>().color;
-        // color = Color.red;
         line = gameObject.GetComponent<LineRenderer>();
-        line.SetColors(color, color);
+        // line.SetColors(color, color);
+        line.startColor = color;
+        line.endColor = color;
         line.SetVertexCount (segments + 1);
         line.useWorldSpace = false;
         CreatePoints ();
@@ -33,14 +33,18 @@ public class Circle : MonoBehaviour
             {
                 Debug.Log("Start color is: " + color.a);
             }
-            line.SetColors(color, color);
+            // line.SetColors(color, color);
+            line.startColor = color;
+            line.endColor = color;
         }
         else if (color.a <= 0)
         {
             Destroy(this.gameObject);
         }
 
-        line.SetWidth(0.4f, 0.4f);
+        // line.SetWidth(0.4f, 0.4f);
+        line.startWidth = 0.4f;
+        line.endWidth = 0.4f;
         line.SetPosition(0, Vector3.zero);
         line.SetPosition(1, Vector3.up);
         Material whiteDiffuseMat = new Material(Shader.Find("Particles/Additive (Soft)"));
