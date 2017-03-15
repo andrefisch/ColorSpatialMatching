@@ -44,6 +44,8 @@ public class PlaygridController : MonoBehaviour {
 
     //public GridpieceController gpc;
     // MATCHING VARIABLES
+    public MainCamera mainCamera;
+    private LineRenderer line;
     private Vector2 currentPiece;
     private Vector2 lastPiece;
     private List<Vector2> matchTrack;
@@ -103,6 +105,9 @@ public class PlaygridController : MonoBehaviour {
         newLineInterval = 500;
         newLineBuffer = 40;
         processingInterval = 20;
+
+        mainCamera = GetComponent<Camera>();
+        line = gameObject.GetComponent<LineRenderer>();
 
         currentPiece = new Vector2(-1, -1);
         lastPiece = new Vector2(-1, -1);
@@ -694,7 +699,6 @@ public class PlaygridController : MonoBehaviour {
 
     // Are the two blocks adjacent?
     // NO KNOWN BUGS
-    // - NOT UPDATED FOR MULTIPLE SIZES
     bool Adjacent(int x1, int y1, int x2, int y2)
     {
         bool DEADJACENT = false;
@@ -854,7 +858,7 @@ public class PlaygridController : MonoBehaviour {
     // - NOT UPDATED FOR MULTIPLE SIZES
     bool StraightShot(int x1, int y1, int x2, int y2)
     {
-        bool DESTRAIGHTSHOT = true;
+        bool DESTRAIGHTSHOT = false;
         bool output = false;
         // Keep track of the coordinates we move through to get the match
         List<Vector2> straightShotTrack = new List<Vector2>();
@@ -943,7 +947,7 @@ public class PlaygridController : MonoBehaviour {
     bool CheckMatchTrails(List<Vector2> list1, List<Vector2> list2)
     {
         //list1 is currentPiece, list2 is lastPiece
-        bool DECHECKMATCHTRAILS = true;
+        bool DECHECKMATCHTRAILS = false;
         bool match = false;
         if (DECHECKMATCHTRAILS)
         {
@@ -1019,6 +1023,43 @@ public class PlaygridController : MonoBehaviour {
                 gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
             }
         }
+        for (int z = 1; z < matchTrack.Count; z++)
+        {
+            Transform target1;
+            Transform target2;
+            Vector3 position1;
+            Vector3 position2;
+            // Create a line between this block and previous block in list if they are adjacent
+            if (Adjacent((int)matchTrack[z].x, (int)matchTrack[z].y, (int)matchTrack[z - 1].x, (int)matchTrack[z- 1].y))
+            {
+
+                if (gridObjects[(int)matchTrack[z].x, (int)matchTrack[z].y] && gridObjects[(int)matchTrack[z - 1].x, (int)matchTrack[z - 1].y])
+                {
+                    target1 = gridObjects[(int)matchTrack[z].x, (int)matchTrack[z].y].GetComponent<Transform>();
+                    target2 = gridObjects[(int)matchTrack[z - 1].x, (int)matchTrack[z - 1].y].GetComponent<Transform>();
+                    position1 = mainCamera.WorldToScreenPoint(target1.position);
+                    position2 = mainCamera.WorldToScreenPoint(target2.position);
+                    // Draw the actual line
+                    DrawLine(position1, position2, Color.white);
+                    // line.SetPosition(position1, position2);
+                }
+            }
+        }
+    }
+
+    void DrawLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
+    {
+        GameObject myLine = new GameObject();
+        myLine.transform.position = start;
+        myLine.AddComponent<LineRenderer>();
+        LineRenderer lr = myLine.GetComponent<LineRenderer>();
+        // lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+        lr.material = new Material(Shader.Find("Particles/Additive (Soft)"));
+        lr.SetColors(color, color);
+        lr.SetWidth(0.4f, 0.4f);
+        lr.SetPosition(0, start);
+        lr.SetPosition(1, end);
+        GameObject.Destroy(myLine, duration);
     }
 
     // Changes back the match track to default color
