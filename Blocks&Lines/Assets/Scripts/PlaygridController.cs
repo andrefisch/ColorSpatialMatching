@@ -152,7 +152,7 @@ public class PlaygridController : MonoBehaviour {
                     // Add blocks normally to the bottom half of the grid, we dont want to start completely full
                     if (i >= 1 && j > 0 && j <= gridSize.y / 2)
                     {
-                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
+                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE, 0);
                     }
                     // Add clear blocks above the half
                     else if (j > (gridSize.y / 2))
@@ -1944,6 +1944,22 @@ public class PlaygridController : MonoBehaviour {
             return go;
         }
     }
+
+	public GameObject AddPieceAtPosition(int x, int y, int num, int size, int type) {
+		if (num == GridpieceController.EDGE && type != 0) {
+			Debug.Log("Warning (AddPieceAtPosition2): attempting to make an edge piece with a special block characteristic.  Creating regular block");
+			return AddPieceAtPosition(x, y, num, size);
+		}
+		else if (type < 0 || type > GridpieceController.NUM_TPYES_SPECIAL_BLOCKS) {
+			Debug.Log("Warning (AddPieceAtPosition2): attempting to make a special block type that doesn't exist.  Creating regular block");
+			return AddPieceAtPosition(x, y, num, size);
+		}
+
+		GameObject go = AddPieceAtPosition(x, y, num, size);
+		GridpieceController gpc = go.GetComponent<GridpieceController>();
+		gpc.blockType = type;
+		return go;
+	}
 
     // UPDATED FOR MULTIPLE SIZES
     public void MovePieceToPosition(GameObject piece, int x, int y) {
