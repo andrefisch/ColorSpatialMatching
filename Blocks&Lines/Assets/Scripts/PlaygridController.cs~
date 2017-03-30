@@ -38,14 +38,14 @@ public class PlaygridController : MonoBehaviour {
     private bool startCounting;
     public int newLineCounter;
     public int newLineInterval;
-    // private int newLineBuffer;
+    private int newLineBuffer;
     private int processingCounter;
     private int processingInterval;
 
     //public GridpieceController gpc;
     // MATCHING VARIABLES
     public Camera mainCamera;
-    // private LineRenderer line;
+    private LineRenderer line;
     private Vector2 currentPiece;
     private Vector2 lastPiece;
     private List<Vector2> matchTrack;
@@ -697,12 +697,12 @@ public class PlaygridController : MonoBehaviour {
     }
 
 
-    // Are the two blocks adjacent?
+    // Are the two blocks adjacent and the same color?
     // NO KNOWN BUGS
     bool Adjacent(int x1, int y1, int x2, int y2)
     {
         bool DEADJACENT = false;
-        if ((Mathf.Abs(x1 - x2) == 1 && Mathf.Abs(y1 - y2) == 0) || (Mathf.Abs(x1 - x2) == 0 && Mathf.Abs(y1 - y2) == 1))
+        if (CheckAdjacency(x1, y1, x2, y2))
         {
             if (DEADJACENT)
             {
@@ -721,6 +721,12 @@ public class PlaygridController : MonoBehaviour {
         {
             return false;
         }
+    }
+
+    // Are the two vector2's adjacent?
+    bool CheckAdjacency(int x1, int y1, int x2, int y2)
+    {
+        return (Mathf.Abs(x1 - x2) == 1 && Mathf.Abs(y1 - y2) == 0) || (Mathf.Abs(x1 - x2) == 0 && Mathf.Abs(y1 - y2) == 1);
     }
 
     // THE DIRECTIONS NEED TO BE CHANGED
@@ -1015,25 +1021,37 @@ public class PlaygridController : MonoBehaviour {
             int j = (int)coordinate.y;
             if (DEHIGHLIGHTMATCHTRACK)
             {
-                Debug.Log("Now highlighting this block: " + i + ", " + j);
+                // Debug.Log("Now highlighting this block: " + i + ", " + j);
             }
             if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == edgeColor)
             {
-                gridObjects[i, j].GetComponent<GridpieceController>().blockColor = -2;
-                gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
+                // gridObjects[i, j].GetComponent<GridpieceController>().blockColor = -2;
+                // gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
             }
         }
-        /*
+        line.SetVertexCount(matchTrack.Count + 1);
+        line.numPositions = (matchTrack.Count + 1);
+        if (DEHIGHLIGHTMATCHTRACK)
+        {
+            Debug.Log("Number of positions in line renderer: " + line.numPositions);
+        }
         for (int z = 1; z < matchTrack.Count; z++)
         {
+            if (DEHIGHLIGHTMATCHTRACK)
+            {
+                Debug.Log("Current position in loop is " + z);
+            }
             Transform target1;
             Transform target2;
             Vector3 position1;
             Vector3 position2;
             // Create a line between this block and previous block in list if they are adjacent
-            if (Adjacent((int)matchTrack[z].x, (int)matchTrack[z].y, (int)matchTrack[z - 1].x, (int)matchTrack[z- 1].y))
+            if (CheckAdjacency((int)matchTrack[z].x, (int)matchTrack[z].y, (int)matchTrack[z - 1].x, (int)matchTrack[z - 1].y))
             {
-
+                if (DEHIGHLIGHTMATCHTRACK)
+                {
+                    Debug.Log((int)matchTrack[z].x + ", " + (int)matchTrack[z].y + " and " + (int)matchTrack[z - 1].x + ", " + (int)matchTrack[z - 1].y + " are adjacent");
+                }
                 if (gridObjects[(int)matchTrack[z].x, (int)matchTrack[z].y] && gridObjects[(int)matchTrack[z - 1].x, (int)matchTrack[z - 1].y])
                 {
                     target1 = gridObjects[(int)matchTrack[z].x, (int)matchTrack[z].y].GetComponent<Transform>();
@@ -1041,28 +1059,37 @@ public class PlaygridController : MonoBehaviour {
                     position1 = mainCamera.WorldToScreenPoint(target1.position);
                     position2 = mainCamera.WorldToScreenPoint(target2.position);
                     // Draw the actual line
-                    DrawLine(position1, position2, Color.white);
-                    // line.SetPosition(position1, position2);
+                    DrawLine(position1, position2, Color.white, z);
+                }
+            }
+            else
+            {
+                if (DEHIGHLIGHTMATCHTRACK)
+                {
+                    Debug.Log((int)matchTrack[z].x + ", " + (int)matchTrack[z].y + " and " + (int)matchTrack[z - 1].x + ", " + (int)matchTrack[z - 1].y + " are NOT adjacent");
                 }
             }
         }
-        */
     }
 
-    void DrawLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
+    void DrawLine(Vector3 start, Vector3 end, Color color, int position, float duration = 0.2f)
     {
+        bool DEDRAWLINE = true;
+        if (DEDRAWLINE)
+        {
+            Debug.Log("Two positions we are setting are " + position + ", " + (position - 1));
+        }
         GameObject myLine = new GameObject();
         myLine.transform.position = start;
         myLine.AddComponent<LineRenderer>();
-        LineRenderer lr = myLine.GetComponent<LineRenderer>();
-        // lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
-        lr.material = new Material(Shader.Find("Particles/Additive (Soft)"));
-        lr.startColor = color;
-        lr.endColor = color;
-        lr.startWidth = 0.4f;
-        lr.endWidth = 0.4f;
-        lr.SetPosition(0, start);
-        lr.SetPosition(1, end);
+        // line.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+        line.material = new Material(Shader.Find("Particles/Additive (Soft)"));
+        line.startColor = color;
+        line.endColor = color;
+        line.startWidth = 0.4f;
+        line.endWidth = 0.4f;
+        line.SetPosition(position, start);
+        line.SetPosition(position - 1, end);
         GameObject.Destroy(myLine, duration);
     }
 
