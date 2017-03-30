@@ -194,7 +194,9 @@ public class GridpieceController : MonoBehaviour {
     public GameObject Explode(Color color)
     {
         GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
-		go.GetComponent<ParticleSystem>().startColor = color;
+	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
+        ParticleSystem.MainModule main = ps.main;
+        main.startColor = color;
 		go.transform.FindChild("ScorePart").gameObject.SetActive(false);
         return go;
     }
@@ -216,7 +218,9 @@ public class GridpieceController : MonoBehaviour {
 		else if (scoreAmount == 4)
 			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = fourSizeScoreMats[comboLevel - 1];
 
-		go.GetComponent<ParticleSystem>().startColor = color;
+	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
+        ParticleSystem.MainModule main = ps.main;
+        main.startColor = color;
 		return go;
 	}
 

@@ -106,7 +106,7 @@ public class PlaygridController : MonoBehaviour {
         newLineBuffer = 40;
         processingInterval = 20;
 
-        mainCamera = GetComponent<Camera>();
+        // mainCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<Camera>();
         line = gameObject.GetComponent<LineRenderer>();
 
         currentPiece = new Vector2(-1, -1);
@@ -1023,6 +1023,7 @@ public class PlaygridController : MonoBehaviour {
                 gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
             }
         }
+        /*
         for (int z = 1; z < matchTrack.Count; z++)
         {
             Transform target1;
@@ -1045,6 +1046,7 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        */
     }
 
     void DrawLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
@@ -1055,8 +1057,10 @@ public class PlaygridController : MonoBehaviour {
         LineRenderer lr = myLine.GetComponent<LineRenderer>();
         // lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
         lr.material = new Material(Shader.Find("Particles/Additive (Soft)"));
-        lr.SetColors(color, color);
-        lr.SetWidth(0.4f, 0.4f);
+        lr.startColor = color;
+        lr.endColor = color;
+        lr.startWidth = 0.4f;
+        lr.endWidth = 0.4f;
         lr.SetPosition(0, start);
         lr.SetPosition(1, end);
         GameObject.Destroy(myLine, duration);

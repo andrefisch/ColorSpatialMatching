@@ -14,7 +14,7 @@ public class Circle : MonoBehaviour
         // line.SetColors(color, color);
         line.startColor = color;
         line.endColor = color;
-        line.SetVertexCount (segments + 1);
+        line.numPositions = (segments + 1);
         line.useWorldSpace = false;
         CreatePoints ();
     }
@@ -36,6 +36,7 @@ public class Circle : MonoBehaviour
             // line.SetColors(color, color);
             line.startColor = color;
             line.endColor = color;
+
         }
         else if (color.a <= 0)
         {

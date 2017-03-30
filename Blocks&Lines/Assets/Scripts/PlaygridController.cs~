@@ -38,14 +38,14 @@ public class PlaygridController : MonoBehaviour {
     private bool startCounting;
     public int newLineCounter;
     public int newLineInterval;
-    private int newLineBuffer;
+    // private int newLineBuffer;
     private int processingCounter;
     private int processingInterval;
 
     //public GridpieceController gpc;
     // MATCHING VARIABLES
-    public MainCamera mainCamera;
-    private LineRenderer line;
+    public Camera mainCamera;
+    // private LineRenderer line;
     private Vector2 currentPiece;
     private Vector2 lastPiece;
     private List<Vector2> matchTrack;
@@ -106,7 +106,7 @@ public class PlaygridController : MonoBehaviour {
         newLineBuffer = 40;
         processingInterval = 20;
 
-        mainCamera = GetComponent<Camera>();
+        // mainCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<Camera>();
         line = gameObject.GetComponent<LineRenderer>();
 
         currentPiece = new Vector2(-1, -1);
@@ -152,7 +152,7 @@ public class PlaygridController : MonoBehaviour {
                     // Add blocks normally to the bottom half of the grid, we dont want to start completely full
                     if (i >= 1 && j > 0 && j <= gridSize.y / 2)
                     {
-                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
+                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE, 0);
                     }
                     // Add clear blocks above the half
                     else if (j > (gridSize.y / 2))
@@ -1023,6 +1023,7 @@ public class PlaygridController : MonoBehaviour {
                 gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
             }
         }
+        /*
         for (int z = 1; z < matchTrack.Count; z++)
         {
             Transform target1;
@@ -1045,6 +1046,7 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        */
     }
 
     void DrawLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
@@ -1055,8 +1057,10 @@ public class PlaygridController : MonoBehaviour {
         LineRenderer lr = myLine.GetComponent<LineRenderer>();
         // lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
         lr.material = new Material(Shader.Find("Particles/Additive (Soft)"));
-        lr.SetColors(color, color);
-        lr.SetWidth(0.4f, 0.4f);
+        lr.startColor = color;
+        lr.endColor = color;
+        lr.startWidth = 0.4f;
+        lr.endWidth = 0.4f;
         lr.SetPosition(0, start);
         lr.SetPosition(1, end);
         GameObject.Destroy(myLine, duration);
@@ -1944,6 +1948,22 @@ public class PlaygridController : MonoBehaviour {
             return go;
         }
     }
+
+	public GameObject AddPieceAtPosition(int x, int y, int num, int size, int type) {
+		if (num == GridpieceController.EDGE && type != 0) {
+			Debug.Log("Warning (AddPieceAtPosition2): attempting to make an edge piece with a special block characteristic.  Creating regular block");
+			return AddPieceAtPosition(x, y, num, size);
+		}
+		else if (type < 0 || type > GridpieceController.NUM_TPYES_SPECIAL_BLOCKS) {
+			Debug.Log("Warning (AddPieceAtPosition2): attempting to make a special block type that doesn't exist.  Creating regular block");
+			return AddPieceAtPosition(x, y, num, size);
+		}
+
+		GameObject go = AddPieceAtPosition(x, y, num, size);
+		GridpieceController gpc = go.GetComponent<GridpieceController>();
+		gpc.blockType = type;
+		return go;
+	}
 
     // UPDATED FOR MULTIPLE SIZES
     public void MovePieceToPosition(GameObject piece, int x, int y) {

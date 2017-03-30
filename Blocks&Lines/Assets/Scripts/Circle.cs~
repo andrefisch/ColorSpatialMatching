@@ -13,8 +13,8 @@ public class Circle : MonoBehaviour
         line = gameObject.GetComponent<LineRenderer>();
         // line.SetColors(color, color);
         line.startColor = color;
-        // line.endColor = color;
-        line.SetVertexCount (segments + 1);
+        line.endColor = color;
+        line.numPositions = (segments + 1);
         line.useWorldSpace = false;
         CreatePoints ();
     }
@@ -35,7 +35,7 @@ public class Circle : MonoBehaviour
             }
             // line.SetColors(color, color);
             line.startColor = color;
-            // line.endColor = color;
+            line.endColor = color;
         }
         else if (color.a <= 0)
         {
@@ -44,7 +44,7 @@ public class Circle : MonoBehaviour
 
         // line.SetWidth(0.4f, 0.4f);
         line.startWidth = 0.4f;
-        // line.endWidth = 0.4f;
+        line.endWidth = 0.4f;
         line.SetPosition(0, Vector3.zero);
         line.SetPosition(1, Vector3.up);
         Material whiteDiffuseMat = new Material(Shader.Find("Particles/Additive (Soft)"));
