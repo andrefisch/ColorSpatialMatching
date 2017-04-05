@@ -587,7 +587,9 @@ public class PlaygridController : MonoBehaviour {
                             // Then we check to see if there is a straight shot from A to B
                             if (StraightShot((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
                             {
-                                HighlightMatchTrack();
+                                currentPiece = new Vector2((int)object1[i].x, (int)object1[i].y);
+                                lastPiece = new Vector2((int)object2[i].x, (int)object2[i].y);
+                                // HighlightMatchTrack();
                                 if (DEMATCH)
                                 {
                                     Debug.Log("There is a STRAIGHTSHOT so we have a match!");
@@ -637,7 +639,7 @@ public class PlaygridController : MonoBehaviour {
                     // Score the blocks
                     int first  = ScoreBlock((int)object1[0].x, (int)object1[0].y);
                     int second = ScoreBlock((int)object2[0].x, (int)object2[0].y);
-                    // Here is where we would display do userfeedback stuff with the block
+                    // Here is where we would display userfeedback stuff with the block
                     // DisplayScore(first + second) 
                     if (DEMATCH)
                     {
@@ -658,8 +660,6 @@ public class PlaygridController : MonoBehaviour {
                             RemovePieceAtPosition((int)object1[i].x, (int)object1[i].y);
                         }
                         AddPieceAtPosition((int)object1[i].x, (int)object1[i].y, 0, GridpieceController.ONExONE);
-                        // gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().blockColor = 0;
-                        // gridObjects[(int)object1[i].x, (int)object1[i].y].GetComponent<GridpieceController>().sr.color = edgeColor;
                     }
                     // Make sure we deselect and unhighlight last piece
                     gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().selected = false;
@@ -675,9 +675,8 @@ public class PlaygridController : MonoBehaviour {
                             RemovePieceAtPosition((int)object2[i].x, (int)object2[i].y);
                         }
                         AddPieceAtPosition((int)object2[i].x, (int)object2[i].y, 0, GridpieceController.ONExONE);
-                        // gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().blockColor = 0;
-                        // gridObjects[(int)object2[i].x, (int)object2[i].y].GetComponent<GridpieceController>().sr.color = edgeColor;
                     }
+                    HighlightMatchTrack();
                     // Make sure we reset current piece
                     currentPiece.x = -1;
                     currentPiece.y = -1;
@@ -708,6 +707,8 @@ public class PlaygridController : MonoBehaviour {
             }
             if (gridObjects[x1, y1] && gridObjects[x2, y2] && gridObjects[x1, y1].GetComponent<GridpieceController>().blockColor == gridObjects[x2, y2].GetComponent<GridpieceController>().blockColor)
             {
+                currentPiece = new Vector2(x1, y1);
+                lastPiece = new Vector2(x2, y2);
                 return true;
             } 
             else 
@@ -739,10 +740,15 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // What are start and end points as well as turning points of the line
+    // NO KNOWN BUGS
     void CreateLineTrack()
     {
         bool DECREATELINETRACK = true;
         // add first selected piece
+        if (DECREATELINETRACK)
+        {
+            Debug.Log("Just added START point " + currentPiece.x + ", " + currentPiece.y);
+        }
         lineTrack.Add(currentPiece);
         // add turning point piece(s)
         // NO KNOWN BUGS WITH THIS LOOP
@@ -771,6 +777,10 @@ public class PlaygridController : MonoBehaviour {
             }
         }
         // add last selected piece
+        if (DECREATELINETRACK)
+        {
+            Debug.Log("Just added START point " + lastPiece.x + ", " + lastPiece.y);
+        }
         lineTrack.Add(lastPiece);
         lineTrack = lineTrack.Distinct().ToList();
         if (DECREATELINETRACK)
@@ -894,13 +904,6 @@ public class PlaygridController : MonoBehaviour {
                 break;
             }
         }
-        // If the output list is empty we may have a 90* match so add coordinates of tile for checking
-        /*
-        if (output.Count == 0)
-        {
-            output.Add(new Vector2(x1, y1));
-        }
-        */
         // Add the block itself to the list of blocks to check
         if (gridObjects[x1, y1])
         {
@@ -914,7 +917,6 @@ public class PlaygridController : MonoBehaviour {
     // will even work with indeces that are one out of bounds so we can
     // test blocks on the edge against each other
     // NO KNOWN BUGS
-    // - NOT UPDATED FOR MULTIPLE SIZES
     bool StraightShot(int x1, int y1, int x2, int y2)
     {
         bool DESTRAIGHTSHOT = false;
@@ -1055,7 +1057,7 @@ public class PlaygridController : MonoBehaviour {
                     {
                         StraightShot((int)list2[j].x, (int)list2[j].y, (int)temp[k].x, (int)temp[k].y);
                     }
-                    HighlightMatchTrack();
+                    // HighlightMatchTrack();
                     return true;
                 }
             }
@@ -1063,7 +1065,7 @@ public class PlaygridController : MonoBehaviour {
         return match;
     }
 
-    // Changes the color of the match track
+    // Changes the color of the match track and/or draws match line
     // NO KNOWN BUGS
     void HighlightMatchTrack()
     {
@@ -1094,21 +1096,15 @@ public class PlaygridController : MonoBehaviour {
             {
                 Debug.Log("Current position in loop is " + z);
             }
-            Transform target1;
-            Transform target2;
-            Vector3 position1;
-            Vector3 position2;
-            target1 = gridObjects[(int)lineTrack[z].x, (int)lineTrack[z].y].GetComponent<Transform>();
-            target2 = gridObjects[(int)lineTrack[z - 1].x, (int)lineTrack[z - 1].y].GetComponent<Transform>();
-            // position1 = mainCamera.WorldToScreenPoint(target1.position);
-            // position2 = mainCamera.WorldToScreenPoint(target2.position);
+            Transform target1 = gridObjects[(int)lineTrack[z].x, (int)lineTrack[z].y].GetComponent<Transform>();
+            Transform target2 = gridObjects[(int)lineTrack[z - 1].x, (int)lineTrack[z - 1].y].GetComponent<Transform>();
             // Draw the actual line
-            // DrawLine(position1, position2, Color.white, z);
             DrawLine(target1.position, target2.position, Color.white, z);
         }
     }
 
     // Draw a line
+    // NO KNOWN BUGS
     void DrawLine(Vector3 start, Vector3 end, Color color, int position, float duration = 0.2f)
     {
         bool DEDRAWLINE = false;
@@ -1117,10 +1113,6 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("Two positions we are setting are " + position + ", " + (position - 1));
             Debug.Log("Drawing a line between " + start + " and " + end);
         }
-        // GameObject myLine = new GameObject();
-        // myLine.transform.position = start;
-        // myLine.AddComponent<LineRenderer>();
-        // line.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
         line.material = new Material(Shader.Find("Particles/Additive (Soft)"));
         line.startColor = color;
         line.endColor = color;
@@ -1128,13 +1120,15 @@ public class PlaygridController : MonoBehaviour {
         line.endWidth = 0.4f;
         line.SetPosition(position, start);
         line.SetPosition(position - 1, end);
-        // GameObject.Destroy(line, duration);
     }
 
     // Changes back the match track to default color
     // NO KNOWN BUGS
     void UnhighlightMatchTrack()
     {
+        // Remove the line
+        line.numPositions = 0;
+        lineTrack.Clear();
         for (int i = 0; i < gridSize.x + extraX; i++)
         {
             for (int j = 0; j < gridSize.y + extraY; j++)
