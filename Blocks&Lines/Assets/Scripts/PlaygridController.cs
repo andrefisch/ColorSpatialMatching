@@ -1044,7 +1044,10 @@ public class PlaygridController : MonoBehaviour {
                     temp.AddRange(gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().GetPositions());
                     for (int k = 0; k < temp.Count; k++)
                     {
-                        StraightShot((int)list1[i].x, (int)list1[i].y, (int)temp[k].x, (int)temp[k].y);
+                        if (StraightShot((int)list1[i].x, (int)list1[i].y, (int)temp[k].x, (int)temp[k].y))
+                        {
+                            currentPiece = temp[k];
+                        }
                     }
                     // And to do a straightshot from the second coordinate to last block to fill matchTrack
                     if (DECHECKMATCHTRAILS)
@@ -1055,7 +1058,10 @@ public class PlaygridController : MonoBehaviour {
                     temp.AddRange(gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().GetPositions());
                     for (int k = 0; k < temp.Count; k++)
                     {
-                        StraightShot((int)list2[j].x, (int)list2[j].y, (int)temp[k].x, (int)temp[k].y);
+                        if (StraightShot((int)list2[j].x, (int)list2[j].y, (int)temp[k].x, (int)temp[k].y))
+                        {
+                            lastPiece = temp[k];
+                        }
                     }
                     // HighlightMatchTrack();
                     return true;
