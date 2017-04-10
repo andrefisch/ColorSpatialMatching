@@ -192,7 +192,7 @@ public class PlaygridController : MonoBehaviour {
         newLineCounter++;
         if (!FREEZE && newLineCounter >= newLineInterval)
         {
-            AddRow();
+            AddRow(-1);
         }
         if (startCounting)
         {
@@ -269,7 +269,10 @@ public class PlaygridController : MonoBehaviour {
         */
         // check to see if there are any null blocks
         if (Input.GetKeyDown("a")) {
-            AddRow();
+            AddRow(-1);
+        }
+        if (Input.GetKeyDown("g")){
+            AddRow(3);
         }
         // FOR DEBUGGING MAKES SURE THERE ARE NO BLANK SPACES IN THE GRID
         if (Input.GetKeyDown("c")) {
@@ -1577,20 +1580,13 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // Adds a new row to bottom
-    // BUG: SOMETIMES WHEN A NEW ROW IS ADDED A NULL POINTER EXCEPTION IS TRIGGERED
+    // NO KNOWN BUGS
 	// UPDATED FOR MULTIPLE SIZES
-    void AddRow()
+    void AddRow(int color)
     {
         // Reset the new line counter when we add a new line
         newLineCounter = 0;
         bool DEADDROW = false;
-        // DELETE TOP ROW
-        /*
-		for (int i = 1; i <= gridSize.x; i++)
-        {
-            RemovePieceAtPosition(i, (int)gridSize.y);
-        }
-        */
 		// REMOVE ALL PLACEHOLDER PIECES FIRST
 		for (int i = 1; i <= gridSize.x; i++) 
         {
@@ -1635,7 +1631,7 @@ public class PlaygridController : MonoBehaviour {
         {
 			if (!includeBigPieces)
             {
-				AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+				AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
             }
 			else 
             {
@@ -1643,18 +1639,18 @@ public class PlaygridController : MonoBehaviour {
                 // At shapeLevel 1, only create small blocks
                 if (shapeLevel == 1)
                 {
-                    AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                    AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
                 }
                 // Then we add the huge ones
                 else if (shapeLevel == 2)
                 {
                     if (val < sizeFrequencies[2])
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
                     }
                     else 
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.TWOxTWO);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.TWOxTWO);
                     }
                 }
                 // Then we add the skinny/long blocks
@@ -1662,19 +1658,19 @@ public class PlaygridController : MonoBehaviour {
                 {
                     if (val < sizeFrequencies[0])
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
                     }
                     else if (val < sizeFrequencies[1])
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExTWO);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExTWO);
                     }
                     else if (val < sizeFrequencies[2])
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.TWOxONE);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.TWOxONE);
                     }
                     else
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.TWOxTWO);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.TWOxTWO);
                     }
                 }
             }
@@ -1686,32 +1682,22 @@ public class PlaygridController : MonoBehaviour {
             {
                 if (shapeLevel < 4)
                 {
-                    AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                    AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
                 }
                 else
                 {
                     float val = Random.value;
                     if (val < sizeFrequencies[2])
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
                     }
                     else
                     {
-                        AddPieceAtPosition(i, 1, -1, GridpieceController.ONExTWO);
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExTWO);
                     }
                 }
             }
         }
-        /*
-        // ADD BOTTOM ROW
-        for (int i = (int)gridSize.x; i > 0; i--)
-        {
-            if (!includeBigPieces)
-                AddPieceAtPosition(i, 1, -1, GridpieceController.ONExONE);
-            else
-                AddPieceAtPosition(i, 1, -1, -1);
-        }
-        */
 		// ADD IN ALL PLACEHOLDER PIECES AGAIN
 		for (int i = 1; i <= gridSize.x; i++) 
         {
