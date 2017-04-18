@@ -121,31 +121,9 @@ public class PlaygridController : MonoBehaviour {
         matchTrack = new List<Vector2>();
         lineTrack = new List<Vector2>();
 
-        gridObjects = new GameObject[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
+        
 
-        gridPositions = new Vector3[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
-        //objectControllers = new GridpieceController[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
-        // set up Grid Piece positions
-        // Could probably do a better version where they're even around 0 instead of spaced out as I have them currently
-        for (int i = 0; i < gridSize.x + extraX; i++) {
-            for (int j = 0; j < gridSize.y + extraY; j++) {
-                gridPositions[i, j] = new Vector3( i * gridSpacing.x, j * gridSpacing.y, 0);
-            }
-        } 
-
-		// Set up the edge pieces
-		// Go from 0 to size on the left and right edges
-		for (int i = 1; i < gridSize.y+1; i++) {
-			AddPieceAtPosition(0, i, 0, GridpieceController.ONExONE);
-			AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0, GridpieceController.ONExONE);
-		}
-		// Go from 0 to size on the top and bottom
-		for (int i = 0; i < gridSize.x + extraX; i++) {
-			AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
-			AddPieceAtPosition(i, 0, 0, GridpieceController.ONExONE);
-		}
-
-        // Set up the actual pieces
+        // Set up the board
 		LoadPlayBoard();
         /*
         // Set up the actual pieces
@@ -2113,16 +2091,88 @@ public class PlaygridController : MonoBehaviour {
     }
 
 	private void LoadPlayBoard() {
+		bool DELOADPLAYBOARD = true;
 		if (useSpecificGrid) {
 			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
 			if (boardFile == null) {
-				Debug.LogWarning("Error (LoadPlayBoard): Using Specific Game Board is Checked but the file " + boardFile + " doesn't exist in the Resources Folder -- Filling Board Randomly");
+				Debug.LogWarning("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + boardFile + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
+				SetUpGridEdgePieces();
 				FillHalfBoardRandom();
 			}
-
+			else {
+				string boardString = boardFile.text.Trim();
+				char[] delimiters = { ' ', '\n', '\t', ',' };
+				string[] boardPieces = boardString.Split(delimiters);
+				if (boardPieces.Length < 2) {
+					Debug.LogWarning("Error (LoadPlayBoard): Given file not correct syntax - does not have at least two numbers to designate the width and height of the board -- Filling Board Randomly");
+					SetUpGridEdgePieces();
+					FillHalfBoardRandom();
+				}
+				else {
+					int boardWidth = 0;
+					int boardHeight = 0;
+					bool boardXProper = int.TryParse(boardPieces[0], out boardWidth);
+					bool boardYProper = int.TryParse(boardPieces[1], out boardHeight);
+					if (!boardXProper) {
+						Debug.LogWarning("Error (LoadPlayBoard): Given file not correct syntax - first element in file (corresponding to X width of board) must be integer value -- Filling Board Randomly");
+						SetUpGridEdgePieces();
+						FillHalfBoardRandom();
+					}
+					else if (!boardYProper) {
+						Debug.LogWarning("Error (LoadPlayBoard): Given file not correct syntax - second element in file (corresponding to Y height of board) must be integer value -- Filling Board Randomly");
+						SetUpGridEdgePieces();
+						FillHalfBoardRandom();
+					}
+					else {
+						if (DELOADPLAYBOARD) {
+							Debug.Log("Board Width is: " + boardWidth + "\nBoard Height is: " + boardHeight);
+							foreach (string s in boardPieces)
+								Debug.Log("'" + s + "'");
+						}
+						gridSize.x = boardWidth;
+						gridSize.y = boardHeight;
+						SetUpGridEdgePieces();
+					}
+				}
+			}
 		}
 		else {
+			SetUpGridEdgePieces();
 			FillHalfBoardRandom();
+		}
+	}
+
+	private void SetUpGridEdgePieces() {
+		if (gridSize.x < 1) {
+			Debug.LogWarning("Error (SetUpGridEdgePieces): Given gridSize.x is less than 1 block wide -- Setting the value to default 8");
+			gridSize.x = 8;
+		}
+		if (gridSize.y < 2) {
+			Debug.LogWarning("Error (SetUpGridEdgePieces): Given gridSize.y is less than 2 blocks tall -- Setting the value to default 8");
+			gridSize.y = 8;
+		}
+
+		gridObjects = new GameObject[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
+		gridPositions = new Vector3[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
+		//objectControllers = new GridpieceController[(int)gridSize.x + extraX, (int)gridSize.y + extraY];
+		// set up Grid Piece positions
+		// Could probably do a better version where they're even around 0 instead of spaced out as I have them currently
+		for (int i = 0; i < gridSize.x + extraX; i++) {
+			for (int j = 0; j < gridSize.y + extraY; j++) {
+				gridPositions[i, j] = new Vector3( i * gridSpacing.x, j * gridSpacing.y, 0);
+			}
+		} 
+
+		// Set up the edge pieces
+		// Go from 0 to size on the left and right edges
+		for (int i = 1; i < gridSize.y+1; i++) {
+			AddPieceAtPosition(0, i, 0, GridpieceController.ONExONE);
+			AddPieceAtPosition((int)gridSize.x + extraX - 1, i, 0, GridpieceController.ONExONE);
+		}
+		// Go from 0 to size on the top and bottom
+		for (int i = 0; i < gridSize.x + extraX; i++) {
+			AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
+			AddPieceAtPosition(i, 0, 0, GridpieceController.ONExONE);
 		}
 	}
 
