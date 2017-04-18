@@ -29,6 +29,8 @@ public class PlaygridController : MonoBehaviour {
     public const int extraX = 2;
     public const int extraY = 2;
 
+	public bool useSpecificGrid;
+	public string specificGridFileName;
     public Vector2 gridSize;
     public Vector2 gridSpacing;
 
@@ -144,29 +146,7 @@ public class PlaygridController : MonoBehaviour {
 		}
 
         // Set up the actual pieces
-        for (int i = (int)gridSize.x; i >= 1; i--) 
-        {
-            for (int j = (int)gridSize.y; j >= 1; j--) 
-            {
-                if (!gridObjects[i, j]) 
-                {
-                    // Add blocks normally to the bottom half of the grid, we dont want to start completely full
-                    if (i >= 1 && j > 0 && j <= gridSize.y / 2)
-                    {
-                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE, 0);
-                    }
-                    // Add clear blocks above the half
-                    else if (j > (gridSize.y / 2))
-                    {
-                        AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
-                    } 
-                    else 
-                    {
-                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
-                    }
-                }
-            }
-        }
+		LoadPlayBoard();
         /*
         // Set up the actual pieces
         for (int i = (int)gridSize.x; i >= 1; i--) {
@@ -2131,4 +2111,44 @@ public class PlaygridController : MonoBehaviour {
         currentPiece = Vector2.one * -1;
         lastPiece = Vector2.one * -1;
     }
+
+	private void LoadPlayBoard() {
+		if (useSpecificGrid) {
+			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
+			if (boardFile == null) {
+				Debug.LogWarning("Error (LoadPlayBoard): Using Specific Game Board is Checked but the file " + boardFile + " doesn't exist in the Resources Folder -- Filling Board Randomly");
+				FillHalfBoardRandom();
+			}
+
+		}
+		else {
+			FillHalfBoardRandom();
+		}
+	}
+
+	private void FillHalfBoardRandom() {
+		for (int i = (int)gridSize.x; i >= 1; i--) 
+		{
+			for (int j = (int)gridSize.y; j >= 1; j--) 
+			{
+				if (!gridObjects[i, j]) 
+				{
+					// Add blocks normally to the bottom half of the grid, we dont want to start completely full
+					if (i >= 1 && j > 0 && j <= gridSize.y / 2)
+					{
+						AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE, 0);
+					}
+					// Add clear blocks above the half
+					else if (j > (gridSize.y / 2))
+					{
+						AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
+					} 
+					else 
+					{
+						AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
+					}
+				}
+			}
+		}
+	}
 }
