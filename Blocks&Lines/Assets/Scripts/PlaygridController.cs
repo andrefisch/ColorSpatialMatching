@@ -2091,7 +2091,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
 	private void LoadPlayBoard() {
-		bool DELOADPLAYBOARD = true;
+		bool DELOADPLAYBOARD = false;
 		if (useSpecificGrid) {
 			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
 			if (boardFile == null) {
@@ -2126,12 +2126,21 @@ public class PlaygridController : MonoBehaviour {
 					else {
 						if (DELOADPLAYBOARD) {
 							Debug.Log("Board Width is: " + boardWidth + "\nBoard Height is: " + boardHeight);
-							foreach (string s in boardPieces)
-								Debug.Log("'" + s + "'");
+							foreach (string s in boardPieces) {
+								if (s.Length == 0)
+									Debug.Log("Empty");
+								else
+									Debug.Log("'" + s + "' -" + s.Length);
+							}
 						}
 						gridSize.x = boardWidth;
 						gridSize.y = boardHeight;
 						SetUpGridEdgePieces();
+						string[] onlyPieces = new string[boardPieces.Length - 2];
+						for (int i = 0; i < onlyPieces.Length; i++)
+							onlyPieces[i] = boardPieces[i + 2];
+
+						FillBoardBasedOnStringArray(onlyPieces);
 					}
 				}
 			}
@@ -2198,6 +2207,16 @@ public class PlaygridController : MonoBehaviour {
 						AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
 					}
 				}
+			}
+		}
+	}
+
+	private void FillBoardBasedOnStringArray(string[] pieces) {
+		for (int i = (int)gridSize.y; i >= 1; i--) {
+			for (int j = (int)gridSize.x; j >= 1; j--) {
+				string piece = pieces[j + (int)(gridSize.x) * ((int)gridSize.y - i)];
+				print(piece);
+			
 			}
 		}
 	}
