@@ -1802,7 +1802,7 @@ public class PlaygridController : MonoBehaviour {
             }
         }
         else if (DEREMOVEPIECEATPOSITION)
-			Debug.Log("Warning (RemovePieceAtPosition): Attempting to remove a block that isn't there");
+			Debug.LogWarning("Warning (RemovePieceAtPosition): Attempting to remove a block that isn't there");
     }
 
     // Add a piece - UPDATED FOR MULTIPLE SIZES
@@ -1815,22 +1815,22 @@ public class PlaygridController : MonoBehaviour {
         bool DEADDPIECEATPOSITION = false;
 		if (size == GridpieceController.TWOxTWO && (gridObjects[x, y] || gridObjects[x - 1, y] || gridObjects[x, y - 1] || gridObjects[x - 1, y - 1])) {
             if (DEADDPIECEATPOSITION)
-                Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x2 block in a place where it won't fit - nothing done");
+				Debug.LogWarning("Warning (AddPieceAtPosition):  Attempting to add a 2x2 block in a place where it won't fit - nothing done");
             return null;
         }
         else if (size == GridpieceController.ONExTWO && (gridObjects[x, y] || gridObjects[x, y - 1])) {
             if (DEADDPIECEATPOSITION)
-                Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 1x2 block in a place where it won't fit - nothing done");
+				Debug.LogWarning("Warning (AddPieceAtPosition):  Attempting to add a 1x2 block in a place where it won't fit - nothing done");
             return null;
         }
         else if (size == GridpieceController.TWOxONE && (gridObjects[x, y] || gridObjects[x - 1, y])) {
             if (DEADDPIECEATPOSITION)
-                Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 2x1 block in a place where it won't fit - nothing done");
+				Debug.LogWarning("Warning (AddPieceAtPosition):  Attempting to add a 2x1 block in a place where it won't fit - nothing done");
             return null;
         }
         else if ((size == GridpieceController.ONExONE || size < 0) && (gridObjects[x, y])) {
             if (DEADDPIECEATPOSITION)
-                Debug.Log("Warning (AddPieceAtPosition):  Attempting to add a 1x1 or random block in a place where it won't fit - nothing done");
+				Debug.LogWarning("Warning (AddPieceAtPosition):  Attempting to add a 1x1 or random block in a place where it won't fit - nothing done");
             return null;
         }
         else {
@@ -1960,11 +1960,11 @@ public class PlaygridController : MonoBehaviour {
 
 	public GameObject AddPieceAtPosition(int x, int y, int num, int size, int type) {
 		if (num == GridpieceController.EDGE && type != 0) {
-			Debug.Log("Warning (AddPieceAtPosition2): attempting to make an edge piece with a special block characteristic.  Creating regular block");
+			Debug.LogWarning("Warning (AddPieceAtPosition2): attempting to make an edge piece with a special block characteristic.  Creating regular block");
 			return AddPieceAtPosition(x, y, num, size);
 		}
 		else if (type < 0 || type > GridpieceController.NUM_TPYES_SPECIAL_BLOCKS) {
-			Debug.Log("Warning (AddPieceAtPosition2): attempting to make a special block type that doesn't exist.  Creating regular block");
+			Debug.LogWarning("Warning (AddPieceAtPosition2): attempting to make a special block type that doesn't exist.  Creating regular block");
 			return AddPieceAtPosition(x, y, num, size);
 		}
 
@@ -1979,7 +1979,7 @@ public class PlaygridController : MonoBehaviour {
         bool DEMOVEPIECETOPOSITION = false;
         if (piece == null)
         {
-            Debug.Log("Warning (MovePieceToPosition): piece given does not exist - nothing done");
+            Debug.LogWarning("Warning (MovePieceToPosition): piece given does not exist - nothing done");
         }
         else 
         {
@@ -1989,21 +1989,21 @@ public class PlaygridController : MonoBehaviour {
             {
                 if (DEMOVEPIECETOPOSITION)
                 {
-                    Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
+					Debug.LogWarning("Warning (MovePieceToPosition): trying to move piece below or above grid Y limits - nothing done");
                 }
             }
             else if ((x < 1 || x >= gridSize.x + extraX) || ((pieceSize == GridpieceController.TWOxONE || pieceSize == GridpieceController.TWOxTWO) && x < 2))
             {
                 if (DEMOVEPIECETOPOSITION)
                 {
-                    Debug.Log("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
+					Debug.LogWarning("Warning (MovePieceToPosition): trying to move piece below or above grid X limits - nothing done");
                 }
             }
             else if (gridObjects[x, y] != null && !gridObjects[x, y].Equals(piece))
             {
                 if (DEMOVEPIECETOPOSITION)
                 {
-                    Debug.Log("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
+					Debug.LogWarning("Warning (MovePieceToPosition): trying to move piece into occupied space " + x + ", " + y + " - nothing done");
                 }
             }
             else if( (pieceSize == GridpieceController.ONExTWO && gridObjects[x, y - 1] && !gridObjects[x, y - 1].Equals(piece)) || 
@@ -2015,7 +2015,7 @@ public class PlaygridController : MonoBehaviour {
             {
                 if (DEMOVEPIECETOPOSITION)
                 {
-                    Debug.Log("Warning (MovePieceToPosition): piece of given size cannot fit into space provided because another block is in the way - nothing done");
+					Debug.LogWarning("Warning (MovePieceToPosition): piece of given size cannot fit into space provided because another block is in the way - nothing done");
                 }
             }
             else 
@@ -2096,7 +2096,7 @@ public class PlaygridController : MonoBehaviour {
 			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
 			if (boardFile == null) {
 				Debug.LogWarning("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + boardFile + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
-				SetUpGridEdgePieces();
+				SetUpGridEdgePieces(true);
 				FillHalfBoardRandom();
 			}
 			else {
@@ -2105,7 +2105,7 @@ public class PlaygridController : MonoBehaviour {
 				string[] boardPieces = boardString.Split(delimiters);
 				if (boardPieces.Length < 2) {
 					Debug.LogWarning("Error (LoadPlayBoard): Given file not correct syntax - does not have at least two numbers to designate the width and height of the board -- Filling Board Randomly");
-					SetUpGridEdgePieces();
+					SetUpGridEdgePieces(true);
 					FillHalfBoardRandom();
 				}
 				else {
@@ -2115,12 +2115,12 @@ public class PlaygridController : MonoBehaviour {
 					bool boardYProper = int.TryParse(boardPieces[1], out boardHeight);
 					if (!boardXProper) {
 						Debug.LogWarning("Error (LoadPlayBoard): Given file not correct syntax - first element in file (corresponding to X width of board) must be integer value -- Filling Board Randomly");
-						SetUpGridEdgePieces();
+						SetUpGridEdgePieces(true);
 						FillHalfBoardRandom();
 					}
 					else if (!boardYProper) {
 						Debug.LogWarning("Error (LoadPlayBoard): Given file not correct syntax - second element in file (corresponding to Y height of board) must be integer value -- Filling Board Randomly");
-						SetUpGridEdgePieces();
+						SetUpGridEdgePieces(true);
 						FillHalfBoardRandom();
 					}
 					else {
@@ -2135,7 +2135,7 @@ public class PlaygridController : MonoBehaviour {
 						}
 						gridSize.x = boardWidth;
 						gridSize.y = boardHeight;
-						SetUpGridEdgePieces();
+						SetUpGridEdgePieces(false);
 						string[] onlyPieces = new string[boardPieces.Length - 2];
 						for (int i = 0; i < onlyPieces.Length; i++)
 							onlyPieces[i] = boardPieces[i + 2];
@@ -2146,12 +2146,12 @@ public class PlaygridController : MonoBehaviour {
 			}
 		}
 		else {
-			SetUpGridEdgePieces();
+			SetUpGridEdgePieces(true);
 			FillHalfBoardRandom();
 		}
 	}
 
-	private void SetUpGridEdgePieces() {
+	private void SetUpGridEdgePieces(bool includeBottomRow) {
 		if (gridSize.x < 1) {
 			Debug.LogWarning("Error (SetUpGridEdgePieces): Given gridSize.x is less than 1 block wide -- Setting the value to default 8");
 			gridSize.x = 8;
@@ -2181,7 +2181,8 @@ public class PlaygridController : MonoBehaviour {
 		// Go from 0 to size on the top and bottom
 		for (int i = 0; i < gridSize.x + extraX; i++) {
 			AddPieceAtPosition(i, (int)gridSize.y + extraY - 1, 0, GridpieceController.ONExONE);
-			AddPieceAtPosition(i, 0, 0, GridpieceController.ONExONE);
+			if (includeBottomRow)
+				AddPieceAtPosition(i, 0, 0, GridpieceController.ONExONE);
 		}
 	}
 
@@ -2212,11 +2213,54 @@ public class PlaygridController : MonoBehaviour {
 	}
 
 	private void FillBoardBasedOnStringArray(string[] pieces) {
+		if ((gridSize.x) * (gridSize.y) > pieces.Length)
+			Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Board is larger than String Array given -- Board will only be partially filled");
+
 		for (int i = (int)gridSize.y; i >= 1; i--) {
 			for (int j = (int)gridSize.x; j >= 1; j--) {
-				string piece = pieces[j + (int)(gridSize.x) * ((int)gridSize.y - i)];
-				print(piece);
-			
+				//print((j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1);
+				if (gridObjects[j, i] == null && ((j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1) < pieces.Length) {
+					
+					string piece = pieces[(j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1];
+					int blockType = (int)piece[0] - 48;
+					int blockColor = (int)piece[1] - 48;
+					char blockSize = piece[2];
+					if (blockType < 0 || blockType > GridpieceController.NUM_TPYES_SPECIAL_BLOCKS) {
+						Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Block Type at position (" + j + ", " + i + ") is not correct integer value or too large -- assigning Block Type to be regular");
+						blockType = 0;
+					}
+					if (blockColor < 0 || blockColor > 9) {
+						Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Block Color at position (" + j + ", " + i + ") is not correct integer value -- assigning Block Color to be Clear/Edge piece");
+						blockColor = 0;
+					}
+					if (!(blockSize == 'A' || blockSize == 'B' || blockSize == 'C' || blockSize == 'D')) {
+						Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Block Size at position (" + j + ", " + i + ") is not correct letter value (A-1x1 B-1x2 C-2x1 D-2x2) -- assigning Block Size to be A-1x1");
+						blockSize = 'A';
+					}
+
+					if (blockColor == 0)
+						AddPieceAtPosition(j, i, 0, GridpieceController.ONExONE);
+					else {
+						if (blockSize == 'A')
+							AddPieceAtPosition(j, i, blockColor, GridpieceController.ONExONE, blockType);
+						else if (blockSize == 'B')
+							AddPieceAtPosition(j, i, blockColor, GridpieceController.ONExTWO, blockType);
+						else if (blockSize == 'C')
+							AddPieceAtPosition(j, i, blockColor, GridpieceController.TWOxONE, blockType);
+						else
+							AddPieceAtPosition(j, i, blockColor, GridpieceController.TWOxTWO, blockType);
+					}
+				}
+			}
+		}
+		FillEmptySpaces();
+	}
+
+	private void FillEmptySpaces() {
+		for (int i = 0; i < gridSize.x + extraX; i++) {
+			for (int j = 0; j < gridSize.y + extraY; j++) {
+				if (gridObjects[i, j] == null)
+					AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
 			}
 		}
 	}
