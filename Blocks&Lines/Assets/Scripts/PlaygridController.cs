@@ -2136,9 +2136,19 @@ public class PlaygridController : MonoBehaviour {
 						gridSize.x = boardWidth;
 						gridSize.y = boardHeight;
 						SetUpGridEdgePieces(false);
-						string[] onlyPieces = new string[boardPieces.Length - 2];
-						for (int i = 0; i < onlyPieces.Length; i++)
-							onlyPieces[i] = boardPieces[i + 2];
+						int numGarbageVals = 0;
+						for (int i=0; i<boardPieces.Length; i++) {
+							if (boardPieces[i].Length == 0 || (int)boardPieces[i][0] < 48 || (int)boardPieces[i][0] > 91)
+								numGarbageVals++;
+						}
+						string[] onlyPieces = new string[boardPieces.Length - 2 - numGarbageVals];
+						//print(numGarbageVals);
+						for (int i = 2, j=0; i < boardPieces.Length; i++) {
+							if (boardPieces[i].Length != 0 && (int)boardPieces[i][0] >= 48 && (int)boardPieces[i][0] <= 91) {
+								onlyPieces[j] = boardPieces[i];
+								j++;
+							}
+						}
 
 						FillBoardBasedOnStringArray(onlyPieces);
 					}
