@@ -20,6 +20,8 @@ public class PlaygridController : MonoBehaviour {
     public GameObject[] highlighters;
     public GameObject[] selectors;
 
+	public Canvas saveCanvas;
+
     // SCORE STUFF
     public Text scoreText;
     public int colorLevel;
@@ -235,14 +237,19 @@ public class PlaygridController : MonoBehaviour {
         // DONE WITH TESTING
         */
 
-		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown("s"))
+		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown("s") && !Input.GetKey(KeyCode.Space))
 			SavePlayBoard();
+
+		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown("s") && Input.GetKey(KeyCode.Space))
+			ActivateSaveCanvas();
 
 
         // check to see if there are any null blocks
+		/*
         if (Input.GetKeyDown("a")) {
             AddRow(-1);
         }
+        */
         if (Input.GetKeyDown("g")){
             AddRow(3);
         }
@@ -2389,6 +2396,14 @@ public class PlaygridController : MonoBehaviour {
 			}
 		}
 		return board;
+	}
+
+	private void ActivateSaveCanvas() {
+		if (saveCanvas != null) {
+			saveCanvas.gameObject.SetActive(true);
+			print("Enter File Name and click 'Save' to save board layout.  Leave file name blank and click 'Save' to unpause game and not save.");
+			Time.timeScale = 0;
+		}
 	}
 }
 
