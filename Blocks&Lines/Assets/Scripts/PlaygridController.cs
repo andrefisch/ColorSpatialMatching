@@ -246,10 +246,14 @@ public class PlaygridController : MonoBehaviour {
 
         // check to see if there are any null blocks
 		/*
+		 * For Andrew:  I commented all these out because if we were to type a name into the game for a save game file, we would hit some keys and change the board
+		 * Therefore we should not leave these around and comment them out when not using them
+		 * 
         if (Input.GetKeyDown("a")) {
             AddRow(-1);
         }
-        */
+
+
         if (Input.GetKeyDown("g")){
             AddRow(3);
         }
@@ -274,7 +278,7 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("s")) {
             startCounting = true;
         }
-        */
+
         // remove row of selected piece
         if (Input.GetKeyDown("q")) {
             RemoveRow();
@@ -292,6 +296,8 @@ public class PlaygridController : MonoBehaviour {
         {
             RemoveOneColor();
         }
+		*/
+
         // This part deals with the highlighting and selecting of objects
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
         // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
@@ -2121,7 +2127,7 @@ public class PlaygridController : MonoBehaviour {
 		else if (useSpecificGrid) {
 			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
 			if (boardFile == null) {
-				Debug.LogWarning("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + boardFile + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
+				Debug.LogError("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + boardFile + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
 				SetUpGridEdgePieces(true);
 				FillHalfBoardRandom();
 			}
@@ -2372,7 +2378,7 @@ public class PlaygridController : MonoBehaviour {
 		}
 	}
 
-	private string[] StringifyBoard() {
+	public string[] StringifyBoard() {
 		int arrSize = (int)(gridSize.x * gridSize.y);
 		string[] board = new string[arrSize];
 		for (int i = (int)gridSize.y, index = 0; i >= 1; i--) {
