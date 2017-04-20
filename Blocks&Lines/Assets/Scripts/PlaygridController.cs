@@ -1,8 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+
 
 public class PlaygridController : MonoBehaviour {
 
@@ -29,6 +37,7 @@ public class PlaygridController : MonoBehaviour {
     public const int extraX = 2;
     public const int extraY = 2;
 
+	public bool loadSavedBoard;
 	public bool useSpecificGrid;
 	public string specificGridFileName;
     public Vector2 gridSize;
@@ -225,6 +234,11 @@ public class PlaygridController : MonoBehaviour {
         }
         // DONE WITH TESTING
         */
+
+		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown("s"))
+			SavePlayBoard();
+
+
         // check to see if there are any null blocks
         if (Input.GetKeyDown("a")) {
             AddRow(-1);
@@ -249,9 +263,11 @@ public class PlaygridController : MonoBehaviour {
             ProcessCombos();
         }
         // start the counting clock
+		/* This now conflicts with the save keystroke
         if (Input.GetKeyDown("s")) {
             startCounting = true;
         }
+        */
         // remove row of selected piece
         if (Input.GetKeyDown("q")) {
             RemoveRow();
@@ -1593,7 +1609,7 @@ public class PlaygridController : MonoBehaviour {
             }
 			else 
             {
-                float val = Random.value;
+				float val = UnityEngine.Random.value;
                 // At shapeLevel 1, only create small blocks
                 if (shapeLevel == 1)
                 {
@@ -1644,7 +1660,7 @@ public class PlaygridController : MonoBehaviour {
                 }
                 else
                 {
-                    float val = Random.value;
+					float val = UnityEngine.Random.value;
                     if (val < sizeFrequencies[2])
                     {
                         AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
@@ -1837,7 +1853,7 @@ public class PlaygridController : MonoBehaviour {
             GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[x, y], Quaternion.identity);
             GridpieceController gpc = go.GetComponent<GridpieceController>();
             if (num < 0) {
-                gpc.blockColor = (int)Mathf.Floor(Random.Range(1, (1 + colorLevel - 0.00000001f)));
+				gpc.blockColor = (int)Mathf.Floor(UnityEngine.Random.Range(1, (1 + colorLevel - 0.00000001f)));
             }
             else {
                 gpc.blockColor = num;
@@ -1896,7 +1912,7 @@ public class PlaygridController : MonoBehaviour {
                     gpc.size = GridpieceController.ONExONE;
                     */
 				if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1] && !gridObjects[x - 1, y - 1]) {
-					float val = Random.value;
+					float val = UnityEngine.Random.value;
 					if (val < 0.25f)
 						gpc.size = GridpieceController.ONExONE;
 					else if (val < 0.5f)
@@ -1907,7 +1923,7 @@ public class PlaygridController : MonoBehaviour {
 						gpc.size = GridpieceController.TWOxTWO;
 				}
 				else if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1]) {
-					float val = Random.value;
+					float val = UnityEngine.Random.value;
 					if (val < 0.333333f)
 						gpc.size = GridpieceController.ONExONE;
 					else if (val < 0.666666f)
@@ -1916,13 +1932,13 @@ public class PlaygridController : MonoBehaviour {
 						gpc.size = GridpieceController.TWOxONE;
 				}
 				else if (!gridObjects[x, y - 1]) {
-					if (Random.value < 0.5f)
+					if (UnityEngine.Random.value < 0.5f)
 						gpc.size = GridpieceController.ONExONE;
 					else
 						gpc.size = GridpieceController.ONExTWO;
 				}
 				else if (!gridObjects[x - 1, y]) {
-					if (Random.value < 0.5f)
+					if (UnityEngine.Random.value < 0.5f)
 						gpc.size = GridpieceController.ONExONE;
 					else
 						gpc.size = GridpieceController.TWOxONE;
@@ -2092,7 +2108,10 @@ public class PlaygridController : MonoBehaviour {
 
 	private void LoadPlayBoard() {
 		bool DELOADPLAYBOARD = false;
-		if (useSpecificGrid) {
+		if (loadSavedBoard) {
+			LoadSavedBoard();
+		}
+		else if (useSpecificGrid) {
 			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
 			if (boardFile == null) {
 				Debug.LogWarning("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + boardFile + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
@@ -2158,6 +2177,77 @@ public class PlaygridController : MonoBehaviour {
 		else {
 			SetUpGridEdgePieces(true);
 			FillHalfBoardRandom();
+		}
+	}
+
+	private void SavePlayBoard() {
+		bool DESAVEPLAYBOARD = true;
+		string dataPath = string.Format("{0}/SavedGameBoard.dat", Application.persistentDataPath);
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		FileStream fileStream;
+
+		/*==== The following lines are where I update what things are to be saved ====*/
+		SavedBoard sBoard = new SavedBoard();
+		sBoard.score = this.score;
+		sBoard.boardX = (int)this.gridSize.x;
+		sBoard.boardY = (int)this.gridSize.y;
+		sBoard.boardPieces = StringifyBoard();
+
+		/*==== End ====*/
+
+		try {
+			if (File.Exists(dataPath)) {
+				File.WriteAllText(dataPath, string.Empty);
+				fileStream = File.Open(dataPath, FileMode.Open);
+			}
+			else {
+				fileStream = File.Create(dataPath);
+			}
+
+			binaryFormatter.Serialize(fileStream, sBoard);
+			fileStream.Close();
+
+			if (DESAVEPLAYBOARD)
+				Debug.Log("Saved Play Board!");
+		}
+		catch (Exception e) {
+			//PlatformSafeMessage("Failed to Save: " + e.Message);
+			Debug.LogError("Failed To Save: " + e.Message);
+		}
+	}
+
+	private bool LoadSavedBoard() {
+		string dataPath = string.Format("{0}/SavedGameBoard.dat", Application.persistentDataPath);
+
+		try {
+			if (File.Exists(dataPath)) {
+				BinaryFormatter binaryFormatter = new BinaryFormatter();
+				FileStream fileStream = File.Open(dataPath, FileMode.Open);
+
+				/*==== The following lines are where I update what things are to be loaded ====*/
+				SavedBoard newBoard = (SavedBoard)binaryFormatter.Deserialize(fileStream);
+				this.score = newBoard.score;
+				this.gridSize.x = newBoard.boardX;
+				this.gridSize.y = newBoard.boardY;
+				string[] pieces = newBoard.boardPieces;
+
+				SetUpGridEdgePieces(false);
+				FillBoardBasedOnStringArray(pieces);
+
+				fileStream.Close();
+				return true;
+			}
+			else {
+				Debug.LogError("Error (LoadSavedBoard): File given to load board from was not found.  Please Save a Board to be able to load a board. -- Creating Random Board");
+				SetUpGridEdgePieces(true);
+				FillHalfBoardRandom();
+				return false;
+			}
+		}
+		catch (Exception e) {
+			//PlatformSafeMessage("Failed to Load: " + e.Message);
+			Debug.Log("Failed To Load: " + e.Message);
+			return false;
 		}
 	}
 
@@ -2274,4 +2364,38 @@ public class PlaygridController : MonoBehaviour {
 			}
 		}
 	}
+
+	private string[] StringifyBoard() {
+		int arrSize = (int)(gridSize.x * gridSize.y);
+		string[] board = new string[arrSize];
+		for (int i = (int)gridSize.y, index = 0; i >= 1; i--) {
+			for (int j = 1; j <= gridSize.x; j++) {
+				GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
+				int type = gpc.blockType;
+				int color = gpc.blockColor;
+				char size;
+				if (gpc.size == GridpieceController.ONExONE)
+					size = 'A';
+				else if (gpc.size == GridpieceController.ONExTWO)
+					size = 'B';
+				else if (gpc.size == GridpieceController.TWOxONE)
+					size = 'C';
+				else
+					size = 'D';
+
+				string piece = type + "" + color + "" + size;
+				board[index] = piece;
+				index++;
+			}
+		}
+		return board;
+	}
+}
+
+[Serializable]
+class SavedBoard {
+	public int score;
+	public int boardX;
+	public int boardY;
+	public string[] boardPieces;
 }
