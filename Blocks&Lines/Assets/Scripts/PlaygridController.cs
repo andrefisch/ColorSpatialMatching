@@ -348,7 +348,6 @@ public class PlaygridController : MonoBehaviour {
                         currentPiece.x = gpc.dimX;
                         currentPiece.y = gpc.dimY;
                         /*
-                         * Tried this but found it was unnecessary with the countdown clock
                         // If a new row was just added we select the piece above it instead
                         if (newLineCounter > newLineBuffer)
                         {
@@ -357,7 +356,11 @@ public class PlaygridController : MonoBehaviour {
                         }
                         else 
                         {
+                            currentPiece.x = gpc.dimX;
                             currentPiece.y = gpc.dimY + 1;
+                            // highlightedPiece.x = gpc.dimX;
+                            // highlightedPiece.y = gpc.dimY + 1;
+                            // gpc.dimY = gpc.dimY + 1;
                         }
                         */
                     }
