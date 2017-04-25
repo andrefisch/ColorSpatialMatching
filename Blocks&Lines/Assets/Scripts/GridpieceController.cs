@@ -33,7 +33,7 @@ public class GridpieceController : MonoBehaviour {
     public int dimY = -100;
 
 	// If we create more special block types, update this number
-	public const int NUM_TPYES_SPECIAL_BLOCKS = 3;
+	public const int NUM_TYPES_SPECIAL_BLOCKS = 3;
 
 	public const int REG_BLOCK = 0;
 	public const int SQUIGLY_BLOCK = 1;
@@ -41,7 +41,6 @@ public class GridpieceController : MonoBehaviour {
 	public const int HORIZ_CLEAR_BLOCK = 3;
 
 	public int blockType;
-
 
 	public bool selected;
 
@@ -153,8 +152,9 @@ public class GridpieceController : MonoBehaviour {
 			sr.sprite = blockShapeSprites[3];
 		}
 		*/
-		if (blockType < blockShapeSprites.Length)
+		if (blockType < blockShapeSprites.Length){
 			sr.sprite = blockShapeSprites[blockType];
+        }
 		setType = true;
 	}
 
