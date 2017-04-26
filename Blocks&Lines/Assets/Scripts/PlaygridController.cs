@@ -2213,7 +2213,7 @@ public class PlaygridController : MonoBehaviour {
 		else if (useSpecificGrid) {
 			TextAsset boardFile = (TextAsset)Resources.Load(specificGridFileName);
 			if (boardFile == null) {
-				Debug.LogError("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + boardFile + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
+				Debug.LogError("Error (LoadPlayBoard): 'Using Specific Game Board' is checked but the file '" + specificGridFileName + "' doesn't exist in the Resources Folder -- Filling Board Randomly");
 				SetUpGridEdgePieces(true);
 				FillHalfBoardRandom();
 			}

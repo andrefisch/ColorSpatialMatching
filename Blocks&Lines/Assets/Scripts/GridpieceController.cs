@@ -66,6 +66,10 @@ public class GridpieceController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+		if (!setType) {
+			SetType();
+		}
+
 		if (!setColor) {
 			SetColor();
 		}
@@ -81,16 +85,17 @@ public class GridpieceController : MonoBehaviour {
 				transform.localScale = new Vector3(1f, 0.6f, 1);
 			setSize = true;
 		}
-
-		if (!setType) {
-			SetType();
-		}
 	}
 
 
 	public void SetColor() {
 		sr = GetComponent<SpriteRenderer>();
-		if (blockColor == EDGE) {
+
+		if (blockType != REG_BLOCK) {
+			sr.color = Color.white;
+			blockColor = 0;
+		}
+		else if (blockColor == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
 			sr.color = Color.gray;
 			// sr.color = Color.clear;
