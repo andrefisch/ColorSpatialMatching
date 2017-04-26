@@ -53,7 +53,7 @@ public class GridpieceController : MonoBehaviour {
 
 	private bool setColor;
 	private bool setSize;
-	private bool setType;
+	private bool setType = false;
 	public SpriteRenderer sr;
 
 	// Use this for initialization
@@ -69,11 +69,9 @@ public class GridpieceController : MonoBehaviour {
 		if (!setType) {
 			SetType();
 		}
-
 		if (!setColor) {
 			SetColor();
 		}
-
 		if (!setSize) {
 			if (size == ONExONE)
 				transform.localScale = new Vector3(0.5f, 0.3f, .3f);
@@ -91,11 +89,16 @@ public class GridpieceController : MonoBehaviour {
 	public void SetColor() {
 		sr = GetComponent<SpriteRenderer>();
 
+		// For some reason, this doesn't do anything so I overrode it
+		/*
 		if (blockType != REG_BLOCK) {
+			print("coltest");
 			sr.color = Color.white;
-			blockColor = 0;
+			blockColor = 10;
 		}
-		else if (blockColor == EDGE) {
+		else
+		*/
+		if (blockColor == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
 			sr.color = Color.gray;
 			// sr.color = Color.clear;
@@ -146,6 +149,15 @@ public class GridpieceController : MonoBehaviour {
 	}
 
 	private void SetType(){
+		sr = GetComponent<SpriteRenderer>();
+
+		if (blockType != REG_BLOCK) {
+			//print("Setting Type");
+			blockColor = 10;
+			sr.color = Color.white;
+			setColor = true;
+		}
+
 		/*
 		if (blockType == SQUIGLY_BLOCK) {
 			sr.sprite = blockShapeSprites[1];
@@ -160,6 +172,7 @@ public class GridpieceController : MonoBehaviour {
 		if (blockType < blockShapeSprites.Length){
 			sr.sprite = blockShapeSprites[blockType];
         }
+		//print("typetest2");
 		setType = true;
 	}
 

@@ -2074,11 +2074,14 @@ public class PlaygridController : MonoBehaviour {
     }
 
 	public GameObject AddPieceAtPosition(int x, int y, int num, int size, int type) {
+		/*
 		if (num == GridpieceController.EDGE && type != 0) {
 			Debug.LogWarning("Warning (AddPieceAtPosition2): attempting to make an edge piece with a special block characteristic.  Creating regular block");
 			return AddPieceAtPosition(x, y, num, size);
 		}
-		else if (type < 0 || type > GridpieceController.NUM_TYPES_SPECIAL_BLOCKS) {
+		else 
+		*/
+		if (type < 0 || type > GridpieceController.NUM_TYPES_SPECIAL_BLOCKS) {
 			Debug.LogWarning("Warning (AddPieceAtPosition2): attempting to make a special block type that doesn't exist.  Creating regular block");
 			return AddPieceAtPosition(x, y, num, size);
 		}
@@ -2438,7 +2441,7 @@ public class PlaygridController : MonoBehaviour {
 					}
 
 					if (blockColor == 0)
-						AddPieceAtPosition(j, i, 0, GridpieceController.ONExONE);
+						AddPieceAtPosition(j, i, 0, GridpieceController.ONExONE, blockType);
 					else {
 						if (blockSize == 'A')
 							AddPieceAtPosition(j, i, blockColor, GridpieceController.ONExONE, blockType);
