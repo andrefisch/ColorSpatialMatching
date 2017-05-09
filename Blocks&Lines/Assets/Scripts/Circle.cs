@@ -7,6 +7,8 @@ public class Circle : MonoBehaviour
     public float radius;
     public LineRenderer line;
     public Color color;
+    public int maxRadius;
+    public float change;
 
     void Start ()
     {
@@ -16,15 +18,28 @@ public class Circle : MonoBehaviour
         line.endColor = color;
         line.numPositions = (segments + 1);
         line.useWorldSpace = false;
+        change = maxRadius / 20;
+        // Debug.Log("maxRadius is " + maxRadius);
         CreatePoints ();
     }
 
     void Update()
     {
         bool DEUPDATE = false;
-        if (radius < 3)
+        /*
+        if (radius < maxRadius)
         {
-            radius += 0.13f;
+            Debug.Log("Current radius is " + radius);
+            radius += change;
+        }
+        */
+        if (radius < maxRadius)
+        {
+            if (DEUPDATE)
+            {
+                Debug.Log("Current radius is " + radius);
+            }
+            radius += 0.15f;
         }
         else if (color.a > 0)
         {

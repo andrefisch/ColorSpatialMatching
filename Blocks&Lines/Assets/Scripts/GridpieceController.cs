@@ -39,6 +39,7 @@ public class GridpieceController : MonoBehaviour {
 	public const int SQUIGLY_BLOCK = 1;
 	public const int VERT_CLEAR_BLOCK = 2;
 	public const int HORIZ_CLEAR_BLOCK = 3;
+	public const int PLUS_CLEAR_BLOCK = 4;
 
 	public int blockType;
 
@@ -243,10 +244,11 @@ public class GridpieceController : MonoBehaviour {
 	}
 
 
-    public GameObject ShockWave(Color color)
+    public GameObject ShockWave(Color color, int maxRadius)
     {
         GameObject go = (GameObject)Instantiate(shockWave, transform.position, Quaternion.identity);
         (go.GetComponent<Circle>() as Circle).color = color;
+        (go.GetComponent<Circle>() as Circle).maxRadius = maxRadius;
         // go.GetComponent<LineRenderer>().SetColors(color, color);
         return go;
     }
