@@ -40,6 +40,7 @@ public class GridpieceController : MonoBehaviour {
 	public const int VERT_CLEAR_BLOCK = 2;
 	public const int HORIZ_CLEAR_BLOCK = 3;
 	public const int PLUS_CLEAR_BLOCK = 4;
+    public const int SLACKER_BLOCK = 5;
 
 	public int blockType;
 
@@ -152,11 +153,15 @@ public class GridpieceController : MonoBehaviour {
 	private void SetType(){
 		sr = GetComponent<SpriteRenderer>();
 
-		if (blockType != REG_BLOCK) {
-			//print("Setting Type");
-			blockColor = 10;
-			sr.color = Color.white;
-			setColor = true;
+		if (blockType != REG_BLOCK) 
+        {
+            if (blockType == 1 || blockType == 3)
+            {
+                //print("Setting Type");
+                blockColor = 10;
+                sr.color = Color.white;
+                setColor = true;
+            }
 		}
 
 		/*
