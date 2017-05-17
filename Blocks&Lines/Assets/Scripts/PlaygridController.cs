@@ -2364,18 +2364,20 @@ public class PlaygridController : MonoBehaviour {
 						SetUpGridEdgePieces(false);
 						int numGarbageVals = 0;
 						for (int i=0; i<boardPieces.Length; i++) {
-							if (boardPieces[i].Length == 0 || (int)boardPieces[i][0] < 48 || (int)boardPieces[i][0] > 91)
+							if (boardPieces[i].Length == 0 || (int)boardPieces[i][0] < 48 || ((int)boardPieces[i][0] > 57 && (int)boardPieces[i][0] < 97))
 								numGarbageVals++;
 						}
 						string[] onlyPieces = new string[boardPieces.Length - 2 - numGarbageVals];
 						//print(numGarbageVals);
 						for (int i = 2, j=0; i < boardPieces.Length; i++) {
-							if (boardPieces[i].Length != 0 && (int)boardPieces[i][0] >= 48 && (int)boardPieces[i][0] <= 91) {
+							if (boardPieces[i].Length != 0 && ((int)boardPieces[i][0] >= 48 && (int)boardPieces[i][0] <= 57) || ((int)boardPieces[i][0] >= 97 && (int)boardPieces[i][0] <= 122)) {
 								onlyPieces[j] = boardPieces[i];
 								j++;
 							}
 						}
-
+						if (numGarbageVals > 0)
+							Debug.LogWarning("Warning (LoadPlayboard): There were garbage values in the loaded file provided.  Please ensure that there is no extra whitespace in between the three-letter pieces and that all pieces follow the correct syntax.");
+						
 						FillBoardBasedOnStringArray(onlyPieces);
 					}
 				}
@@ -2529,11 +2531,19 @@ public class PlaygridController : MonoBehaviour {
 				if (gridObjects[j, i] == null && ((j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1) < pieces.Length) {
 					
 					string piece = pieces[(j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1];
-					int blockType = (int)piece[0] - 48;
+
+					int blockType;
+					if ((int)piece[0] - 48 >= 0 && (int)piece[0] - 57 <= 9)
+						blockType = (int)piece[0] - 48;
+					else if ((int)piece[0] - 97 >= 0 && (int)piece[0] - 122 <= 25)
+						blockType = (int)piece[0] - 87;
+					else
+						blockType = -1;
+
 					int blockColor = (int)piece[1] - 48;
 					char blockSize = piece[2];
 					if (blockType < 0 || blockType > GridpieceController.NUM_TYPES_SPECIAL_BLOCKS) {
-						Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Block Type at position (" + j + ", " + i + ") is not correct integer value or too large -- assigning Block Type to be regular");
+						Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Block Type at position (" + j + ", " + i + ") is not correct integer value/lowercase letter or too large for amount of special blocks specified in the GridpieceController Script. -- assigning Block Type to be regular");
 						blockType = 0;
 					}
 					if (blockColor < 0 || blockColor > 9) {
@@ -2578,6 +2588,7 @@ public class PlaygridController : MonoBehaviour {
 		for (int i = (int)gridSize.y, index = 0; i >= 1; i--) {
 			for (int j = 1; j <= gridSize.x; j++) {
 				GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
+
 				int type = gpc.blockType;
 				int color = gpc.blockColor;
 				char size;
@@ -2590,7 +2601,11 @@ public class PlaygridController : MonoBehaviour {
 				else
 					size = 'D';
 
-				string piece = type + "" + color + "" + size;
+				string piece;
+				if (type < 10)
+					piece = type + "" + color + "" + size;
+				else 
+					piece = ((char)(type + 87)) + "" + color + "" + size;
 				board[index] = piece;
 				index++;
 			}
