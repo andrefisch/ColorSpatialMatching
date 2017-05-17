@@ -36,17 +36,17 @@ public class GridpieceController : MonoBehaviour {
 	public const int NUM_TYPES_SPECIAL_BLOCKS = 11;
 
 	public const int REG_BLOCK = 0;
-	public const int SQUIGLY_BLOCK = 1;
-	public const int VERT_CLEAR_BLOCK = 2;
-	public const int HORIZ_CLEAR_BLOCK = 3;
-	public const int PLUS_CLEAR_BLOCK = 4;
+	public const int SQUIGLY_BLOCK = 1; // Done
+	public const int VERT_CLEAR_BLOCK = 2; // Done
+	public const int HORIZ_CLEAR_BLOCK = 3; // Done 
+	public const int PLUS_CLEAR_BLOCK = 4; // Done
     public const int HAPPY_BLOCK = 5;
-	public const int SAD_BLOCK = 6;
-	public const int ANGRY_BLOCK = 7;
+	public const int SAD_BLOCK = 6; // Done
+	public const int ANGRY_BLOCK = 7; // Done
 	public const int BOMB_BLOCK = 8;
 	public const int BUBBLES_BLOCK = 9;
 	public const int CLOCK_BLOCK = 10;
-	public const int RAINDROPS_BLOCK = 11;
+	public const int RAINDROPS_BLOCK = 11; // Done
 
 
 	public int blockType;
@@ -162,7 +162,7 @@ public class GridpieceController : MonoBehaviour {
 
 		if (blockType != REG_BLOCK) 
         {
-            if (blockType == 1 || blockType == 3)
+            if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK)
             {
                 //print("Setting Type");
                 blockColor = 10;
