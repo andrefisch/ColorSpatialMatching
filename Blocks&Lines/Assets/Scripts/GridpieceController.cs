@@ -33,14 +33,21 @@ public class GridpieceController : MonoBehaviour {
     public int dimY = -100;
 
 	// If we create more special block types, update this number
-	public const int NUM_TYPES_SPECIAL_BLOCKS = 3;
+	public const int NUM_TYPES_SPECIAL_BLOCKS = 11;
 
 	public const int REG_BLOCK = 0;
 	public const int SQUIGLY_BLOCK = 1;
 	public const int VERT_CLEAR_BLOCK = 2;
 	public const int HORIZ_CLEAR_BLOCK = 3;
 	public const int PLUS_CLEAR_BLOCK = 4;
-    public const int SLACKER_BLOCK = 5;
+    public const int HAPPY_BLOCK = 5;
+	public const int SAD_BLOCK = 6;
+	public const int ANGRY_BLOCK = 7;
+	public const int BOMB_BLOCK = 8;
+	public const int BUBBLES_BLOCK = 9;
+	public const int CLOCK_BLOCK = 10;
+	public const int RAINDROPS_BLOCK = 11;
+
 
 	public int blockType;
 
