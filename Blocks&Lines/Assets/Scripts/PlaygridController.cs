@@ -14,8 +14,8 @@ using System.IO;
 
 public class PlaygridController : MonoBehaviour {
 
-    public bool FREEZE;
     public bool DECOMBOS;
+    public bool FREEZE;
     public GameObject gridPiece;
     // 1x1 is 0, 1x2 is 1, 2x1 is 2, 2x2 is 3
     public GameObject[] highlighters;
@@ -59,6 +59,9 @@ public class PlaygridController : MonoBehaviour {
     public bool whiteOut;
     private int whiteOutCounter;
     private int whiteOutTimer;
+    public bool pause;
+    private int pauseCounter;
+    private int pauseTimer;
 
     //public GridpieceController gpc;
     // MATCHING VARIABLES
@@ -129,6 +132,8 @@ public class PlaygridController : MonoBehaviour {
         processingInterval = 20;
         whiteOut = false;
         whiteOutCounter = 0;
+        pause = false;
+        pauseCounter = 0;
 
         // mainCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<Camera>();
         line = gameObject.GetComponent<LineRenderer>();
@@ -164,8 +169,12 @@ public class PlaygridController : MonoBehaviour {
     {
         bool DEFIXEDUPDATE = false;
         UpdateScore();
-        newLineCounter++;
-        if (!FREEZE && newLineCounter >= newLineInterval)
+        if (!pause)
+        {
+            newLineCounter++;
+        }
+        // When time is stopped we do not add new rows
+        if (!pause && !FREEZE && newLineCounter >= newLineInterval)
         {
             AddRow(-1);
         }
@@ -230,12 +239,22 @@ public class PlaygridController : MonoBehaviour {
         {
             Repaint();
         }
+        if (pause)
+        {
+            pauseCounter++;
+        }
+        if (pauseCounter > pauseTimer)
+        {
+            pause = false;
+            pauseCounter = 0;
+        }
     }   
 
     // Update is called once per frame
     // NO KNOWN BUGS
-    void Update () {
+    void Update() {
         bool DEUPDATE = false;
+        CheckPieces();
         /*
         // FOR TESTING ADDING AND REMOVAL OF PIECES
         if (Input.GetKeyDown("p")) {
@@ -361,6 +380,7 @@ public class PlaygridController : MonoBehaviour {
                         currentPiece.y = gpc.dimY;
                         // If a new row was just added we select the piece above it instead
                         // RIENZI: THIS PART CREATES SOME BUGS I DONT KNOW HOW TO FIX
+                        /*
                         if (newLineCounter > newLineBuffer)
                         {
                             currentPiece.x = gpc.dimX;
@@ -375,6 +395,7 @@ public class PlaygridController : MonoBehaviour {
                             // highlightedPiece.y = gpc.dimY + 1;
                             // gpc.dimY = gpc.dimY + 1;
                         }
+                        */
                     }
 
                     if (DEUPDATE) {
@@ -638,8 +659,6 @@ public class PlaygridController : MonoBehaviour {
                 }
                 if (match)
                 {
-                    // Reset the combo level back to 1 if there is a successful match
-                    // combos = 1;
                     // Score the blocks
                     int first  = ScoreBlock((int)object1[0].x, (int)object1[0].y);
                     int second = ScoreBlock((int)object2[0].x, (int)object2[0].y);
@@ -650,7 +669,6 @@ public class PlaygridController : MonoBehaviour {
                         Debug.Log("MATCH WORTH " + (first + second));
                     }
                     matchesMade++;
-                    // UpdateScore();
                     // Get the colors of the blocks before we remove them
                     Color currentColor = gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().sr.color;
                     int color = gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().blockColor;
@@ -1108,7 +1126,7 @@ public class PlaygridController : MonoBehaviour {
                 // gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.black;
             }
         }
-        line.numPositions = (lineTrack.Count);
+        line.positionCount = (lineTrack.Count);
         if (DEHIGHLIGHTMATCHTRACK)
         {
             // Debug.Log("Number of positions in line renderer: " + line.numPositions);
@@ -1154,7 +1172,7 @@ public class PlaygridController : MonoBehaviour {
     void UnhighlightMatchTrack()
     {
         // Remove the line
-        line.numPositions = 0;
+        line.positionCount = 0;
         lineTrack.Clear();
         for (int i = 0; i < gridSize.x + extraX; i++)
         {
@@ -1639,6 +1657,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // Activate special blocks as they are activated
+    // mark v
     void ActivateSpecial(int x, int y, Color color, int blockType, int colorNum)
     {
         ActivateMatchSpecial(x, y, color, blockType, colorNum);
@@ -1656,7 +1675,6 @@ public class PlaygridController : MonoBehaviour {
     - 2: remove a column
     - 3: remove a row
     - 4: remove a column and a row
-    - 5: freeze the clock
     */
     // Activate the special block if it was used in a match or a combo
     // NO KNOWN BUGS
@@ -1665,14 +1683,22 @@ public class PlaygridController : MonoBehaviour {
         if (gridObjects[x, y])
         {
             // remove all blocks in this column
-            if (blockType == 2)
+            if (blockType == GridpieceController.VERT_CLEAR_BLOCK)
             {
                 RemoveColumn(x);
             }
             // remove all blocks in this row and column
-            else if (blockType == 4)
+            else if (blockType == GridpieceController.PLUS_CLEAR_BLOCK)
             {
                 RemoveRowAndColumn(x, y);
+            }
+            else if (blockType == GridpieceController.CLOCK_BLOCK)
+            {
+                StopTime(x, y, color);
+            }
+            else if (blockType == GridpieceController.BOMB_BLOCK)
+            {
+                BombGoBoom(x, y, color);
             }
         }
     }
@@ -1693,12 +1719,13 @@ public class PlaygridController : MonoBehaviour {
             {
                 SoftRemovePieceAtPosition(x, y, 3);
             }
+            // Whitewash the board
 			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
             {
                 SoftRemovePieceAtPosition(x, y, 21);
                 Whiteout();
             }
-            // paint all of the blocks one color
+            // Colorwash the board
 			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
             {
                 PaintOneColor(x, y, color, colorNum);
@@ -1772,14 +1799,15 @@ public class PlaygridController : MonoBehaviour {
         }
     }
 
-    // Remove all blocks of currentPiece color 
+    // Remove all blocks that are the color of the matched block
     // NO KNOWN BUGS
     void RemoveOneColor(int x, int y, Color color)
     {
-        SoftRemovePieceAtPosition(x, y, 3);
         if (gridObjects[x, y])
         {
-            gridObjects[x, y].GetComponent<GridpieceController>().ShockWave(color, 21);
+            GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
+            gpc.Colorwash(edgeColor, true);
+            gpc.ShockWave(color, 21);
         }
         if (color != edgeColor)
         {
@@ -1822,13 +1850,14 @@ public class PlaygridController : MonoBehaviour {
 				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
 				if (gpc.blockColor != GridpieceController.EDGE)
                 {
-					gpc.Whitewash();
+					gpc.Colorwash(Color.white, true);
                 }
             }
         }
     }
 
     // Changes all white blocks back
+    // NO KNOWN BUGS
     void Repaint()
     {
         bool DEREPAINT = true;
@@ -1844,8 +1873,101 @@ public class PlaygridController : MonoBehaviour {
             {
                 GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
 				if (gpc.blockColor != GridpieceController.EDGE)
+                {
 					gpc.Repaint();
+                }
             }
+        }
+    }
+
+    // Detonates THE BOMB
+    void BombGoBoom(int x, int y, Color color)
+    {
+        if (gridObjects[x, y])
+        {
+            gridObjects[x, y].GetComponent<GridpieceController>().ShockWave(color, 6);
+            SoftRemovePieceAtPosition(x, y, 6);
+        }
+        // Bombs cant be around the edge 
+        // - 8 blocks that are immediately surrounding the bomb dont need to be checked
+        // - Two up, down, left, and right do need to be checked 
+        if (gridObjects[x - 1, y])
+        {
+            SoftRemovePieceAtPosition(x - 1, y, 3);
+        }
+        if (gridObjects[x + 1, y])
+        {
+            SoftRemovePieceAtPosition(x + 1, y, 3);
+        }
+        if (gridObjects[x, y - 1])
+        {
+            SoftRemovePieceAtPosition(x, y - 1, 3);
+        }
+        if (gridObjects[x, y + 1])
+        {
+            SoftRemovePieceAtPosition(x, y + 1, 3);
+        }
+        if (gridObjects[x - 1, y - 1])
+        {
+            SoftRemovePieceAtPosition(x - 1, y - 1, 3);
+        }
+        if (gridObjects[x - 1, y + 1])
+        {
+            SoftRemovePieceAtPosition(x - 1, y + 1, 3);
+        }
+        if (gridObjects[x + 1, y - 1])
+        {
+            SoftRemovePieceAtPosition(x + 1, y - 1, 3);
+        }
+        if (gridObjects[x + 1, y + 1])
+        {
+            SoftRemovePieceAtPosition(x + 1, y + 1, 3);
+        }
+        // Only remove the block two spaces to the left if we are to the right of column 1
+        if (x > 1)
+        {
+            if (gridObjects[x - 2, y])
+            {
+                SoftRemovePieceAtPosition(x - 2, y, 3);
+            }
+        }
+        // Only remove the block two spaces to the right if we are to the left of last playable column
+        if (x < gridSize.x)
+        {
+            if (gridObjects[x + 2, y])
+            {
+                SoftRemovePieceAtPosition(x + 2, y, 3);
+            }
+        }
+        // Only remove the block two spaces down if we are above row 1
+        if (y > 1)
+        {
+            if (gridObjects[x, y - 2])
+            {
+                SoftRemovePieceAtPosition(x, y - 2, 3);
+            }
+        }
+        // Only remove the block two spaces up if we are below top playable row
+        if (y < gridSize.y)
+        {
+            if (gridObjects[x, y + 2])
+            {
+                SoftRemovePieceAtPosition(x, y + 2, 3);
+            }
+        }
+    }
+
+    // Freezes all effects, including adding new rows, block countdowns, and the whiteout clock
+    // NO KNOWN BUGS
+    void StopTime(int x, int y, Color color)
+    {
+        bool DEPAUSECLOCK = true;
+        pause = true;
+        pauseCounter = 0;
+        pauseTimer = newLineInterval * 2;
+        if (gridObjects[x, y])
+        {
+            gridObjects[x, y].GetComponent<GridpieceController>().ShockWave(color, 21);
         }
     }
 
@@ -1893,6 +2015,10 @@ public class PlaygridController : MonoBehaviour {
                 }
                 else
                 {
+                    if (gridObjects[i, j].GetComponent<GridpieceController>().blockColor <= 0)
+                    {
+                        gridObjects[i, j].GetComponent<GridpieceController>().blockColor = 0;
+                    }
                     count++;
                 }
             }
@@ -1909,9 +2035,12 @@ public class PlaygridController : MonoBehaviour {
 	// UPDATED FOR MULTIPLE SIZES
     void AddRow(int color)
     {
-        // Reset the new line counter when we add a new line
-        newLineCounter = 0;
         bool DEADDROW = false;
+        // Reset the new line counter when we add a new line
+        if (!pause)
+        {
+            newLineCounter = 0;
+        }
         if (DEADDROW)
         {
             Debug.Log("Are we whited out in addrow?: " + whiteOut);
@@ -2068,15 +2197,31 @@ public class PlaygridController : MonoBehaviour {
     // DOES NOT TAKE SPECIAL EFFECTS OF SPECIAL PIECES INTO ACCOUNT
     public void SoftRemovePieceAtPosition(int x, int y, int size)
     {
+        bool DESOFTREMOVEPIECEATPOSITION = true;
         if (gridObjects[x, y])
         {
             GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
-            if (gpc.blockColor != 0)
+            if (DESOFTREMOVEPIECEATPOSITION)
             {
+                Debug.Log("Color of current block " + x + ", " + y + " is: " + gpc.blockColor);
+            }
+            if (gpc.blockColor > 0)
+            {
+                if (DESOFTREMOVEPIECEATPOSITION)
+                {
+                    Debug.Log("Now removing piece at " + x + ", " + y);
+                }
                 gpc.ShockWave(gpc.sr.color, size);
                 gpc.blockType = 0;
                 gpc.blockColor = 0;
                 gpc.sr.color = edgeColor;
+            }
+            else
+            {
+                if (DESOFTREMOVEPIECEATPOSITION)
+                {
+                    Debug.Log("Did not remove the piece at " + x + ", " + y);
+                }
             }
         }
     }

@@ -43,11 +43,10 @@ public class GridpieceController : MonoBehaviour {
     public const int HAPPY_BLOCK = 5;
 	public const int SAD_BLOCK = 6; // Done
 	public const int ANGRY_BLOCK = 7; // Done
-	public const int BOMB_BLOCK = 8;
+	public const int BOMB_BLOCK = 8; // DONE
 	public const int BUBBLES_BLOCK = 9;
-	public const int CLOCK_BLOCK = 10;
+	public const int CLOCK_BLOCK = 10; // DONE
 	public const int RAINDROPS_BLOCK = 11; // Done
-
 
 	public int blockType;
 
@@ -231,7 +230,7 @@ public class GridpieceController : MonoBehaviour {
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
         main.startColor = color;
-		go.transform.FindChild("ScorePart").gameObject.SetActive(false);
+		go.transform.Find("ScorePart").gameObject.SetActive(false);
         return go;
     }
 
@@ -246,11 +245,11 @@ public class GridpieceController : MonoBehaviour {
         }
 		GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 		if (scoreAmount == 1)
-			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = oneSizeScoreMats[comboLevel - 1];
+			go.transform.Find("ScorePart").GetComponent<Renderer>().material = oneSizeScoreMats[comboLevel - 1];
 		else if (scoreAmount == 2)
-			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = twoSizeScoreMats[comboLevel - 1];
+			go.transform.Find("ScorePart").GetComponent<Renderer>().material = twoSizeScoreMats[comboLevel - 1];
 		else if (scoreAmount == 4)
-			go.transform.FindChild("ScorePart").GetComponent<Renderer>().material = fourSizeScoreMats[comboLevel - 1];
+			go.transform.Find("ScorePart").GetComponent<Renderer>().material = fourSizeScoreMats[comboLevel - 1];
 
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
@@ -276,10 +275,13 @@ public class GridpieceController : MonoBehaviour {
 		SetColor();
 	}
 
-	public void Whitewash() {
-		sr.color = Color.white;
-		sr.sprite = blockShapeSprites[REG_BLOCK];
-		blockType = REG_BLOCK;
+	public void Colorwash(Color color, bool washOut) {
+		sr.color = color;
+        if (washOut)
+        {
+            sr.sprite = blockShapeSprites[REG_BLOCK];
+            blockType = REG_BLOCK;
+        }
 	}
 
 	public void Repaint() {
