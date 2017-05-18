@@ -69,7 +69,8 @@ public class GridpieceController : MonoBehaviour {
 	void Start () {
         blockCount++;
         blockId = blockCount;
-		sr = GetComponent<SpriteRenderer>();
+		if (sr == null)
+			sr = GetComponent<SpriteRenderer>();
 	}
 	
 	// Update is called once per frame
@@ -96,7 +97,8 @@ public class GridpieceController : MonoBehaviour {
 
 
 	public void SetColor() {
-		sr = GetComponent<SpriteRenderer>();
+		if (sr == null)
+			sr = GetComponent<SpriteRenderer>();
 
 		// For some reason, this doesn't do anything so I overrode it
 		/*
@@ -158,7 +160,8 @@ public class GridpieceController : MonoBehaviour {
 	}
 
 	private void SetType(){
-		sr = GetComponent<SpriteRenderer>();
+		if (sr == null)
+			sr = GetComponent<SpriteRenderer>();
 
 		if (blockType != REG_BLOCK) 
         {
@@ -264,4 +267,25 @@ public class GridpieceController : MonoBehaviour {
         // go.GetComponent<LineRenderer>().SetColors(color, color);
         return go;
     }
+
+	public void ClearBlockType() {
+		blockType = REG_BLOCK;
+		sr.sprite = blockShapeSprites[REG_BLOCK];
+		if (blockColor > 9)
+			blockColor = Random.Range(1, 10);
+		SetColor();
+	}
+
+	public void Whitewash() {
+		sr.color = Color.white;
+		sr.sprite = blockShapeSprites[REG_BLOCK];
+		blockType = REG_BLOCK;
+	}
+
+	public void Repaint() {
+		SetType();
+		if (blockColor > 9)
+			blockColor = Random.Range(1, 10);
+		SetColor();
+	}
 }

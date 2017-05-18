@@ -1684,22 +1684,22 @@ public class PlaygridController : MonoBehaviour {
         if (gridObjects[x, y])
         {
             // remove all blocks of one color
-            if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == 1)
+			if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
             {
                 RemoveOneColor(x, y, color);
             }
             // remove the slacker block
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == 6)
+			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
             {
                 SoftRemovePieceAtPosition(x, y, 3);
             }
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == 7)
+			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
             {
                 SoftRemovePieceAtPosition(x, y, 21);
                 Whiteout();
             }
             // paint all of the blocks one color
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == 11)
+			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
             {
                 PaintOneColor(x, y, color, colorNum);
             }
@@ -1819,10 +1819,10 @@ public class PlaygridController : MonoBehaviour {
         {
             for (int j = 1; j <= gridSize.y; j++)
             {
-                if (gridObjects[i, j].GetComponent<GridpieceController>().sr.color != edgeColor)
+				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+				if (gpc.blockColor != GridpieceController.EDGE)
                 {
-                    gridObjects[i, j].GetComponent<GridpieceController>().sr.color = Color.white;
-                    gridObjects[i, j].GetComponent<GridpieceController>().blockType = 0;
+					gpc.Whitewash();
                 }
             }
         }
@@ -1843,45 +1843,8 @@ public class PlaygridController : MonoBehaviour {
             for (int j = 1; j <= gridSize.y; j++)
             {
                 GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
-                if (gpc.sr.color != edgeColor)
-                {
-                    if (gpc.blockColor == 1)
-                    {
-                        gpc.sr.color = Color.red;
-                    }
-                    else if (gpc.blockColor == 2)
-                    {
-                        gpc.sr.color = Color.blue;
-                    }
-                    else if (gpc.blockColor == 3)
-                    {
-                        gpc.sr.color = Color.green;
-                    }
-                    else if (gpc.blockColor == 4)
-                    {
-                        gpc.sr.color = new Color(1.0f, 1.0f, 0f);
-                    }
-                    else if (gpc.blockColor == 5)
-                    {
-                        gpc.sr.color = new Color(1.0f, 140.0f / 255.0f, 0f);
-                    }
-                    else if (gpc.blockColor == 6)
-                    {
-                        gpc.sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
-                    }
-                    else if (gpc.blockColor == 7)
-                    {
-                        gpc.sr.color = Color.magenta;
-                    }
-                    else if (gpc.blockColor == 8)
-                    {
-                        gpc.sr.color = Color.cyan;
-                    }
-                    else if (gpc.blockColor == 9)
-                    {
-                        gpc.sr.color = new Color(166.0f / 255.0f, 145.0f / 255.0f, 80.0f / 255.0f);
-                    }
-                }
+				if (gpc.blockColor != GridpieceController.EDGE)
+					gpc.Repaint();
             }
         }
     }
