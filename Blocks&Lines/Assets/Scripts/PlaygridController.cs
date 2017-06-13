@@ -1707,7 +1707,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateAdjacentSpecial(int x, int y, Color color, int colorNum)
     {
-        if (gridObjects[x, y])
+		if (gridObjects[x, y] != null)
         {
             // remove all blocks of one color
 			if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
@@ -2511,9 +2511,9 @@ public class PlaygridController : MonoBehaviour {
                 for (int i = 0; i < newPositions.Length; i++)
                     gridObjects[(int)newPositions[i].x, (int)newPositions[i].y] = piece;
 
-                StartCoroutine(MovePiece(piece, pieceSize, x, y, true));
+                //StartCoroutine(MovePiece(piece, pieceSize, x, y, true));
                 // Can swap the line above for the line below in order to create a moving piece
-                // StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
+                 StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
 
                 /*
                    if (pieceSize == GridpieceController.ONExONE) {
@@ -2542,7 +2542,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     public IEnumerator MovePiece(GameObject piece, int pieceSize, int x, int y, bool instantly) {
-        float timeForPieceToMove = 0.5f;
+        float timeForPieceToMove = 0.1f;
         Vector3 startPos = piece.transform.position;
         Vector3 endPos;
         if (pieceSize == GridpieceController.ONExONE)
