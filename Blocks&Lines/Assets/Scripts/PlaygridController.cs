@@ -1680,25 +1680,28 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateMatchSpecial(int x, int y, Color color, int blockType, int colorNum)
     {
-        if (gridObjects[x, y])
+        if (x > 0 && x < gridSize.x && y > 0 && y < gridSize.y)
         {
-            // remove all blocks in this column
-            if (blockType == GridpieceController.VERT_CLEAR_BLOCK)
+            if (gridObjects[x, y])
             {
-                RemoveColumn(x);
-            }
-            // remove all blocks in this row and column
-            else if (blockType == GridpieceController.PLUS_CLEAR_BLOCK)
-            {
-                RemoveRowAndColumn(x, y);
-            }
-            else if (blockType == GridpieceController.CLOCK_BLOCK)
-            {
-                StopTime(x, y, color);
-            }
-            else if (blockType == GridpieceController.BOMB_BLOCK)
-            {
-                BombGoBoom(x, y, color);
+                // remove all blocks in this column
+                if (blockType == GridpieceController.VERT_CLEAR_BLOCK)
+                {
+                    RemoveColumn(x);
+                }
+                // remove all blocks in this row and column
+                else if (blockType == GridpieceController.PLUS_CLEAR_BLOCK)
+                {
+                    RemoveRowAndColumn(x, y);
+                }
+                else if (blockType == GridpieceController.CLOCK_BLOCK)
+                {
+                    StopTime(x, y, color);
+                }
+                else if (blockType == GridpieceController.BOMB_BLOCK)
+                {
+                    BombGoBoom(x, y, color);
+                }
             }
         }
     }
@@ -1707,36 +1710,34 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateAdjacentSpecial(int x, int y, Color color, int colorNum)
     {
-        try
+        bool DEACTIVATEADJACENTSPECIAL = true;
+        if (DEACTIVATEADJACENTSPECIAL)
         {
-            if (gridObjects[x, y])
-            {
-                // remove all blocks of one color
-                if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
-                {
-                    RemoveOneColor(x, y, color);
-                }
-                // remove the slacker block
-                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
-                {
-                    SoftRemovePieceAtPosition(x, y, 3);
-                }
-                // Whitewash the board
-                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
-                {
-                    SoftRemovePieceAtPosition(x, y, 21);
-                    Whiteout();
-                }
-                // Colorwash the board
-                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
-                {
-                    PaintOneColor(x, y, color, colorNum);
-                }
-            }
+            Debug.Log("Block coordinates are: " + x + ", " + y);
         }
-        catch
+        if (gridObjects[x, y])
         {
-            CheckPieces();
+            // remove all blocks of one color
+            if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
+            {
+                RemoveOneColor(x, y, color);
+            }
+            // remove the slacker block
+            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
+            {
+                SoftRemovePieceAtPosition(x, y, 3);
+            }
+            // Whitewash the board
+            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
+            {
+                SoftRemovePieceAtPosition(x, y, 21);
+                Whiteout();
+            }
+            // Colorwash the board
+            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
+            {
+                PaintOneColor(x, y, color, colorNum);
+            }
         }
     }
 
@@ -1789,7 +1790,7 @@ public class PlaygridController : MonoBehaviour {
     void RemoveRowAndColumn(int i, int j)
     {
         // Turn all objects in the column gray and empty
-        for (int x = 1; x <= gridSize.x; x++)
+        for (int x = 1; x < gridSize.x; x++)
         {
             SoftRemovePieceAtPosition(x, j, 3);
         }
