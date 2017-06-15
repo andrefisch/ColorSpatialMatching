@@ -117,12 +117,12 @@ public class PlaygridController : MonoBehaviour {
         sizeFrequencies[3] = 1f;
 
         newLineThresholds = new int[6];
-        newLineThresholds[0] = 500;
-        newLineThresholds[1] = 470;
-        newLineThresholds[2] = 440;
-        newLineThresholds[3] = 410;
-        newLineThresholds[4] = 380;
-        newLineThresholds[5] = 350;
+        newLineThresholds[0] = 450;
+        newLineThresholds[1] = 420;
+        newLineThresholds[2] = 390;
+        newLineThresholds[3] = 360;
+        newLineThresholds[4] = 330;
+        newLineThresholds[5] = 300;
 
         startCounting = false;
         newLineCounter = 0;
@@ -208,28 +208,28 @@ public class PlaygridController : MonoBehaviour {
         {
             colorLevel = 6;
             shapeLevel = 2;
-            newLineInterval = 470;
+            newLineInterval = newLineThresholds[1];
         }
         if (score > colorThresholds[2])
         {
             colorLevel = 6;
-            newLineInterval = 440;
+            newLineInterval = newLineThresholds[2];
         }
         if (score > colorThresholds[3])
         {
             colorLevel = 7;
             shapeLevel = 4;
-            newLineInterval = 410;
+            newLineInterval = newLineThresholds[3];
         }
         if (score > colorThresholds[4])
         {
             colorLevel = 8;
-            newLineInterval = 380;
+            newLineInterval = newLineThresholds[4];
         }
         if (score > colorThresholds[5])
         {
             colorLevel = 9;
-            newLineInterval = 350;
+            newLineInterval = newLineThresholds[5];
         }
         if (whiteOut)
         {
@@ -613,7 +613,7 @@ public class PlaygridController : MonoBehaviour {
                             if (StraightShot((int)object1[i].x, (int)object1[i].y, (int)object2[j].x, (int)object2[j].y))
                             {
                                 currentPiece = new Vector2((int)object1[i].x, (int)object1[i].y);
-                                lastPiece = new Vector2((int)object2[i].x, (int)object2[i].y);
+                                lastPiece = new Vector2((int)object2[j].x, (int)object2[j].y);
                                 // HighlightMatchTrack();
                                 if (DEMATCH)
                                 {
@@ -1707,29 +1707,36 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateAdjacentSpecial(int x, int y, Color color, int colorNum)
     {
-		if (gridObjects[x, y] != null)
+        try
         {
-            // remove all blocks of one color
-			if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
+            if (gridObjects[x, y])
             {
-                RemoveOneColor(x, y, color);
+                // remove all blocks of one color
+                if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
+                {
+                    RemoveOneColor(x, y, color);
+                }
+                // remove the slacker block
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
+                {
+                    SoftRemovePieceAtPosition(x, y, 3);
+                }
+                // Whitewash the board
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
+                {
+                    SoftRemovePieceAtPosition(x, y, 21);
+                    Whiteout();
+                }
+                // Colorwash the board
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
+                {
+                    PaintOneColor(x, y, color, colorNum);
+                }
             }
-            // remove the slacker block
-			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
-            {
-                SoftRemovePieceAtPosition(x, y, 3);
-            }
-            // Whitewash the board
-			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
-            {
-                SoftRemovePieceAtPosition(x, y, 21);
-                Whiteout();
-            }
-            // Colorwash the board
-			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
-            {
-                PaintOneColor(x, y, color, colorNum);
-            }
+        }
+        catch
+        {
+            CheckPieces();
         }
     }
 
@@ -2413,8 +2420,51 @@ public class PlaygridController : MonoBehaviour {
             gpc.dimY = y;
             gpc.selected = false;
             gridObjects[x, y] = go;
-
-            if (gpc.size == GridpieceController.ONExTWO) {
+            if (gpc.size == GridpieceController.ONExONE) 
+            {
+                if (colorLevel > 5 && gpc.blockColor > 1)
+                {
+                    float val = UnityEngine.Random.value;
+                    // 10% chance of a special block being created 
+                    if (val < 0.10)
+                    {
+                        float type = UnityEngine.Random.value;
+                        if (type < 0.5)
+                        {
+                            gpc.blockType = GridpieceController.HORIZ_CLEAR_BLOCK;
+                        }
+                        else if (type < 0.55)
+                        {
+                            gpc.blockType = GridpieceController.VERT_CLEAR_BLOCK;
+                        }
+                        else if (type < 0.60)
+                        {
+                            gpc.blockType = GridpieceController.PLUS_CLEAR_BLOCK;
+                        }
+                        else if (type < 0.70)
+                        {
+                            gpc.blockType = GridpieceController.SAD_BLOCK;
+                        }
+                        else if (type < 0.75)
+                        {
+                            // gpc.blockType = GridpieceController.ANGRY_BLOCK;
+                        }
+                        else if (type < 0.80)
+                        {
+                            gpc.blockType = GridpieceController.BOMB_BLOCK;
+                        }
+                        else if (type < 0.85)
+                        {
+                            gpc.blockType = GridpieceController.CLOCK_BLOCK;
+                        }
+                        else if (type < 0.90)
+                        {
+                            gpc.blockType = GridpieceController.RAINDROPS_BLOCK;
+                        }
+                    }
+                }
+            }
+            else if (gpc.size == GridpieceController.ONExTWO) {
                 gridObjects[x, y - 1] = go;
                 go.transform.position = Vector3.Lerp(gridPositions[x, y], gridPositions[x, y - 1], 0.5f);
             }
@@ -2557,6 +2607,9 @@ public class PlaygridController : MonoBehaviour {
         if (!instantly) {
             for (float i = 0; i <= timeForPieceToMove; i += Time.deltaTime) {
                 float counter = i / timeForPieceToMove;
+                // RIENZI I WAS GETTING A MISSING REFERENCE EXCEPTION HERE
+                // The object of type 'GameObject' has been destroyed but you are still trying to access it.
+                // Your script should either check if it is null or you sohuld not destroy the object
                 piece.transform.position = Vector3.Lerp(startPos, endPos, counter);
                 yield return null;
             }
