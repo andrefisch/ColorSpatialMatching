@@ -25,8 +25,8 @@ public class PlaygridController : MonoBehaviour {
 
     // SCORE STUFF
     public Text scoreText;
-    public GUIText restartText;
-    public GUIText gameOverText;
+    public Text restartText;
+    public Text gameOverText;
     private bool restart;
     private bool gameOver;
     public int colorLevel;
@@ -325,6 +325,10 @@ public class PlaygridController : MonoBehaviour {
 
         if (Input.GetKeyDown("h")){
             Debug.Log("blockColor of the current block is " + gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().blockColor);
+        }
+        if (Input.GetKeyDown("i"))
+        {
+            Debug.Log("Block " + (int)currentPiece.x + ", " + (int)currentPiece.y + " is in the top row: " + (currentPiece.y == gridSize.y));
         }
         if (Input.GetKeyDown("j")){
             Whiteout();
@@ -1737,7 +1741,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateAdjacentSpecial(int x, int y, Color color, int colorNum)
     {
-        bool DEACTIVATEADJACENTSPECIAL = true;
+        bool DEACTIVATEADJACENTSPECIAL = false;
         if (DEACTIVATEADJACENTSPECIAL)
         {
             Debug.Log("Block coordinates are: " + x + ", " + y);
@@ -2080,148 +2084,161 @@ public class PlaygridController : MonoBehaviour {
         {
             Debug.Log("Are we whited out in addrow?: " + whiteOut);
         }
-		// REMOVE ALL PLACEHOLDER PIECES FIRST
-		for (int i = 1; i <= gridSize.x; i++) 
-        {
-			// START ON j=0 BECAUSE WE WANT TO REMOVE THE BOTTOM ROW IN ORDER TO CREATE BIGGER PIECES
-			// USED THE TERNARY OPERATOR TO DECIDE WHETHER TO USE BIG PIECES IN THE ROW METHOD
-			for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) 
-            {
-                if (gridObjects[i, j])
-                {
-                    GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
-                    if (gpc.blockColor == 0)
-                    {
-                        RemovePieceAtPosition(i, j);
-                    }
-                }
-			}
-		}
-        // MOVE ALL PIECES UP
-		// We iterate through the grid horizontally instead of vertically for this one.
-		for (int i = (int)(gridSize.y)-1; i >= 1; i--) 
-		{
-			for (int j = (int)(gridSize.x); j >= 1; j--) 
-			{
-				if (gridObjects[j, i]) 
-                {
-					GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
-					MovePieceToPosition(gridObjects[j, i], j, i + 1);
-					// If the piece was a big piece, we skip it next time by moving the i counter over once more so it doesn't move it up twice
-					if (gpc.size == GridpieceController.TWOxTWO)
-                    {
-						j--;
-                    }
-				}
-			}
-		}
-		// Bring the selected piece up
-		if (currentPiece.x != -1 && currentPiece.y < gridSize.y) {
-			currentPiece.y += 1;
-		}
-        // ADD BOTTOM ROW
-		for (int i = (int)gridSize.x; i > 0; i--)
-        {
-			if (!includeBigPieces)
-            {
-				AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
-            }
-			else 
-            {
-				float val = UnityEngine.Random.value;
-                // At shapeLevel 1, only create small blocks
-                if (shapeLevel == 1)
-                {
-                    AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
-                }
-                // Then we add the huge ones
-                else if (shapeLevel == 2)
-                {
-                    if (val < sizeFrequencies[2])
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
-                    }
-                    else 
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.TWOxTWO);
-                    }
-                }
-                // Then we add the skinny/long blocks
-                else if (shapeLevel == 4)
-                {
-                    if (val < sizeFrequencies[0])
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
-                    }
-                    else if (val < sizeFrequencies[1])
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExTWO);
-                    }
-                    else if (val < sizeFrequencies[2])
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.TWOxONE);
-                    }
-                    else
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.TWOxTWO);
-                    }
-                }
-            }
-        }
-        // Since there is sometimes a block that is missing check through and fill empty spaces
-        for (int i = (int)gridSize.x; i > 0; i--)
-        {
-            if (!gridObjects[i, 1])
-            {
-                if (shapeLevel < 4)
-                {
-                    AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
-                }
-                else
-                {
-					float val = UnityEngine.Random.value;
-                    if (val < sizeFrequencies[2])
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
-                    }
-                    else
-                    {
-                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExTWO);
-                    }
-                }
-            }
-        }
-		// ADD IN ALL PLACEHOLDER PIECES AGAIN
-		for (int i = 1; i <= gridSize.x; i++) 
-        {
-			for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) 
-            {
-				if (!gridObjects[i, j])
-                {
-					AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
-                }
-			}
-		}
-        // If we are in whiteout mode, all of the blocks should be white but keep their real color
-        if (whiteOut)
-        {
-            for (int i = 1; i <= gridSize.x; i++)
-            {
-                if (gridObjects[i, 1] && gridObjects[i, 1].GetComponent<GridpieceController>().blockColor != 0)
-                {
-                    gridObjects[i, 1].GetComponent<GridpieceController>().sr.color = Color.white;
-                }
-            }
-        }
-        // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
-		// NOTE-FOR ANDREW- MY MOVEPIECE METHOD DOESN'T ALLOW YOU TO MOVE ABOVE THE TOP ROW.  
+        // FIRST CHECK TO SEE IF WE HAVE LOST THE GAME
         for (int i = 1; i <= gridSize.x; i++)
         {
-            if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != 0)
+            if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
             {
-                if (DEADDROW)
+                gameOver = true;
+                gameOverText.text = "Game Over, Man!";
+                break;
+            }
+        }
+        if (!gameOver)
+        {
+            // REMOVE ALL PLACEHOLDER PIECES FIRST
+            for (int i = 1; i <= gridSize.x; i++) 
+            {
+                // START ON j=0 BECAUSE WE WANT TO REMOVE THE BOTTOM ROW IN ORDER TO CREATE BIGGER PIECES
+                // USED THE TERNARY OPERATOR TO DECIDE WHETHER TO USE BIG PIECES IN THE ROW METHOD
+                for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) 
                 {
-                    Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
+                    if (gridObjects[i, j])
+                    {
+                        GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+                        if (gpc.blockColor == 0)
+                        {
+                            RemovePieceAtPosition(i, j);
+                        }
+                    }
+                }
+            }
+            // MOVE ALL PIECES UP
+            // We iterate through the grid horizontally instead of vertically for this one.
+            for (int i = (int)(gridSize.y)-1; i >= 1; i--) 
+            {
+                for (int j = (int)(gridSize.x); j >= 1; j--) 
+                {
+                    if (gridObjects[j, i]) 
+                    {
+                        GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
+                        MovePieceToPosition(gridObjects[j, i], j, i + 1);
+                        // If the piece was a big piece, we skip it next time by moving the i counter over once more so it doesn't move it up twice
+                        if (gpc.size == GridpieceController.TWOxTWO)
+                        {
+                            j--;
+                        }
+                    }
+                }
+            }
+            // Bring the selected piece up
+            if (currentPiece.x != -1 && currentPiece.y < gridSize.y) {
+                currentPiece.y += 1;
+            }
+            // ADD BOTTOM ROW
+            for (int i = (int)gridSize.x; i > 0; i--)
+            {
+                if (!includeBigPieces)
+                {
+                    AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
+                }
+                else 
+                {
+                    float val = UnityEngine.Random.value;
+                    // At shapeLevel 1, only create small blocks
+                    if (shapeLevel == 1)
+                    {
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
+                    }
+                    // Then we add the huge ones
+                    else if (shapeLevel == 2)
+                    {
+                        if (val < sizeFrequencies[2])
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
+                        }
+                        else 
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.TWOxTWO);
+                        }
+                    }
+                    // Then we add the skinny/long blocks
+                    else if (shapeLevel == 4)
+                    {
+                        if (val < sizeFrequencies[0])
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
+                        }
+                        else if (val < sizeFrequencies[1])
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.ONExTWO);
+                        }
+                        else if (val < sizeFrequencies[2])
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.TWOxONE);
+                        }
+                        else
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.TWOxTWO);
+                        }
+                    }
+                }
+            }
+            // Since there is sometimes a block that is missing check through and fill empty spaces
+            for (int i = (int)gridSize.x; i > 0; i--)
+            {
+                if (!gridObjects[i, 1])
+                {
+                    if (shapeLevel < 4)
+                    {
+                        AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
+                    }
+                    else
+                    {
+                        float val = UnityEngine.Random.value;
+                        if (val < sizeFrequencies[2])
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.ONExONE);
+                        }
+                        else
+                        {
+                            AddPieceAtPosition(i, 1, color, GridpieceController.ONExTWO);
+                        }
+                    }
+                }
+            }
+            // ADD IN ALL PLACEHOLDER PIECES AGAIN
+            for (int i = 1; i <= gridSize.x; i++) 
+            {
+                for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) 
+                {
+                    if (!gridObjects[i, j])
+                    {
+                        AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
+                    }
+                }
+            }
+            // If we are in whiteout mode, all of the blocks should be white but keep their real color
+            if (whiteOut)
+            {
+                for (int i = 1; i <= gridSize.x; i++)
+                {
+                    if (gridObjects[i, 1] && gridObjects[i, 1].GetComponent<GridpieceController>().blockColor != 0)
+                    {
+                        gridObjects[i, 1].GetComponent<GridpieceController>().sr.color = Color.white;
+                    }
+                }
+            }
+            // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
+            // NOTE-FOR ANDREW- MY MOVEPIECE METHOD DOESN'T ALLOW YOU TO MOVE ABOVE THE TOP ROW.  
+            for (int i = 1; i <= gridSize.x; i++)
+            {
+                if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != 0)
+                {
+                    if (DEADDROW)
+                    {
+                        Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
+                    }
                 }
             }
         }
@@ -2542,8 +2559,6 @@ public class PlaygridController : MonoBehaviour {
         {
             GridpieceController gpc = piece.GetComponent<GridpieceController>();
             int pieceSize = gpc.size;
-            // LOSE CONDITION SHOULD GO HERE
-            // LOSE CONDITION SHOULD HAPPEN IF A BLOCK THAT ISNT AN EDGE BLOCK IS MOVED TO THE TOP ROW
             if ((y < 0 || y >= gridSize.y + extraY) || ((pieceSize == GridpieceController.ONExTWO || pieceSize == GridpieceController.TWOxTWO) && y < 1))
             {
                 if (DEMOVEPIECETOPOSITION)
