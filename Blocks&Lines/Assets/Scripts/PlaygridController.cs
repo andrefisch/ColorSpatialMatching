@@ -25,6 +25,10 @@ public class PlaygridController : MonoBehaviour {
 
     // SCORE STUFF
     public Text scoreText;
+    public GUIText restartText;
+    public GUIText gameOverText;
+    private bool restart;
+    private bool gameOver;
     public int colorLevel;
     public int shapeLevel;
     public int[] colorThresholds;
@@ -88,9 +92,14 @@ public class PlaygridController : MonoBehaviour {
     private Vector2 highlightedPiece;
 
     // Use this for initialization
+    // mark s
     void Start(){
         FREEZE = false;
         DECOMBOS = false;
+        gameOver = false;
+        restart = false;
+        gameOverText.text = "";
+        restartText.text = "";
         // includeBigPieces = true;
         // SCORE STUFF
         colorLevel = 4;
@@ -169,84 +178,87 @@ public class PlaygridController : MonoBehaviour {
     {
         bool DEFIXEDUPDATE = false;
         UpdateScore();
-        if (!pause)
+        if (!gameOver)
         {
-            newLineCounter++;
-        }
-        // When time is stopped we do not add new rows
-        if (!pause && !FREEZE && newLineCounter >= newLineInterval)
-        {
-            AddRow(-1);
-        }
-        if (startCounting)
-        {
-            processingCounter++;
-        }
-        if (!FREEZE && movedObjects.Count == 0 && processingCounter >= processingInterval)
-        {
-            if (DEFIXEDUPDATE)
+            if (!pause)
             {
-                // Debug.Log("Count at time of piece moving is: " + processingCounter);
+                newLineCounter++;
             }
-            MovePiecesDown();
-        }
-        else if (!FREEZE && movedObjects.Count > 0 && processingCounter >= processingInterval)
-        {
-            if (DEFIXEDUPDATE)
+            // When time is stopped we do not add new rows
+            if (!pause && !FREEZE && newLineCounter >= newLineInterval)
             {
-                // Debug.Log("Count at time of combo processing is: " + processingCounter);
-                Debug.Log("Combos at time of combo processing is: " + combos);
+                AddRow(-1);
             }
-            ProcessCombos();
-        }
-        // What color blocks are we using
-        if (score > colorThresholds[0])
-        {
-            colorLevel = 5;
-        }
-        if (score > colorThresholds[1])
-        {
-            colorLevel = 6;
-            shapeLevel = 2;
-            newLineInterval = newLineThresholds[1];
-        }
-        if (score > colorThresholds[2])
-        {
-            colorLevel = 6;
-            newLineInterval = newLineThresholds[2];
-        }
-        if (score > colorThresholds[3])
-        {
-            colorLevel = 7;
-            shapeLevel = 4;
-            newLineInterval = newLineThresholds[3];
-        }
-        if (score > colorThresholds[4])
-        {
-            colorLevel = 8;
-            newLineInterval = newLineThresholds[4];
-        }
-        if (score > colorThresholds[5])
-        {
-            colorLevel = 9;
-            newLineInterval = newLineThresholds[5];
-        }
-        if (whiteOut)
-        {
-            whiteOutCounter++;
-        }
-        if (whiteOutCounter > whiteOutTimer)
-        {
-            Repaint();
-        }
-        if (pause)
-        {
-            pauseCounter++;
-        }
-        if (pauseCounter > pauseTimer)
-        {
-            pause = false;
-            pauseCounter = 0;
+            if (startCounting)
+            {
+                processingCounter++;
+            }
+            if (!FREEZE && movedObjects.Count == 0 && processingCounter >= processingInterval)
+            {
+                if (DEFIXEDUPDATE)
+                {
+                    // Debug.Log("Count at time of piece moving is: " + processingCounter);
+                }
+                MovePiecesDown();
+            }
+            else if (!FREEZE && movedObjects.Count > 0 && processingCounter >= processingInterval)
+            {
+                if (DEFIXEDUPDATE)
+                {
+                    // Debug.Log("Count at time of combo processing is: " + processingCounter);
+                    Debug.Log("Combos at time of combo processing is: " + combos);
+                }
+                ProcessCombos();
+            }
+            // What color blocks are we using
+            if (score > colorThresholds[0])
+            {
+                colorLevel = 5;
+            }
+            if (score > colorThresholds[1])
+            {
+                colorLevel = 6;
+                shapeLevel = 2;
+                newLineInterval = newLineThresholds[1];
+            }
+            if (score > colorThresholds[2])
+            {
+                colorLevel = 6;
+                newLineInterval = newLineThresholds[2];
+            }
+            if (score > colorThresholds[3])
+            {
+                colorLevel = 7;
+                shapeLevel = 4;
+                newLineInterval = newLineThresholds[3];
+            }
+            if (score > colorThresholds[4])
+            {
+                colorLevel = 8;
+                newLineInterval = newLineThresholds[4];
+            }
+            if (score > colorThresholds[5])
+            {
+                colorLevel = 9;
+                newLineInterval = newLineThresholds[5];
+            }
+            if (whiteOut)
+            {
+                whiteOutCounter++;
+            }
+            if (whiteOutCounter > whiteOutTimer)
+            {
+                Repaint();
+            }
+            if (pause)
+            {
+                pauseCounter++;
+            }
+            if (pauseCounter > pauseTimer)
+            {
+                pause = false;
+                pauseCounter = 0;
+            }
         }
     }   
 
@@ -320,7 +332,16 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("k")){
             Repaint();
         }
+        if (restart)
+        {
+            if (Input.GetKeyDown("r"))
+            {
+                // Application.LoadLevel(Application.loadedLevel);
+            }
+        }
 
+        if (!gameOver)
+        {
         // This part deals with the highlighting and selecting of objects
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
         // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
@@ -511,6 +532,12 @@ public class PlaygridController : MonoBehaviour {
             else {
                 // Debug.Log("NO MATCH...");
             }
+        }
+        }
+        else if (!restart)
+        {
+            restartText.text = "Press 'r' to Restart";
+            restart = true;
         }
     }
 
@@ -2515,6 +2542,8 @@ public class PlaygridController : MonoBehaviour {
         {
             GridpieceController gpc = piece.GetComponent<GridpieceController>();
             int pieceSize = gpc.size;
+            // LOSE CONDITION SHOULD GO HERE
+            // LOSE CONDITION SHOULD HAPPEN IF A BLOCK THAT ISNT AN EDGE BLOCK IS MOVED TO THE TOP ROW
             if ((y < 0 || y >= gridSize.y + extraY) || ((pieceSize == GridpieceController.ONExTWO || pieceSize == GridpieceController.TWOxTWO) && y < 1))
             {
                 if (DEMOVEPIECETOPOSITION)
