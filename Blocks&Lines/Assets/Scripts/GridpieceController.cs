@@ -19,6 +19,7 @@ public class GridpieceController : MonoBehaviour {
     public const int MAGENTA = 7;
     public const int CYAN = 8;
     public const int SAND = 9;
+	public const int WHITE = 10;
 
 	public int blockColor;
 

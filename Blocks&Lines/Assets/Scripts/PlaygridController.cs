@@ -25,10 +25,6 @@ public class PlaygridController : MonoBehaviour {
 
     // SCORE STUFF
     public Text scoreText;
-    public Text restartText;
-    public Text gameOverText;
-    private bool restart;
-    private bool gameOver;
     public int colorLevel;
     public int shapeLevel;
     public int[] colorThresholds;
@@ -96,10 +92,6 @@ public class PlaygridController : MonoBehaviour {
     void Start(){
         FREEZE = false;
         DECOMBOS = false;
-        gameOver = false;
-        restart = false;
-        gameOverText.text = "";
-        restartText.text = "";
         // includeBigPieces = true;
         // SCORE STUFF
         colorLevel = 4;
@@ -178,7 +170,7 @@ public class PlaygridController : MonoBehaviour {
     {
         bool DEFIXEDUPDATE = false;
         UpdateScore();
-        if (!gameOver)
+        if (!GlobalVariables.gameOver)
         {
             if (!pause)
             {
@@ -336,7 +328,7 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("k")){
             Repaint();
         }
-        if (restart)
+		if (GlobalVariables.gameOver)
         {
             if (Input.GetKeyDown("r"))
             {
@@ -344,204 +336,199 @@ public class PlaygridController : MonoBehaviour {
             }
         }
 
-        if (!gameOver)
+        if (!GlobalVariables.gameOver)
         {
-        // This part deals with the highlighting and selecting of objects
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
-        // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
-        int gpcHighlightSize = -1;
-        highlightedPiece = Vector2.one * -1;
-        if (hit.collider != null) {
+	        // This part deals with the highlighting and selecting of objects
+	        RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
+	        // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
+	        int gpcHighlightSize = -1;
+	        highlightedPiece = Vector2.one * -1;
+	        if (hit.collider != null) {
 
-            GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
-            gpcHighlightSize = gpc.size;
-            if (gpc.blockColor != 0 && (gpc.dimX >= 1 && gpc.dimX <= gridSize.x && gpc.dimY >= 0 && gpc.dimY <= gridSize.y)) {
-                highlightedPiece.x = gpc.dimX;
-                highlightedPiece.y = gpc.dimY;
-            }
+	            GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
+	            gpcHighlightSize = gpc.size;
+				if ((gpc.blockColor != 0 && gpc.blockColor != GridpieceController.WHITE) && (gpc.dimX >= 1 && gpc.dimX <= gridSize.x && gpc.dimY >= 0 && gpc.dimY <= gridSize.y)) {
+	                highlightedPiece.x = gpc.dimX;
+	                highlightedPiece.y = gpc.dimY;
+	            }
 
-            if (Input.GetMouseButtonDown(0)) {
-                // First deselect any selected piece
-                for (int i = 1; i <= gridSize.x; i++) {
-                    for (int j = 1; j <= gridSize.y; j++) {
-                        if (gridObjects[i,j]){
-                            gridObjects[i,j].GetComponent<GridpieceController>().selected = false;
-                        }
-                    }
-                }
-                // Select only pieces that aren't 0 and are in the playable grid
-                if (gpc.blockColor != 0 && (gpc.dimX >= 1 && gpc.dimX <= gridSize.x && gpc.dimY >= 1 && gpc.dimY <= gridSize.y)) {
-                    /*
-                    At some point I may want to be able to activate certain blocks by clicking on them
-                    // activate special block if we click on a block that is special
-                    if (gpc.blockType != 0)
-                    {
-                        ActivateSpecialClickBlocks(gpc.dimX, gpc.dimY);
-                    }
-                    */
-                    // if it's not new, toggle the selection
-                    if (gpc.dimX == currentPiece.x && gpc.dimY == currentPiece.y) {
-                        gpc.selected = false;
-                        ResetCurrentLastPieces();
-                    }
-                    else {
-                        gpc.selected = true;
-                        if (DEUPDATE)
-                        {
-                            Debug.Log("Grid spaces of this block are:");
-                            Vector2[] gridSpaces = gpc.GetComponent<GridpieceController>().GetPositions();
-                            for (int i = 0; i < gridSpaces.Length; i++)
-                            {
-                                Debug.Log((int)gridSpaces[i].x + ", " + (int)gridSpaces[i].y);
-                            }
-                        }
+	            if (Input.GetMouseButtonDown(0)) {
+	                // First deselect any selected piece
+	                for (int i = 1; i <= gridSize.x; i++) {
+	                    for (int j = 1; j <= gridSize.y; j++) {
+	                        if (gridObjects[i,j]){
+	                            gridObjects[i,j].GetComponent<GridpieceController>().selected = false;
+	                        }
+	                    }
+	                }
+	                // Select only pieces that aren't 0 or white and are in the playable grid
+					if ((gpc.blockColor != 0 && gpc.blockColor != GridpieceController.WHITE) && (gpc.dimX >= 1 && gpc.dimX <= gridSize.x && gpc.dimY >= 1 && gpc.dimY <= gridSize.y)) {
+	                    /*
+	                    At some point I may want to be able to activate certain blocks by clicking on them
+	                    // activate special block if we click on a block that is special
+	                    if (gpc.blockType != 0)
+	                    {
+	                        ActivateSpecialClickBlocks(gpc.dimX, gpc.dimY);
+	                    }
+	                    */
+	                    // if it's not new, toggle the selection
+	                    if (gpc.dimX == currentPiece.x && gpc.dimY == currentPiece.y) {
+	                        gpc.selected = false;
+	                        ResetCurrentLastPieces();
+	                    }
+	                    else {
+	                        gpc.selected = true;
+	                        if (DEUPDATE)
+	                        {
+	                            Debug.Log("Grid spaces of this block are:");
+	                            Vector2[] gridSpaces = gpc.GetComponent<GridpieceController>().GetPositions();
+	                            for (int i = 0; i < gridSpaces.Length; i++)
+	                            {
+	                                Debug.Log((int)gridSpaces[i].x + ", " + (int)gridSpaces[i].y);
+	                            }
+	                        }
 
-                        if (currentPiece.x != -1 && currentPiece.y != -1) {
-                            lastPiece.x = currentPiece.x;
-                            lastPiece.y = currentPiece.y;
-                        }
-                        // Make sure the current piece is the one selected
-                        currentPiece.x = gpc.dimX;
-                        currentPiece.y = gpc.dimY;
-                        // If a new row was just added we select the piece above it instead
-                        // RIENZI: THIS PART CREATES SOME BUGS I DONT KNOW HOW TO FIX
-                        /*
-                        if (newLineCounter > newLineBuffer)
-                        {
-                            currentPiece.x = gpc.dimX;
-                            currentPiece.y = gpc.dimY;
-                        }
-                        else 
-                        {
-                            currentPiece.x = gpc.dimX;
-                            currentPiece.y = gpc.dimY + 1;
-                            // THE HIGHLIGHTED AND SELECTED PIECES ARENT WHERE THEY ARE SUPPOSED TO BE IF THE BUFFER IS TRIGGERED AND THAT IS CAUSING SOME PROBLEMS...
-                            // highlightedPiece.x = gpc.dimX;
-                            // highlightedPiece.y = gpc.dimY + 1;
-                            // gpc.dimY = gpc.dimY + 1;
-                        }
-                        */
-                    }
+	                        if (currentPiece.x != -1 && currentPiece.y != -1) {
+	                            lastPiece.x = currentPiece.x;
+	                            lastPiece.y = currentPiece.y;
+	                        }
+	                        // Make sure the current piece is the one selected
+	                        currentPiece.x = gpc.dimX;
+	                        currentPiece.y = gpc.dimY;
+	                        // If a new row was just added we select the piece above it instead
+	                        // RIENZI: THIS PART CREATES SOME BUGS I DONT KNOW HOW TO FIX
+	                        /*
+	                        if (newLineCounter > newLineBuffer)
+	                        {
+	                            currentPiece.x = gpc.dimX;
+	                            currentPiece.y = gpc.dimY;
+	                        }
+	                        else 
+	                        {
+	                            currentPiece.x = gpc.dimX;
+	                            currentPiece.y = gpc.dimY + 1;
+	                            // THE HIGHLIGHTED AND SELECTED PIECES ARENT WHERE THEY ARE SUPPOSED TO BE IF THE BUFFER IS TRIGGERED AND THAT IS CAUSING SOME PROBLEMS...
+	                            // highlightedPiece.x = gpc.dimX;
+	                            // highlightedPiece.y = gpc.dimY + 1;
+	                            // gpc.dimY = gpc.dimY + 1;
+	                        }
+	                        */
+	                    }
 
-                    if (DEUPDATE) {
-                        // Debug.Log("----------------------Clicked Playgrid Piece----------------------------");
-                        // Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
-                        // Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
-                    }
-                }
-            }
+	                    if (DEUPDATE) {
+	                        // Debug.Log("----------------------Clicked Playgrid Piece----------------------------");
+	                        // Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
+	                        // Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
+	                    }
+	                }
+	            }
 
-        }
-        else {
-            gpcHighlightSize = -1;
+	        }
+	        else {
+	            gpcHighlightSize = -1;
 
-            // If you click away, it deselects any piece
-            if (Input.GetMouseButtonDown(0)) {
-                ResetCurrentLastPieces();
-                for (int i = 1; i <= gridSize.x; i++) {
-                    for (int j = 1; j <= gridSize.y; j++)
-                        if (gridObjects[i, j])
-                            gridObjects[i, j].GetComponent<GridpieceController>().selected = false;
-                }
-            }
-        }
+	            // If you click away, it deselects any piece
+	            if (Input.GetMouseButtonDown(0)) {
+	                ResetCurrentLastPieces();
+	                for (int i = 1; i <= gridSize.x; i++) {
+	                    for (int j = 1; j <= gridSize.y; j++)
+	                        if (gridObjects[i, j])
+	                            gridObjects[i, j].GetComponent<GridpieceController>().selected = false;
+	                }
+	            }
+	        }
 
-        // Move the highlighted and selected indicator to their proper positions.
-        bool highlighted = false;
-        bool selectedPiece = false;
-        for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 1; j <= gridSize.y; j++) {
-                if (gridObjects[i, j]) {
-                    GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
-                    if (highlightedPiece.x != -1 && highlightedPiece.y != -1) {
-                        if (gpcHighlightSize == GridpieceController.ONExONE) {
-                            highlighters[GridpieceController.ONExONE].transform.position = gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y];
-                            highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
-                        }
-                        else if (gpcHighlightSize == GridpieceController.ONExTWO) {
-                            highlighters[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y - 1], 0.5f);
-                            highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
-                        }
-                        else if (gpcHighlightSize == GridpieceController.TWOxONE) {
-                            highlighters[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x - 1, (int)highlightedPiece.y], 0.5f);
-                            highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
-                        }
-                        else if (gpcHighlightSize == GridpieceController.TWOxTWO) {
-                            highlighters[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x - 1, (int)highlightedPiece.y - 1], 0.5f);
-                            highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
-                            highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
-                        }
-                        highlighted = true;
-                    }
-                    if (gpc.selected) {
-						
-						if (gpc.size == GridpieceController.ONExONE) {
-							selectors[GridpieceController.ONExONE].transform.position = gridPositions[i, j];
-                            selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
-                        }
-						else if (gpc.size == GridpieceController.ONExTWO) {
-                            selectors[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX, gpc.dimY - 1], 0.5f);
-                            selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
-                        }
-						else if (gpc.size == GridpieceController.TWOxONE) {
-                            selectors[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY], 0.5f);
-                            selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
-                        }
-						else if (gpc.size == GridpieceController.TWOxTWO) {
-                            selectors[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY - 1], 0.5f);
-                            selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
-                            selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
-                        }
-                        selectedPiece = true;
-                    }
-                }
-            }
-        }
+	        // Move the highlighted and selected indicator to their proper positions.
+	        bool highlighted = false;
+	        bool selectedPiece = false;
+	        for (int i = 1; i <= gridSize.x; i++) {
+	            for (int j = 1; j <= gridSize.y; j++) {
+	                if (gridObjects[i, j]) {
+	                    GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+	                    if (highlightedPiece.x != -1 && highlightedPiece.y != -1) {
+	                        if (gpcHighlightSize == GridpieceController.ONExONE) {
+	                            highlighters[GridpieceController.ONExONE].transform.position = gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y];
+	                            highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
+	                        }
+	                        else if (gpcHighlightSize == GridpieceController.ONExTWO) {
+	                            highlighters[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y - 1], 0.5f);
+	                            highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
+	                        }
+	                        else if (gpcHighlightSize == GridpieceController.TWOxONE) {
+	                            highlighters[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x - 1, (int)highlightedPiece.y], 0.5f);
+	                            highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
+	                        }
+	                        else if (gpcHighlightSize == GridpieceController.TWOxTWO) {
+	                            highlighters[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[(int)highlightedPiece.x, (int)highlightedPiece.y], gridPositions[(int)highlightedPiece.x - 1, (int)highlightedPiece.y - 1], 0.5f);
+	                            highlighters[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
+	                            highlighters[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
+	                        }
+	                        highlighted = true;
+	                    }
+	                    if (gpc.selected) {
+							
+							if (gpc.size == GridpieceController.ONExONE) {
+								selectors[GridpieceController.ONExONE].transform.position = gridPositions[i, j];
+	                            selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
+	                        }
+							else if (gpc.size == GridpieceController.ONExTWO) {
+	                            selectors[GridpieceController.ONExTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX, gpc.dimY - 1], 0.5f);
+	                            selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
+	                        }
+							else if (gpc.size == GridpieceController.TWOxONE) {
+	                            selectors[GridpieceController.TWOxONE].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY], 0.5f);
+	                            selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.TWOxTWO].transform.position = new Vector3(-10, 10, 0);
+	                        }
+							else if (gpc.size == GridpieceController.TWOxTWO) {
+	                            selectors[GridpieceController.TWOxTWO].transform.position = Vector3.Lerp(gridPositions[gpc.dimX, gpc.dimY], gridPositions[gpc.dimX - 1, gpc.dimY - 1], 0.5f);
+	                            selectors[GridpieceController.ONExTWO].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.TWOxONE].transform.position = new Vector3(-10, 10, 0);
+	                            selectors[GridpieceController.ONExONE].transform.position = new Vector3(-10, 10, 0);
+	                        }
+	                        selectedPiece = true;
+	                    }
+	                }
+	            }
+	        }
 
-        if (!highlighted) {
-            highlighters[0].transform.position = new Vector3(-10, 10, 0);
-            highlighters[1].transform.position = new Vector3(-10, 10, 0);
-            highlighters[2].transform.position = new Vector3(-10, 10, 0);
-            highlighters[3].transform.position = new Vector3(-10, 10, 0);
-        }
-        if (!selectedPiece) {
-            selectors[0].transform.position = new Vector3(-10, 10, 0);
-            selectors[1].transform.position = new Vector3(-10, 10, 0);
-            selectors[2].transform.position = new Vector3(-10, 10, 0);
-            selectors[3].transform.position = new Vector3(-10, 10, 0);
-        }
+	        if (!highlighted) {
+	            highlighters[0].transform.position = new Vector3(-10, 10, 0);
+	            highlighters[1].transform.position = new Vector3(-10, 10, 0);
+	            highlighters[2].transform.position = new Vector3(-10, 10, 0);
+	            highlighters[3].transform.position = new Vector3(-10, 10, 0);
+	        }
+	        if (!selectedPiece) {
+	            selectors[0].transform.position = new Vector3(-10, 10, 0);
+	            selectors[1].transform.position = new Vector3(-10, 10, 0);
+	            selectors[2].transform.position = new Vector3(-10, 10, 0);
+	            selectors[3].transform.position = new Vector3(-10, 10, 0);
+	        }
 
-        // Check for matches
-        if (lastPiece.x > -1) {
-            if (Match((int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
-                // Debug.Log("THEY MATCH!");
-                // CHANGED FOR TESTING
-                // startCounting = true;
-                // MovePiecesDown();
-            }
-            else {
-                // Debug.Log("NO MATCH...");
-            }
-        }
-        }
-        else if (!restart)
-        {
-            restartText.text = "Press 'r' to Restart";
-            restart = true;
+	        // Check for matches
+	        if (lastPiece.x > -1) {
+	            if (Match((int)currentPiece.x, (int)currentPiece.y, (int)lastPiece.x, (int)lastPiece.y)) {
+	                // Debug.Log("THEY MATCH!");
+	                // CHANGED FOR TESTING
+	                // startCounting = true;
+	                // MovePiecesDown();
+	            }
+	            else {
+	                // Debug.Log("NO MATCH...");
+	            }
+	        }
         }
     }
 
@@ -2085,16 +2072,9 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("Are we whited out in addrow?: " + whiteOut);
         }
         // FIRST CHECK TO SEE IF WE HAVE LOST THE GAME
-        for (int i = 1; i <= gridSize.x; i++)
-        {
-            if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
-            {
-                gameOver = true;
-                gameOverText.text = "Game Over, Man!";
-                break;
-            }
-        }
-        if (!gameOver)
+		CheckGameOver();
+
+		if (!GlobalVariables.gameOver)
         {
             // REMOVE ALL PLACEHOLDER PIECES FIRST
             for (int i = 1; i <= gridSize.x; i++) 
@@ -2666,6 +2646,17 @@ public class PlaygridController : MonoBehaviour {
         currentPiece = Vector2.one * -1;
         lastPiece = Vector2.one * -1;
     }
+
+	private void CheckGameOver() {
+		for (int i = 1; i <= gridSize.x; i++)
+		{
+			if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+			{
+				GlobalVariables.gameOver = true;
+				break;
+			}
+		}
+	}
 
 	private void LoadPlayBoard() {
 		bool DELOADPLAYBOARD = false;
