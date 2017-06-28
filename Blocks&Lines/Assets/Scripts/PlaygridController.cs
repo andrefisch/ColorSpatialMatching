@@ -332,12 +332,24 @@ public class PlaygridController : MonoBehaviour {
         {
             if (Input.GetKeyDown("r"))
             {
-                // Application.LoadLevel(Application.loadedLevel);
+                Application.LoadLevel(Application.loadedLevel);
             }
         }
 
         if (!GlobalVariables.gameOver)
         {
+            // First we check to see if any special blocks have activated
+            for (int i = 1; i <= gridSize.x; i++) {
+                for (int j = 1; j <= gridSize.y; j++) {
+                    if (gridObjects[i, j]){
+                        GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
+                        if (gpc.countdown <= 0)
+                        {
+                            ActivateTimerSpecial(gpc.dimX, gpc.dimY);
+                        }
+                    }
+                }
+            }
 	        // This part deals with the highlighting and selecting of objects
 	        RaycastHit2D hit = Physics2D.Raycast(new Vector2(GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).x,GlobalVariables.cam.ScreenToWorldPoint(Input.mousePosition).y), Vector2.zero, 0f);
 	        // We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
@@ -1233,9 +1245,12 @@ public class PlaygridController : MonoBehaviour {
         movedObjects.Clear();
         UnhighlightMatchTrack();
         // First remove all the grey pieces in the playable grid
-        for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 1; j <= gridSize.y; j++) {
-                if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == edgeColor){
+        for (int i = 1; i < gridSize.x + extraX; i++) 
+        {
+            for (int j = 1; j < gridSize.y + extraY; j++) 
+            {
+                if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == edgeColor)
+                {
                     // First get rid of the piece
                     RemovePieceAtPosition(i, j);
                 }
@@ -1247,10 +1262,10 @@ public class PlaygridController : MonoBehaviour {
         // Iterate through the grid
         for (int z = 0; z < 3; z++)
         {
-            for (int i = 1; i <= gridSize.x; i++) 
+            for (int i = 1; i < gridSize.x + extraX; i++) 
             {
                 // We start a y = 2 because you can't move down if y = 1
-                for (int j = 2; j <= gridSize.y; j++) 
+                for (int j = 2; j < gridSize.y + extraY; j++) 
                 {
                     if (gridObjects[i, j] != null) {
                         //Debug.Log("Found Piece at: " + i + ", " + j);
@@ -1306,9 +1321,12 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log(movedObjects.Count + " game pieces just moved");
         }
         // Finally, fill the board back up with grey pieces
-        for (int i = 1; i <= gridSize.x; i++) {
-            for (int j = 1; j <= gridSize.y; j++) {
-                if (gridObjects[i, j] == null){
+        for (int i = 1; i < gridSize.x + extraX; i++) 
+        {
+            for (int j = 1; j < gridSize.y + extraY; j++) 
+            {
+                if (gridObjects[i, j] == null)
+                {
                     AddPieceAtPosition(i, j, 0, GridpieceController.ONExONE);
                 }
             }
@@ -1587,9 +1605,9 @@ public class PlaygridController : MonoBehaviour {
             }
             // Refresh the board
             // Remove all the grey pieces in the playable grid
-            for (int i = 1; i <= gridSize.x; i++) 
+            for (int i = 1; i < gridSize.x + extraX; i++) 
             {
-                for (int j = 1; j <= gridSize.y; j++) 
+                for (int j = 1; j < gridSize.y + extraY; j++) 
                 {
                     if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().sr.color == edgeColor)
                     {
@@ -1599,9 +1617,9 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
             // Finally, fill the board back up with grey pieces
-            for (int i = 1; i <= gridSize.x; i++) 
+            for (int i = 1; i < gridSize.x + extraX; i++) 
             {
-                for (int j = 1; j <= gridSize.y; j++) 
+                for (int j = 1; j < gridSize.y + extraY; j++) 
                 {
                     if (gridObjects[i, j] == null)
                     {
@@ -1733,28 +1751,47 @@ public class PlaygridController : MonoBehaviour {
         {
             Debug.Log("Block coordinates are: " + x + ", " + y);
         }
-        if (gridObjects[x, y])
+        if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
         {
-            // remove all blocks of one color
-            if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
+            if (gridObjects[x, y])
             {
-                RemoveOneColor(x, y, color);
+                // remove all blocks of one color
+                if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
+                {
+                    RemoveOneColor(x, y, color);
+                }
+                // Colorwash the board
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
+                {
+                    PaintOneColor(x, y, color, colorNum);
+                }
+            }
+        }
+    }
+
+    public void ActivateTimerSpecial(int x, int y)
+    {
+        bool DEACTIVATETIMERSPECIAL = false;
+        if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
+        {
+            if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.HAPPY_BLOCK)
+            {
+                Debug.Log("Removed the HAPPY block");
+                SoftRemovePieceAtPosition(x, y, 3);
+                AddRow(-1);
             }
             // remove the slacker block
             else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
             {
+                Debug.Log("Removed the SAD block");
                 SoftRemovePieceAtPosition(x, y, 3);
             }
             // Whitewash the board
             else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
             {
+                Debug.Log("Removed the ANGRY block");
                 SoftRemovePieceAtPosition(x, y, 21);
                 Whiteout();
-            }
-            // Colorwash the board
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
-            {
-                PaintOneColor(x, y, color, colorNum);
             }
         }
     }
@@ -1791,7 +1828,7 @@ public class PlaygridController : MonoBehaviour {
     void RemoveColumn(int x)
     {
         // Turn all objects in the row gray and empty
-        for (int y = 1; y <= gridSize.y; y++)
+        for (int y = 1; y < gridSize.y + extraY; y++)
         {
             SoftRemovePieceAtPosition(x, y, 3);
         }
@@ -1808,12 +1845,12 @@ public class PlaygridController : MonoBehaviour {
     void RemoveRowAndColumn(int i, int j)
     {
         // Turn all objects in the column gray and empty
-        for (int x = 1; x < gridSize.x; x++)
+        for (int x = 1; x < gridSize.x + extraX; x++)
         {
             SoftRemovePieceAtPosition(x, j, 3);
         }
         // Turn all objects in the row gray and empty
-        for (int y = 1; y < gridSize.y; y++)
+        for (int y = 1; y < gridSize.y + extraY; y++)
         {
             SoftRemovePieceAtPosition(i, y, 3);
         }
@@ -1837,9 +1874,9 @@ public class PlaygridController : MonoBehaviour {
         }
         if (color != edgeColor)
         {
-            for (int i = 1; i <= gridSize.x; i++)
+            for (int i = 1; i < gridSize.x + extraX; i++)
             {
-                for (int j = 1; j <= gridSize.y; j++)
+                for (int j = 1; j < gridSize.y + extraY; j++)
                 {
                     if (color == gridObjects[i, j].GetComponent<GridpieceController>().sr.color)
                     {
@@ -1869,9 +1906,9 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("Are we whited out?: " + whiteOut);
         }
         // SoftRemovePieceAtPosition(x, y, 21);
-        for (int i = 1; i <= gridSize.x; i++)
+        for (int i = 1; i < gridSize.x + extraX; i++)
         {
-            for (int j = 1; j <= gridSize.y; j++)
+            for (int j = 1; j < gridSize.y + extraY; j++)
             {
 				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
 				if (gpc.blockColor != GridpieceController.EDGE)
@@ -1893,9 +1930,9 @@ public class PlaygridController : MonoBehaviour {
         {
             Debug.Log("Are we whited out?: " + whiteOut);
         }
-        for (int i = 1; i <= gridSize.x; i++)
+        for (int i = 1; i < gridSize.x + extraX; i++)
         {
-            for (int j = 1; j <= gridSize.y; j++)
+            for (int j = 1; j < gridSize.y + extraY; j++)
             {
                 GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
 				if (gpc.blockColor != GridpieceController.EDGE)
@@ -2008,12 +2045,14 @@ public class PlaygridController : MonoBehaviour {
             gpc.blockType = 0;
             gpc.blockColor = 0;
             gpc.sr.color = edgeColor;
-            for (int i = 1; i <= gridSize.x; i++)
+            for (int i = 1; i < gridSize.x + extraX; i++)
             {
-                for (int j = 1; j <= gridSize.y; j++)
+                for (int j = 1; j < gridSize.y + extraY; j++)
                 {
                     if (gridObjects[i, j].GetComponent<GridpieceController>().sr.color != edgeColor)
                     {
+                        gridObjects[i, j].GetComponent<GridpieceController>().ClearBlockType();
+                        gridObjects[i, j].GetComponent<GridpieceController>().hasCountdown = false;
                         gridObjects[i, j].GetComponent<GridpieceController>().sr.color = color;
                         gridObjects[i, j].GetComponent<GridpieceController>().blockColor = colorNum;
                     }
@@ -2077,11 +2116,11 @@ public class PlaygridController : MonoBehaviour {
 		if (!GlobalVariables.gameOver)
         {
             // REMOVE ALL PLACEHOLDER PIECES FIRST
-            for (int i = 1; i <= gridSize.x; i++) 
+            for (int i = 1; i < gridSize.x + extraX; i++) 
             {
                 // START ON j=0 BECAUSE WE WANT TO REMOVE THE BOTTOM ROW IN ORDER TO CREATE BIGGER PIECES
                 // USED THE TERNARY OPERATOR TO DECIDE WHETHER TO USE BIG PIECES IN THE ROW METHOD
-                for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) 
+                for (int j = includeBigPieces ? 0 : 1; j < gridSize.y + extraY; j++) 
                 {
                     if (gridObjects[i, j])
                     {
@@ -2188,9 +2227,9 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
             // ADD IN ALL PLACEHOLDER PIECES AGAIN
-            for (int i = 1; i <= gridSize.x; i++) 
+            for (int i = 1; i < gridSize.x + extraX; i++) 
             {
-                for (int j = includeBigPieces ? 0 : 1; j <= gridSize.y; j++) 
+                for (int j = includeBigPieces ? 0 : 1; j < gridSize.y + extraY; j++) 
                 {
                     if (!gridObjects[i, j])
                     {
@@ -2201,7 +2240,7 @@ public class PlaygridController : MonoBehaviour {
             // If we are in whiteout mode, all of the blocks should be white but keep their real color
             if (whiteOut)
             {
-                for (int i = 1; i <= gridSize.x; i++)
+                for (int i = 1; i < gridSize.x + extraX; i++)
                 {
                     if (gridObjects[i, 1] && gridObjects[i, 1].GetComponent<GridpieceController>().blockColor != 0)
                     {
@@ -2211,7 +2250,7 @@ public class PlaygridController : MonoBehaviour {
             }
             // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
             // NOTE-FOR ANDREW- MY MOVEPIECE METHOD DOESN'T ALLOW YOU TO MOVE ABOVE THE TOP ROW.  
-            for (int i = 1; i <= gridSize.x; i++)
+            for (int i = 1; i < gridSize.x + extraX; i++)
             {
                 if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != 0)
                 {
@@ -2229,7 +2268,7 @@ public class PlaygridController : MonoBehaviour {
     // DOES NOT TAKE SPECIAL EFFECTS OF SPECIAL PIECES INTO ACCOUNT
     public void SoftRemovePieceAtPosition(int x, int y, int size)
     {
-        bool DESOFTREMOVEPIECEATPOSITION = true;
+        bool DESOFTREMOVEPIECEATPOSITION = false;
         if (gridObjects[x, y])
         {
             GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();
@@ -2648,7 +2687,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
 	private void CheckGameOver() {
-		for (int i = 1; i <= gridSize.x; i++)
+		for (int i = 1; i < gridSize.x + extraX; i++)
 		{
 			if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
 			{
@@ -2931,7 +2970,7 @@ public class PlaygridController : MonoBehaviour {
 		int arrSize = (int)(gridSize.x * gridSize.y);
 		string[] board = new string[arrSize];
 		for (int i = (int)gridSize.y, index = 0; i >= 1; i--) {
-			for (int j = 1; j <= gridSize.x; j++) {
+			for (int j = 1; j < gridSize.x + extraX; j++) {
 				GridpieceController gpc = gridObjects[j, i].GetComponent<GridpieceController>();
 
 				int type = gpc.blockType;

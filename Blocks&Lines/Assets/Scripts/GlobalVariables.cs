@@ -13,9 +13,7 @@ public class GlobalVariables : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		cam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
-
 		gameOver = false;
-
 		//gridC = GameObject.FindGameObjectWithTag("GridObject").GetComponent<GridpieceController>();
 	}
 	

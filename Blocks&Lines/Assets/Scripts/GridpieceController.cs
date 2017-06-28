@@ -41,13 +41,16 @@ public class GridpieceController : MonoBehaviour {
 	public const int VERT_CLEAR_BLOCK = 2; // Done
 	public const int HORIZ_CLEAR_BLOCK = 3; // Done 
 	public const int PLUS_CLEAR_BLOCK = 4; // Done
-    public const int HAPPY_BLOCK = 5;
+    public const int HAPPY_BLOCK = 5; // Done
 	public const int SAD_BLOCK = 6; // Done
 	public const int ANGRY_BLOCK = 7; // Done
 	public const int BOMB_BLOCK = 8; // DONE
 	public const int BUBBLES_BLOCK = 9;
 	public const int CLOCK_BLOCK = 10; // DONE
 	public const int RAINDROPS_BLOCK = 11; // Done
+    
+    public float countdown = 5;
+    public bool hasCountdown = false;
 
 	public int blockType;
 
@@ -82,6 +85,10 @@ public class GridpieceController : MonoBehaviour {
 		if (!setColor) {
 			SetColor();
 		}
+        if (hasCountdown)
+        {
+            countdown -= Time.deltaTime;
+        }
 		if (!setSize) {
 			if (size == ONExONE)
 				transform.localScale = new Vector3(0.5f, 0.3f, .3f);
@@ -165,12 +172,18 @@ public class GridpieceController : MonoBehaviour {
 
 		if (blockType != REG_BLOCK) 
         {
-            if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK)
+            // MAKE SURE THE PROPER BLOCKS ARE WHITE AND UNSELECTABLE
+            if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == HAPPY_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 //print("Setting Type");
                 blockColor = 10;
                 sr.color = Color.white;
                 setColor = true;
+            }
+            // MAKE SURE COUNT DOWN BLOCKS HAVE AN ACTIVE TIMER
+            if (blockType == HAPPY_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
+            {
+                hasCountdown = true;
             }
 		}
 
@@ -271,6 +284,7 @@ public class GridpieceController : MonoBehaviour {
 	public void ClearBlockType() {
 		blockType = REG_BLOCK;
 		sr.sprite = blockShapeSprites[REG_BLOCK];
+        hasCountdown = false;
 		if (blockColor > 9)
 			blockColor = Random.Range(1, 10);
 		SetColor();
