@@ -181,7 +181,7 @@ public class GridpieceController : MonoBehaviour {
                 setColor = true;
             }
             // MAKE SURE COUNT DOWN BLOCKS HAVE AN ACTIVE TIMER
-            if (blockType == HAPPY_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
+            if (blockType == HAPPY_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 hasCountdown = true;
             }
@@ -301,8 +301,8 @@ public class GridpieceController : MonoBehaviour {
 
 	public void Repaint() {
 		SetType();
-		if (blockColor > 9)
-			blockColor = Random.Range(1, 10);
+		// if (blockColor > 9)
+			// blockColor = Random.Range(1, 10);
 		SetColor();
 	}
 }

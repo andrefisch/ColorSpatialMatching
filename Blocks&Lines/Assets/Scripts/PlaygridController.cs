@@ -339,9 +339,12 @@ public class PlaygridController : MonoBehaviour {
         if (!GlobalVariables.gameOver)
         {
             // First we check to see if any special blocks have activated
-            for (int i = 1; i <= gridSize.x; i++) {
-                for (int j = 1; j <= gridSize.y; j++) {
-                    if (gridObjects[i, j]){
+            for (int i = 1; i < gridSize.x + extraX; i++) 
+            {
+                for (int j = 1; j < gridSize.y + extraY; j++)
+                {
+                    if (gridObjects[i, j])
+                    {
                         GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
                         if (gpc.countdown <= 0)
                         {
@@ -586,7 +589,7 @@ public class PlaygridController : MonoBehaviour {
     void UpdateScore ()
     {
         // scoreText.text = "Score: " + score.ToString();
-        scoreText.text = "Score: " + score.ToString() + "\nCombos: " + combos.ToString() + "\nMoved Objects: " + movedObjects.Count.ToString() + "\nColorlevel: " + colorLevel + "\nShapeLevel: " + shapeLevel + "\nAddRow Timing: " + newLineInterval + "\nNumber of Blocks: " + CheckPieces();
+        scoreText.text = "Score: " + score.ToString() + "\nBlocks Destroyed: " + blocksDestroyed.ToString() + "\nCombos: " + combos.ToString() + "\nMoved Objects: " + movedObjects.Count.ToString() + "\nColorlevel: " + colorLevel + "\nShapeLevel: " + shapeLevel + "\nAddRow Timing: " + newLineInterval + "\nNumber of Blocks: " + CheckPieces();
         // scoreText.text = score.ToString() + ", " + combos.ToString() + ", " + movedObjects.Count.ToString();
     }
 
@@ -1671,12 +1674,12 @@ public class PlaygridController : MonoBehaviour {
             for (int j = 1; j < gridSize.y + extraY; j++)
             {
                 // if we find a piece start from other side trying to find a second piece
-                if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().blockType == 3)
+                if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().blockType == GridpieceController.HORIZ_CLEAR_BLOCK)
                 {
                     firstX = i;
-                    for (int k = (int)gridSize.x - 1; k > i; k--)
+                    for (int k = (int)gridSize.x + extraX - 1; k > i; k--)
                     {
-                        if (gridObjects[k, j] && gridObjects[k, j].GetComponent<GridpieceController>().blockType == 3)
+                        if (gridObjects[k, j] && gridObjects[k, j].GetComponent<GridpieceController>().blockType == GridpieceController.HORIZ_CLEAR_BLOCK)
                         {
                             secondX = k;
                             // now that we have both points we want to delete from, remove relevant part of row
@@ -1716,26 +1719,43 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateMatchSpecial(int x, int y, Color color, int blockType, int colorNum)
     {
-        if (x > 0 && x < gridSize.x && y > 0 && y < gridSize.y)
+        bool DEACTIVATEMATCHSPECIAL = true;
+        if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
         {
             if (gridObjects[x, y])
             {
                 // remove all blocks in this column
                 if (blockType == GridpieceController.VERT_CLEAR_BLOCK)
                 {
+                    if (DEACTIVATEMATCHSPECIAL)
+                    {
+                        Debug.Log("VERTICAL clear block activated");
+                    }
                     RemoveColumn(x);
                 }
                 // remove all blocks in this row and column
                 else if (blockType == GridpieceController.PLUS_CLEAR_BLOCK)
                 {
+                    if (DEACTIVATEMATCHSPECIAL)
+                    {
+                        Debug.Log("PLUS clear block activated");
+                    }
                     RemoveRowAndColumn(x, y);
                 }
                 else if (blockType == GridpieceController.CLOCK_BLOCK)
                 {
+                    if (DEACTIVATEMATCHSPECIAL)
+                    {
+                        Debug.Log("STOP TIME block activated");
+                    }
                     StopTime(x, y, color);
                 }
                 else if (blockType == GridpieceController.BOMB_BLOCK)
                 {
+                    if (DEACTIVATEMATCHSPECIAL)
+                    {
+                        Debug.Log("BOMB block activated");
+                    }
                     BombGoBoom(x, y, color);
                 }
             }
@@ -1765,31 +1785,49 @@ public class PlaygridController : MonoBehaviour {
                 {
                     PaintOneColor(x, y, color, colorNum);
                 }
+                // THIS BLOCK HAS NO EFFECT ANYWAY
+                // remove the sad block
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
+                {
+                    SoftRemovePieceAtPosition(x, y, 3);
+                }
+                // REMOVE THE BAD BLOCKS WITH NO EFFECT IF WE MATCH NEXT TO THEM IN TIME
+                // remove row up block
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.HAPPY_BLOCK)
+                {
+                    SoftRemovePieceAtPosition(x, y, 3);
+                }
+                // remove angry block
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
+                {
+                    SoftRemovePieceAtPosition(x, y, 3);
+                }
             }
         }
     }
 
     public void ActivateTimerSpecial(int x, int y)
     {
-        bool DEACTIVATETIMERSPECIAL = false;
+        bool DEACTIVATETIMERSPECIAL = true;
         if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
         {
+            // Adds another row
             if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.HAPPY_BLOCK)
             {
-                Debug.Log("Removed the HAPPY block");
+                if (DEACTIVATETIMERSPECIAL)
+                {
+                    Debug.Log("Removed the HAPPY block");
+                }
                 SoftRemovePieceAtPosition(x, y, 3);
                 AddRow(-1);
-            }
-            // remove the slacker block
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
-            {
-                Debug.Log("Removed the SAD block");
-                SoftRemovePieceAtPosition(x, y, 3);
             }
             // Whitewash the board
             else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
             {
-                Debug.Log("Removed the ANGRY block");
+                if (DEACTIVATETIMERSPECIAL)
+                {
+                    Debug.Log("Removed the ANGRY block");
+                }
                 SoftRemovePieceAtPosition(x, y, 21);
                 Whiteout();
             }
@@ -1810,6 +1848,7 @@ public class PlaygridController : MonoBehaviour {
         {
             SoftRemovePieceAtPosition(x, y, 3);
         }
+        matchTrack = new List<Vector2>();
         currentPiece = new Vector2(x1, y);
         lastPiece = new Vector2(x2, y);
         HighlightMatchTrack();
@@ -1913,6 +1952,10 @@ public class PlaygridController : MonoBehaviour {
 				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
 				if (gpc.blockColor != GridpieceController.EDGE)
                 {
+                    if (gpc.blockColor == GridpieceController.WHITE)
+                    {
+                        SoftRemovePieceAtPosition(i, j, 3);
+                    }
 					gpc.Colorwash(Color.white, true);
                 }
             }
@@ -2102,10 +2145,7 @@ public class PlaygridController : MonoBehaviour {
     {
         bool DEADDROW = false;
         // Reset the new line counter when we add a new line
-        if (!pause)
-        {
-            newLineCounter = 0;
-        }
+        newLineCounter = 0;
         if (DEADDROW)
         {
             Debug.Log("Are we whited out in addrow?: " + whiteOut);
@@ -2248,18 +2288,7 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
             }
-            // CHECK TO SEE IF A PIECE HAS MOVED ABOVE THE TOP ROW. IF IT HAS, GAME IS OVER
-            // NOTE-FOR ANDREW- MY MOVEPIECE METHOD DOESN'T ALLOW YOU TO MOVE ABOVE THE TOP ROW.  
-            for (int i = 1; i < gridSize.x + extraX; i++)
-            {
-                if (gridObjects[i, (int)gridSize.y] && gridObjects[i, (int)gridSize.y].GetComponent<GridpieceController>().blockColor != 0)
-                {
-                    if (DEADDROW)
-                    {
-                        Debug.Log("There is a game piece at " + i + ", " + (int)gridSize.y + ". You lose!!");
-                    }
-                }
-            }
+            CheckHorizontalSpecial();
         }
     }
 
@@ -2286,6 +2315,7 @@ public class PlaygridController : MonoBehaviour {
                 gpc.blockType = 0;
                 gpc.blockColor = 0;
                 gpc.sr.color = edgeColor;
+                blocksDestroyed++;
             }
             else
             {
@@ -2391,57 +2421,6 @@ public class PlaygridController : MonoBehaviour {
             }
             gpc.SetColor();
             if (size < 0) {
-				/*
-                if (x > 1 && y > 1) {
-                    if (!gridObjects[x, y - 1])
-                    {
-                        if (Random.Range(0, 7.999999999f) > 7)
-                        {
-                            
-                        }
-                        else
-                        {
-                            gpc.size = GridpieceController.ONExONE;
-                        }
-                    }
-                    else if (shapeLevel > 2)
-                    {
-                        if (Random.value > 0.5f)
-                        {
-                            gpc.size = GridpieceController.TWOxONE;
-                        }
-                        else
-                        {
-                            gpc.size = GridpieceController.ONExONE;
-                        }
-                    }
-                    else 
-                    {
-                        gpc.size = GridpieceController.ONExONE;
-                    }
-                }
-                else if (x == 1) 
-                {
-                    if (!gridObjects[x, y - 1]) 
-                    {
-                        if (shapeLevel > 1)
-                        {
-                            if (Random.value > 0.5f)
-                            {
-                                gpc.size = GridpieceController.ONExTWO;
-                            }
-                            else
-                            {
-                                gpc.size = GridpieceController.ONExONE;
-                            }
-                        }
-                    }
-                    else
-                        gpc.size = GridpieceController.ONExONE;
-                }
-                else
-                    gpc.size = GridpieceController.ONExONE;
-                    */
 				if (!gridObjects[x - 1, y] && !gridObjects[x, y - 1] && !gridObjects[x - 1, y - 1]) {
 					float val = UnityEngine.Random.value;
 					if (val < 0.25f)
@@ -2489,21 +2468,29 @@ public class PlaygridController : MonoBehaviour {
                 if (colorLevel > 5 && gpc.blockColor > 1)
                 {
                     float val = UnityEngine.Random.value;
-                    // 10% chance of a special block being created 
-                    if (val < 0.10)
+                    // 15% chance of a special block being created 
+                    if (val < 0.15)
                     {
                         float type = UnityEngine.Random.value;
-                        if (type < 0.5)
+                        if (type < 0.4)
                         {
                             gpc.blockType = GridpieceController.HORIZ_CLEAR_BLOCK;
                         }
-                        else if (type < 0.55)
+                        else if (type < 0.45)
+                        {
+                            gpc.blockType = GridpieceController.SQUIGLY_BLOCK;
+                        }
+                        else if (type < 0.50)
                         {
                             gpc.blockType = GridpieceController.VERT_CLEAR_BLOCK;
                         }
-                        else if (type < 0.60)
+                        else if (type < 0.55)
                         {
                             gpc.blockType = GridpieceController.PLUS_CLEAR_BLOCK;
+                        }
+                        else if (type < 0.60)
+                        {
+                            gpc.blockType = GridpieceController.HAPPY_BLOCK;
                         }
                         else if (type < 0.70)
                         {
@@ -2511,7 +2498,7 @@ public class PlaygridController : MonoBehaviour {
                         }
                         else if (type < 0.75)
                         {
-                            // gpc.blockType = GridpieceController.ANGRY_BLOCK;
+                            gpc.blockType = GridpieceController.ANGRY_BLOCK;
                         }
                         else if (type < 0.80)
                         {
@@ -2662,11 +2649,11 @@ public class PlaygridController : MonoBehaviour {
         if (pieceSize == GridpieceController.ONExONE)
             endPos = gridPositions[x, y];
         else if (pieceSize == GridpieceController.ONExTWO)
-            endPos = (gridPositions[x, y] + gridPositions[x, y-1]) / 2;
+            endPos = (gridPositions[x, y] + gridPositions[x, y - 1]) / 2;
         else if (pieceSize == GridpieceController.TWOxONE)
-            endPos = (gridPositions[x, y] + gridPositions[x-1, y]) / 2;
+            endPos = (gridPositions[x, y] + gridPositions[x - 1, y]) / 2;
         else
-            endPos = (gridPositions[x, y] + gridPositions[x-1, y-1]) / 2;
+            endPos = (gridPositions[x, y] + gridPositions[x - 1, y - 1]) / 2;
 
         if (!instantly) {
             for (float i = 0; i <= timeForPieceToMove; i += Time.deltaTime) {
