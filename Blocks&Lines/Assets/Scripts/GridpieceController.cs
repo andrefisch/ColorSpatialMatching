@@ -8,6 +8,8 @@ public class GridpieceController : MonoBehaviour {
     public GameObject explosion;
     public GameObject shockWave;
 
+	public GameObject timer;
+
     public const int BAD = -1;
 	public const int EDGE = 0;
 	public const int RED = 1;
@@ -74,6 +76,7 @@ public class GridpieceController : MonoBehaviour {
         blockId = blockCount;
 		if (sr == null)
 			sr = GetComponent<SpriteRenderer>();
+		
 	}
 	
 	// Update is called once per frame
@@ -184,6 +187,9 @@ public class GridpieceController : MonoBehaviour {
             if (blockType == HAPPY_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 hasCountdown = true;
+				GameObject go = Instantiate(timer, transform.position, Quaternion.identity);
+				go.transform.parent = this.transform;
+				go.GetComponent<CountdownTimerController>().blockgpc = this;
             }
 		}
 

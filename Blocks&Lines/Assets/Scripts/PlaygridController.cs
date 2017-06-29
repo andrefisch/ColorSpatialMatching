@@ -2656,7 +2656,7 @@ public class PlaygridController : MonoBehaviour {
             endPos = (gridPositions[x, y] + gridPositions[x - 1, y - 1]) / 2;
 
         if (!instantly) {
-            for (float i = 0; i <= timeForPieceToMove; i += Time.deltaTime) {
+			for (float i = 0; i <= timeForPieceToMove && piece != null; i += Time.deltaTime) {
                 float counter = i / timeForPieceToMove;
                 // RIENZI I WAS GETTING A MISSING REFERENCE EXCEPTION HERE
                 // The object of type 'GameObject' has been destroyed but you are still trying to access it.
@@ -2665,7 +2665,8 @@ public class PlaygridController : MonoBehaviour {
                 yield return null;
             }
         }
-        piece.transform.position = endPos;
+		if (piece != null)
+        	piece.transform.position = endPos;
     }
 
     public void ResetCurrentLastPieces() {
