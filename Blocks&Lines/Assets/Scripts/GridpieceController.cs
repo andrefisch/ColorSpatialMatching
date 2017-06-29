@@ -43,7 +43,7 @@ public class GridpieceController : MonoBehaviour {
 	public const int VERT_CLEAR_BLOCK = 2; // Done
 	public const int HORIZ_CLEAR_BLOCK = 3; // Done 
 	public const int PLUS_CLEAR_BLOCK = 4; // Done
-    public const int HAPPY_BLOCK = 5; // Done
+    public const int UP_BLOCK = 5; // Done
 	public const int SAD_BLOCK = 6; // Done
 	public const int ANGRY_BLOCK = 7; // Done
 	public const int BOMB_BLOCK = 8; // DONE
@@ -51,7 +51,7 @@ public class GridpieceController : MonoBehaviour {
 	public const int CLOCK_BLOCK = 10; // DONE
 	public const int RAINDROPS_BLOCK = 11; // Done
     
-    public float countdown = 5;
+    public float countdown;
     public bool hasCountdown = false;
 
 	public int blockType;
@@ -72,13 +72,14 @@ public class GridpieceController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        countdown = Random.Range(5, 11);
         blockCount++;
         blockId = blockCount;
 		if (sr == null)
 			sr = GetComponent<SpriteRenderer>();
 		
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 	
@@ -121,8 +122,8 @@ public class GridpieceController : MonoBehaviour {
 		*/
 		if (blockColor == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
-			sr.color = Color.gray;
-			// sr.color = Color.clear;
+			// sr.color = Color.gray;
+			sr.color = Color.clear;
 			GetComponent<BoxCollider2D>().enabled = false;
 		}
         else if (blockColor == BAD)
@@ -176,7 +177,7 @@ public class GridpieceController : MonoBehaviour {
 		if (blockType != REG_BLOCK) 
         {
             // MAKE SURE THE PROPER BLOCKS ARE WHITE AND UNSELECTABLE
-            if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == HAPPY_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK || blockType == BUBBLES_BLOCK)
+            if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == UP_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 //print("Setting Type");
                 blockColor = 10;
@@ -184,7 +185,7 @@ public class GridpieceController : MonoBehaviour {
                 setColor = true;
             }
             // MAKE SURE COUNT DOWN BLOCKS HAVE AN ACTIVE TIMER
-            if (blockType == HAPPY_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
+            if (blockType == UP_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 hasCountdown = true;
 				GameObject go = Instantiate(timer, transform.position, Quaternion.identity);

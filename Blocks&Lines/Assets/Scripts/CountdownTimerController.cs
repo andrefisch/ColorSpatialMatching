@@ -39,6 +39,12 @@ public class CountdownTimerController : MonoBehaviour {
 			//This one will lighten the block over time
 			sr.color = Color.Lerp(startCol, endCol, amount);
 
+            // remove the timer visuals if the timer is turned off
+            if (blockgpc && !blockgpc.hasCountdown)
+            {
+                Destroy (this.gameObject);
+            }
+
 			//This one will darken the block over time
 			//sr.color = Color.Lerp(endCol, startCol, amount);
 		}
