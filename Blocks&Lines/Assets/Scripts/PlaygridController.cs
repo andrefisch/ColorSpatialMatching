@@ -2354,54 +2354,56 @@ public class PlaygridController : MonoBehaviour {
             }
             if (gpc.blockColor > 0)
             {
+                gpc.ShockWave(gpc.sr.color, shockwaveSize);
+                gpc.blockType = 0;
+                int blockColor = gpc.blockColor;
+                gpc.blockColor = 0;
+                Color color = gpc.sr.color;
+                gpc.sr.color = edgeColor;
                 if (DESOFTREMOVEPIECEATPOSITION)
                 {
                     Debug.Log("Now removing piece at " + x + ", " + y);
                 }
-                gpc.ShockWave(gpc.sr.color, shockwaveSize);
                 if (blockSize == GridpieceController.ONExONE)
                 {
                     // CORRECT
-                    ActivateAdjacentSpecial(x + 1, y, gpc.sr.color, gpc.blockColor);
-                    ActivateAdjacentSpecial(x - 1, y, gpc.sr.color, gpc.blockColor);
-                    ActivateAdjacentSpecial(x, y + 1, gpc.sr.color, gpc.blockColor);
-                    ActivateAdjacentSpecial(x, y - 1, gpc.sr.color, gpc.blockColor);
+                    ActivateAdjacentSpecial(x + 1, y, color, blockColor);
+                    ActivateAdjacentSpecial(x - 1, y, color, blockColor);
+                    ActivateAdjacentSpecial(x, y + 1, color, blockColor);
+                    ActivateAdjacentSpecial(x, y - 1, color, blockColor);
                 }
                 else if (blockSize == GridpieceController.ONExTWO)
                 {
                     // CORRECT
-                    ActivateAdjacentSpecial(x + 1, y, gpc.sr.color, gpc.blockColor);     // NORTH EAST
-                    ActivateAdjacentSpecial(x - 1, y, gpc.sr.color, gpc.blockColor);     // NORTH WEST
-                    ActivateAdjacentSpecial(x, y + 1, gpc.sr.color, gpc.blockColor);     // NORTH NORTH
-                    ActivateAdjacentSpecial(x + 1, y - 1, gpc.sr.color, gpc.blockColor); // SOUTH EAST
-                    ActivateAdjacentSpecial(x - 1, y - 1, gpc.sr.color, gpc.blockColor); // SOUTH WEST
-                    ActivateAdjacentSpecial(x, y - 2, gpc.sr.color, gpc.blockColor);     // SOUTH SOUTH
+                    ActivateAdjacentSpecial(x + 1, y, color, blockColor);     // NORTH EAST
+                    ActivateAdjacentSpecial(x - 1, y, color, blockColor);     // NORTH WEST
+                    ActivateAdjacentSpecial(x, y + 1, color, blockColor);     // NORTH NORTH
+                    ActivateAdjacentSpecial(x + 1, y - 1, color, blockColor); // SOUTH EAST
+                    ActivateAdjacentSpecial(x - 1, y - 1, color, blockColor); // SOUTH WEST
+                    ActivateAdjacentSpecial(x, y - 2, color, blockColor);     // SOUTH SOUTH
                 }
                 else if (blockSize == GridpieceController.TWOxONE)
                 {
                     // CORRECT
-                    ActivateAdjacentSpecial(x + 1, y, gpc.sr.color, gpc.blockColor);     // EAST EAST
-                    ActivateAdjacentSpecial(x + 1, y + 1, gpc.sr.color, gpc.blockColor); // EAST NORTH
-                    ActivateAdjacentSpecial(x + 1, y - 1, gpc.sr.color, gpc.blockColor); // EAST SOUTH
-                    ActivateAdjacentSpecial(x - 2, y, gpc.sr.color, gpc.blockColor);     // WEST WEST
-                    ActivateAdjacentSpecial(x - 1, y + 1, gpc.sr.color, gpc.blockColor); // WEST NORTH
-                    ActivateAdjacentSpecial(x - 1, y - 1, gpc.sr.color, gpc.blockColor); // WEST SOUTH
+                    ActivateAdjacentSpecial(x + 1, y, color, blockColor);     // EAST EAST
+                    ActivateAdjacentSpecial(x + 1, y + 1, color, blockColor); // EAST NORTH
+                    ActivateAdjacentSpecial(x + 1, y - 1, color, blockColor); // EAST SOUTH
+                    ActivateAdjacentSpecial(x - 2, y, color, blockColor);     // WEST WEST
+                    ActivateAdjacentSpecial(x - 1, y + 1, color, blockColor); // WEST NORTH
+                    ActivateAdjacentSpecial(x - 1, y - 1, color, blockColor); // WEST SOUTH
                 }
                 else if (blockSize == GridpieceController.TWOxTWO)
                 {
                     // CORRECT
-                    ActivateAdjacentSpecial(x + 1, y, gpc.sr.color, gpc.blockColor);     // NORTHEAST EAST
-                    ActivateAdjacentSpecial(x, y + 1, gpc.sr.color, gpc.blockColor);     // NORTHEAST NORTH
-                    ActivateAdjacentSpecial(x - 1, y + 1, gpc.sr.color, gpc.blockColor); // NORTHWEST NORTH
-                    ActivateAdjacentSpecial(x - 2, y, gpc.sr.color, gpc.blockColor);     // NORTHWEST WEST
-                    ActivateAdjacentSpecial(x - 2, y - 1, gpc.sr.color, gpc.blockColor); // SOUTHWEST WEST 
-                    ActivateAdjacentSpecial(x - 1, y - 2, gpc.sr.color, gpc.blockColor); // SOUTHWEST SOUTH 
-                    ActivateAdjacentSpecial(x, y - 2, gpc.sr.color, gpc.blockColor);     // SOUTHEAST SOUTH
-                    ActivateAdjacentSpecial(x + 1, y - 1, gpc.sr.color, gpc.blockColor); // SOUTHEAST EAST
+                    ActivateAdjacentSpecial(x + 1, y, color, blockColor);     // NORTHEAST EAST
+                    ActivateAdjacentSpecial(x, y + 1, color, blockColor);     // NORTHEAST NORTH
+                    ActivateAdjacentSpecial(x - 1, y + 1, color, blockColor); // NORTHWEST NORTH
+                    ActivateAdjacentSpecial(x - 2, y, color, blockColor);     // NORTHWEST WEST
+                    ActivateAdjacentSpecial(x - 2, y - 1, color, blockColor); // SOUTHWEST WEST 
+                    ActivateAdjacentSpecial(x - 1, y - 2, color, blockColor); // SOUTHWEST SOUTH 
+                    ActivateAdjacentSpecial(x, y - 2, color, blockColor);     // SOUTHEAST SOUTH
+                    ActivateAdjacentSpecial(x + 1, y - 1, color, blockColor); // SOUTHEAST EAST
                 }
-                gpc.blockType = 0;
-                gpc.blockColor = 0;
-                gpc.sr.color = edgeColor;
                 blocksDestroyed++;
             }
             else
