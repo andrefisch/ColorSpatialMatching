@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GridpieceController : MonoBehaviour {
 
@@ -34,6 +35,7 @@ public class GridpieceController : MonoBehaviour {
 
     public int dimX = -100;
     public int dimY = -100;
+    public List<GameObject> nextToThis;
 
 	// If we create more special block types, update this number
 	public const int NUM_TYPES_SPECIAL_BLOCKS = 11;

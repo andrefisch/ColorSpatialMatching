@@ -1234,6 +1234,248 @@ public class PlaygridController : MonoBehaviour {
         }
     }
 
+    void RememberNeighbors(GridpieceController gpc)
+    {
+        bool DEREMEMBERNEIGHBORS = true;
+        int x = gpc.dimX;
+        int y = gpc.dimY;
+        int size = gpc.size;
+        if (DEREMEMBERNEIGHBORS)
+        {
+            Debug.Log("Now adding neighbors for " + x + ", " + y);
+        }
+        // Add adjacent pieces to nextToThis list
+        // For ONExONE
+        if (size == GridpieceController.ONExONE)
+        {
+            // Check left
+            if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a left neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y]);
+            }
+            // Check right
+            if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a right neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x + 1, y]);
+            }
+            // Check up
+            if (gridObjects[x, y + 1] && gridObjects[x, y + 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a top neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y + 1]);
+            }
+            // Check down
+            if (y > 1 && gridObjects[x, y - 1] && gridObjects[x, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a bottom neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y - 1]);
+            }
+        }
+        else if (size == GridpieceController.ONExTWO)
+        {
+            // Check top left
+            if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a top left neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y]);
+            }
+            // Check top right
+            if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a top right neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x + 1, y]);
+            }
+            // Check bottom left
+            if (gridObjects[x - 1, y - 1] && gridObjects[x - 1, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a bottom left neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y - 1]);
+            }
+            // Check bottom right
+            if (gridObjects[x + 1, y - 1] && gridObjects[x + 1, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a bottom right neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x + 1, y - 1]);
+            }
+            // Check up
+            if (gridObjects[x, y + 1] && gridObjects[x, y + 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a top neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y + 1]);
+            }
+            // Check down
+            if (y > 1 && gridObjects[x, y - 2] && gridObjects[x, y - 2].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a bottom neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y - 2]);
+            }
+        }
+        else if (size == GridpieceController.TWOxONE)
+        {
+            // Check top left
+            if (gridObjects[x - 1, y + 1] && gridObjects[x - 1, y + 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a top left neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y + 1]);
+            }
+            // Check top right
+            if (gridObjects[x, y + 1] && gridObjects[x, y + 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a top right neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y + 1]);
+            }
+            // Check bottom left
+            if (y > 1 && gridObjects[x - 1, y - 1] && gridObjects[x - 1, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a bottom left neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y - 1]);
+            }
+            // Check bottom right
+            if (y > 1 && gridObjects[x, y - 1] && gridObjects[x, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a bottom right neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y - 1]);
+            }
+            // Check right
+            if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a right neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x + 1, y]);
+            }
+            // Check left
+            if (gridObjects[x - 2, y] && gridObjects[x - 2, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a left neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 2, y]);
+            }
+        }
+        else if (size == GridpieceController.TWOxTWO)
+        {
+            // Check up from NE
+            if (gridObjects[x, y + 1] && gridObjects[x, y + 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added an up NE neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y + 1]);
+            }
+            // Check right from NE
+            if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a right NE neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x + 1, y]);
+            }
+            // Check right from SE
+            if (y > 1 && gridObjects[x + 1, y - 1] && gridObjects[x + 1, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a right SE neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x + 1, y - 1]);
+            }
+            // Check down from SE
+            if (y > 2 && gridObjects[x, y - 2] && gridObjects[x, y - 2].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a down SE neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x, y - 2]);
+            }
+            // Check down from SW
+            if (y > 2 && gridObjects[x - 1, y - 2] && gridObjects[x - 1, y - 2].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a down SW neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y - 2]);
+            }
+            // Check left from SW
+            if (y > 1 && gridObjects[x - 2, y - 1] && gridObjects[x - 2, y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a left SW neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 2, y - 1]);
+            }
+            // Check left from NW
+            if (gridObjects[x - 2, y] && gridObjects[x - 2, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added a left NW neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 2, y]);
+            }
+            // Check up from NW
+            if (gridObjects[x - 1, y + 1] && gridObjects[x - 1, y + 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+            {
+                if (DEREMEMBERNEIGHBORS)
+                {
+                    Debug.Log("Added an up NW neighbor");
+                }
+                gpc.nextToThis.Add(gridObjects[x - 1, y + 1]);
+            }
+        }
+    }
+
     // Move all blocks that can be moved down as far as possible
     // Keep track of which blocks moved so that we can combo later
     // NO KNOWN BUGS
@@ -1257,15 +1499,24 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
-        // How many pieces moved since last time
-        // int numPiecesMoved = 0;
-        // Next, move pieces down
+        // Get all neighbors before we move any of the pieces
+        for (int i = 1; i < gridSize.x + extraX; i++) 
+        {
+            // We start at y = 2 because you can't move down if y = 1
+            for (int j = 2; j < gridSize.y + extraY; j++) 
+            {
+                if (gridObjects[i, j]) {
+                    RememberNeighbors(gridObjects[i, j].GetComponent<GridpieceController>());
+                }
+            }
+        }
+        // Once we have the neighbors, move pieces down
         // Iterate through the grid
         for (int z = 0; z < 3; z++)
         {
             for (int i = 1; i < gridSize.x + extraX; i++) 
             {
-                // We start a y = 2 because you can't move down if y = 1
+                // We start at y = 2 because you can't move down if y = 1
                 for (int j = 2; j < gridSize.y + extraY; j++) 
                 {
                     if (gridObjects[i, j] != null) {
@@ -1347,29 +1598,44 @@ public class PlaygridController : MonoBehaviour {
     // 2 is down
     public bool CheckDirection(int x, int y, int direction)
     {
-        bool DECHECKDIRECTION = false;
+        bool DECHECKDIRECTION = true;
         int blockColor = gridObjects[x, y].GetComponent<GridpieceController>().blockColor;
         bool combo = false;
+        List<GameObject> neighbors = gridObjects[x, y].GetComponent<GridpieceController>().nextToThis;
         if (DECHECKDIRECTION)
         {
-            Debug.Log("Now processing a block of blockColor " + blockColor + " at coordinates " + x + ", " + y);
+            // Debug.Log("Now processing a block of blockColor " + blockColor + " at coordinates " + x + ", " + y);
         }
         // Check left
         if (direction == 0)
         {
             if (DECHECKDIRECTION)
             {
-                Debug.Log("LEFT check: " + (x - 1) + ", " + y + " and " + x + ", " + y);
+                // Debug.Log("LEFT check: " + (x - 1) + ", " + y + " and " + x + ", " + y);
             }
             if (gridObjects[x - 1, y] && gridObjects[x - 1, y].GetComponent<GridpieceController>().blockColor == blockColor)
             {
                 // It can only be a combo if the block to the left is not in the list
                 int id = gridObjects[x - 1, y].GetComponent<GridpieceController>().blockId;
-                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
+                bool wasNeighbor = false;
+                for (int i = 0; i < neighbors.Count; i++)
+                {
+                    if (neighbors[i] && neighbors[i].GetComponent<GridpieceController>().blockId == id)
+                    {
+                        wasNeighbor = true;
+                    }
+                }
+                if (!wasNeighbor)
                 {
                     if (DECHECKDIRECTION)
                     {
                         Debug.Log("THESE TWO MATCH! " + (x - 1) + ", " + y + " and " + x + ", " + y);
+                        Debug.Log("How many neighbors does this block have? " + neighbors.Count);
+                        Debug.Log("Id left block: " + id);
+                        for (int i = 0; i < neighbors.Count; i++)
+                        {
+                            // Debug.Log("Id of old neighbor: " + neighbors[i].GetComponent<GridpieceController>().blockId);
+                        }
                     }
                     combo = true;
                     comboScore += ScoreBlock(x - 1, y);
@@ -1402,17 +1668,31 @@ public class PlaygridController : MonoBehaviour {
         {
             if (DECHECKDIRECTION)
             {
-                Debug.Log("RIGHT check: " + (x + 1) + ", " + y + " and " + x + ", " + y);
+                // Debug.Log("RIGHT check: " + (x + 1) + ", " + y + " and " + x + ", " + y);
             }
             if (gridObjects[x + 1, y] && gridObjects[x + 1, y].GetComponent<GridpieceController>().blockColor == blockColor)
             {
                 // It can only be a combo if the block to the left is not in the list
                 int id = gridObjects[x + 1, y].GetComponent<GridpieceController>().blockId;
-                if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
+                bool wasNeighbor = false;
+                for (int i = 0; i < neighbors.Count; i++)
+                {
+                    if (neighbors[i] && neighbors[i].GetComponent<GridpieceController>().blockId == id)
+                    {
+                        wasNeighbor = true;
+                    }
+                }
+                if (!wasNeighbor)
                 {
                     if (DECHECKDIRECTION)
                     {
                         Debug.Log("THESE TWO MATCH! " + (x + 1) + ", " + y + " and " + x + ", " + y);
+                        Debug.Log("How many neighbors does this block have? " + neighbors.Count);
+                        Debug.Log("Id right block: " + id);
+                        for (int i = 0; i < neighbors.Count; i++)
+                        {
+                            // Debug.Log("Id of old neighbor: " + neighbors[i].GetComponent<GridpieceController>().blockId);
+                        }
                     }
                     combo = true;
                     comboScore += ScoreBlock(x + 1, y);
@@ -1447,7 +1727,7 @@ public class PlaygridController : MonoBehaviour {
                 
                 if (DECHECKDIRECTION)
                 {
-                    Debug.Log("LEFT check: " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                    // Debug.Log("DOWN check: " + x + ", " + (y - 1) + " and " + x + ", " + y);
                 }
                 if (gridObjects[x, y - 1] && gridObjects[x, y - 1].GetComponent<GridpieceController>().blockColor == blockColor)
                 {
@@ -1457,11 +1737,26 @@ public class PlaygridController : MonoBehaviour {
                     }
                     // It can only be a combo if the block to the left is not in the list
                     int id = gridObjects[x, y - 1].GetComponent<GridpieceController>().blockId;
-                    if (!objectsToProcess.Exists(tile => tile.GetComponent<GridpieceController>().blockId == id))
+                    bool wasNeighbor = false;
+                    for (int i = 0; i < neighbors.Count; i++)
+                    {
+                        Debug.Log("i = " + i);
+                        if (neighbors[i] && neighbors[i].GetComponent<GridpieceController>().blockId == id)
+                        {
+                            wasNeighbor = true;
+                        }
+                    }
+                    if (!wasNeighbor)
                     {
                         if (DECHECKDIRECTION)
                         {
                             Debug.Log("THESE TWO MATCH! " + x + ", " + (y - 1) + " and " + x + ", " + y);
+                            Debug.Log("How many neighbors does this block have? " + neighbors.Count);
+                            Debug.Log("Id bottom block: " + id);
+                            for (int i = 0; i < neighbors.Count; i++)
+                            {
+                                // Debug.Log("Id of old neighbor: " + neighbors[i].GetComponent<GridpieceController>().blockId);
+                            }
                         }
                         combo = true;
                         comboScore += ScoreBlock(x, y - 1);
@@ -1480,7 +1775,6 @@ public class PlaygridController : MonoBehaviour {
                         }
                         int blockSize = gridObjects[x - 1, y].GetComponent<GridpieceController>().size;
                         Color color = gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color;
-                        int colorNum = gridObjects[x, y - 1].GetComponent<GridpieceController>().blockColor;
                         int blockType = gridObjects[x, y - 1].GetComponent<GridpieceController>().blockType;
                         gridObjects[x, y - 1].GetComponent<GridpieceController>().ShockWave(color , 3);
                         ActivateSpecial(x, y - 1, blockSize, color, blockType, blockColor);
@@ -1658,6 +1952,16 @@ public class PlaygridController : MonoBehaviour {
             if (DEPROCESSCOMBOS)
             {
                 Debug.Log("Combos is: " + combos);
+            }
+        }
+        for (int i = 1; i < gridSize.x + extraX; i++) 
+        {
+            for (int j = 1; j < gridSize.y + extraY; j++) 
+            {
+                if (gridObjects[i, j])
+                {
+                    gridObjects[i, j].GetComponent<GridpieceController>().nextToThis.Clear();
+                }
             }
         }
     }
@@ -2705,7 +3009,7 @@ public class PlaygridController : MonoBehaviour {
 
                 //StartCoroutine(MovePiece(piece, pieceSize, x, y, true));
                 // Can swap the line above for the line below in order to create a moving piece
-                 StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
+                StartCoroutine(MovePiece(piece, pieceSize, x, y, false));
 
                 /*
                    if (pieceSize == GridpieceController.ONExONE) {
