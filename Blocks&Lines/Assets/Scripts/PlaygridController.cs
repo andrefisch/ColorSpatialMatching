@@ -23,6 +23,8 @@ public class PlaygridController : MonoBehaviour {
 
 	public Canvas saveCanvas;
 
+	public GameObject topLine;
+
     // SCORE STUFF
     public Text scoreText;
     public int colorLevel;
@@ -148,6 +150,10 @@ public class PlaygridController : MonoBehaviour {
 
         // Set up the board
 		LoadPlayBoard();
+
+		Vector3 linePos = gridPositions[(int)(gridSize.x / 2), (int)(gridSize.y - 1)] + new Vector3(1, .85f);
+		topLine.transform.position = linePos;
+
         /*
         // Set up the actual pieces
         for (int i = (int)gridSize.x; i >= 1; i--) {
