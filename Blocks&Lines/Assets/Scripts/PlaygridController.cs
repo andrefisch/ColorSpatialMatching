@@ -177,7 +177,7 @@ public class PlaygridController : MonoBehaviour {
                 newLineCounter++;
             }
             // When time is stopped we do not add new rows
-            if (!pause && !FREEZE && newLineCounter >= newLineInterval)
+            if (!pause && !FREEZE && newLineCounter >= newLineInterval && combos == 1)
             {
                 AddRow(-1);
             }
