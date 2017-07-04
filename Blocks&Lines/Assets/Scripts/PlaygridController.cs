@@ -83,14 +83,18 @@ public class PlaygridController : MonoBehaviour {
 
     private Vector3[,] gridPositions;
 
-    private bool removePiece;
-    private bool addPiece;
-
-    //  Thos os tp help keep track of the highlighted piece's position so that it doesn't get messed up if you don't happen to move the mouse off a piece between frames 
+    //  This is to help keep track of the highlighted piece's position so that it doesn't get messed up if you don't happen to move the mouse off a piece between frames 
     private Vector2 highlightedPiece;
 
+
+	// For the buffer time 
+	private bool justAddedRow;
+	private bool selectionBuffer;
+	private Coroutine selectionbufferCo;
+	private const float NEWLINE_SELECTION_BUFFER_TIME = .25f;
+
+
     // Use this for initialization
-    // mark s
     void Start(){
         FREEZE = false;
         DECOMBOS = false;
@@ -265,20 +269,7 @@ public class PlaygridController : MonoBehaviour {
     void Update() {
         bool DEUPDATE = false;
         CheckPieces();
-        /*
-        // FOR TESTING ADDING AND REMOVAL OF PIECES
-        if (Input.GetKeyDown("p")) {
-        removePiece = !removePiece;
-        if (removePiece)
-        addPiece = false;
-        }
-        if (Input.GetKeyDown("o")) {
-        addPiece = !addPiece;
-        if (addPiece)
-        removePiece = false;
-        }
-        // DONE WITH TESTING
-        */
+       
 
 		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown("s") && !Input.GetKey(KeyCode.Space))
 			SavePlayBoard();
@@ -370,6 +361,10 @@ public class PlaygridController : MonoBehaviour {
 	        if (hit.collider != null) {
 
 	            GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
+				if (selectionBuffer && gpc.dimY < gridSize.y - 1) {
+					gpc = gridObjects[gpc.dimX, gpc.dimY + 1].GetComponent<GridpieceController>();
+				}
+
 	            gpcHighlightSize = gpc.size;
 				if ((gpc.blockColor != 0 && gpc.blockColor != GridpieceController.WHITE) && (gpc.dimX >= 1 && gpc.dimX <= gridSize.x && gpc.dimY >= 0 && gpc.dimY <= gridSize.y)) {
 	                highlightedPiece.x = gpc.dimX;
@@ -2196,6 +2191,7 @@ public class PlaygridController : MonoBehaviour {
 	// UPDATED FOR MULTIPLE SIZES
     void AddRow(int color)
     {
+		justAddedRow = true;
         bool DEADDROW = false;
         // Reset the new line counter when we add a new line
         newLineCounter = 0;
@@ -2753,16 +2749,32 @@ public class PlaygridController : MonoBehaviour {
         if (!instantly) {
 			for (float i = 0; i <= timeForPieceToMove && piece != null; i += Time.deltaTime) {
                 float counter = i / timeForPieceToMove;
-                // RIENZI I WAS GETTING A MISSING REFERENCE EXCEPTION HERE
-                // The object of type 'GameObject' has been destroyed but you are still trying to access it.
-                // Your script should either check if it is null or you sohuld not destroy the object
                 piece.transform.position = Vector3.Lerp(startPos, endPos, counter);
                 yield return null;
             }
         }
 		if (piece != null)
         	piece.transform.position = endPos;
+
+		if (selectionbufferCo == null && justAddedRow) {
+			selectionbufferCo = StartCoroutine(SelectionBufferTimer());
+		}
+		
     }
+
+	private IEnumerator SelectionBufferTimer() {
+		bool DESELECTIONBUFFER = true;
+
+		if (DESELECTIONBUFFER)
+			Debug.Log("Starting Buffer");
+		selectionBuffer = true;
+		yield return new WaitForSeconds(NEWLINE_SELECTION_BUFFER_TIME);
+		selectionBuffer = false;
+		justAddedRow = false;
+		selectionbufferCo = null;
+		if (DESELECTIONBUFFER)
+			Debug.Log("Ending Buffer");
+	}
 
     public void ResetCurrentLastPieces() {
         currentPiece = Vector2.one * -1;
