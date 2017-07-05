@@ -150,11 +150,8 @@ public class PlaygridController : MonoBehaviour {
         matchTrack = new List<Vector2>();
         lineTrack = new List<Vector2>();
 
-        
-
         // Set up the board
 		LoadPlayBoard();
-
 		Vector3 linePos = gridPositions[(int)(gridSize.x / 2), (int)(gridSize.y - 1)] + new Vector3(1, .85f);
 		topLine.transform.position = linePos;
 
@@ -406,24 +403,6 @@ public class PlaygridController : MonoBehaviour {
 	                        // Make sure the current piece is the one selected
 	                        currentPiece.x = gpc.dimX;
 	                        currentPiece.y = gpc.dimY;
-	                        // If a new row was just added we select the piece above it instead
-	                        // RIENZI: THIS PART CREATES SOME BUGS I DONT KNOW HOW TO FIX
-	                        /*
-	                        if (newLineCounter > newLineBuffer)
-	                        {
-	                            currentPiece.x = gpc.dimX;
-	                            currentPiece.y = gpc.dimY;
-	                        }
-	                        else 
-	                        {
-	                            currentPiece.x = gpc.dimX;
-	                            currentPiece.y = gpc.dimY + 1;
-	                            // THE HIGHLIGHTED AND SELECTED PIECES ARENT WHERE THEY ARE SUPPOSED TO BE IF THE BUFFER IS TRIGGERED AND THAT IS CAUSING SOME PROBLEMS...
-	                            // highlightedPiece.x = gpc.dimX;
-	                            // highlightedPiece.y = gpc.dimY + 1;
-	                            // gpc.dimY = gpc.dimY + 1;
-	                        }
-	                        */
 	                    }
 
 	                    if (DEUPDATE) {
@@ -575,7 +554,7 @@ public class PlaygridController : MonoBehaviour {
         score += (toAdd * combos);
         if (DESCOREBLOCK)
         {
-            Debug.Log("Score to add is: " + (toAdd * combos));
+            // Debug.Log("Score to add is: " + (toAdd * combos));
         }
         // Increment blocksDestroyed variable
         blocksDestroyed++;
@@ -692,7 +671,6 @@ public class PlaygridController : MonoBehaviour {
                     int first  = ScoreBlock((int)object1[0].x, (int)object1[0].y);
                     int second = ScoreBlock((int)object2[0].x, (int)object2[0].y);
                     // Here is where we would display userfeedback stuff with the block
-                    // DisplayScore(first + second) 
                     if (DEMATCH)
                     {
                         Debug.Log("MATCH WORTH " + (first + second));
@@ -706,6 +684,7 @@ public class PlaygridController : MonoBehaviour {
                     int lastBlockSize = gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().size;
                     int lastBlockType = gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().blockType;
                     // Make sure we set the pieces to 0 and gray
+                    SoftRemovePieceAtPosition((int)object1[0].x, (int)object1[0].y, currentBlockSize, 3);
                     for (int i = 0; i < object1.Length; i++)
                     {
                         if (DEMATCH)
@@ -720,6 +699,7 @@ public class PlaygridController : MonoBehaviour {
                     }
                     // Make sure we deselect and unhighlight last piece
                     gridObjects[(int)currentPiece.x, (int)currentPiece.y].GetComponent<GridpieceController>().selected = false;
+                    SoftRemovePieceAtPosition((int)object2[0].x, (int)object2[0].y, lastBlockSize, 3);
                     // for (int i = object2.Length - 1; i >= 0; i--)
                     for (int i = 0; i < object2.Length; i++)
                     {
@@ -1236,7 +1216,7 @@ public class PlaygridController : MonoBehaviour {
 
     void RememberNeighbors(GridpieceController gpc)
     {
-        bool DEREMEMBERNEIGHBORS = true;
+        bool DEREMEMBERNEIGHBORS = false;
         int x = gpc.dimX;
         int y = gpc.dimY;
         int size = gpc.size;
@@ -1598,7 +1578,7 @@ public class PlaygridController : MonoBehaviour {
     // 2 is down
     public bool CheckDirection(int x, int y, int direction)
     {
-        bool DECHECKDIRECTION = true;
+        bool DECHECKDIRECTION = false;
         int blockColor = gridObjects[x, y].GetComponent<GridpieceController>().blockColor;
         bool combo = false;
         List<GameObject> neighbors = gridObjects[x, y].GetComponent<GridpieceController>().nextToThis;
@@ -2064,7 +2044,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void ActivateMatchSpecial(int x, int y, Color color, int blockType, int colorNum)
     {
-        bool DEACTIVATEMATCHSPECIAL = true;
+        bool DEACTIVATEMATCHSPECIAL = false;
         if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
         {
             if (gridObjects[x, y])
@@ -2159,7 +2139,7 @@ public class PlaygridController : MonoBehaviour {
 
     public void ActivateTimerSpecial(int x, int y)
     {
-        bool DEACTIVATETIMERSPECIAL = true;
+        bool DEACTIVATETIMERSPECIAL = false;
         if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
         {
             // Adds another row
@@ -2289,7 +2269,7 @@ public class PlaygridController : MonoBehaviour {
     // DOES NOT CHANGE THE SPRITE TYPE BACK TO ORIGINAL
     void Whiteout()
     {
-        bool DEWHITEOUT = true;
+        bool DEWHITEOUT = false;
         whiteOut = true;
         whiteOutCounter = 0;
         whiteOutTimer = newLineInterval * 2;
@@ -2318,7 +2298,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void Repaint()
     {
-        bool DEREPAINT = true;
+        bool DEREPAINT = false;
         whiteOut = false;
         whiteOutCounter = 0;
         if (DEREPAINT)
@@ -2419,7 +2399,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void StopTime(int x, int y, Color color)
     {
-        bool DEPAUSECLOCK = true;
+        bool DEPAUSECLOCK = false;
         pause = true;
         pauseCounter = 0;
         pauseTimer = newLineInterval * 2;
@@ -3067,7 +3047,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
 	private IEnumerator SelectionBufferTimer() {
-		bool DESELECTIONBUFFER = true;
+		bool DESELECTIONBUFFER = false;
 
 		if (DESELECTIONBUFFER)
 			Debug.Log("Starting Buffer");
