@@ -2640,6 +2640,12 @@ public class PlaygridController : MonoBehaviour {
             }
             if (gpc.blockColor > 0)
             {
+				if (gpc.size == GridpieceController.ONExONE)
+					gpc.ScoreExplode(gpc.sr.color, 1, combos);
+				else if (gpc.size == GridpieceController.TWOxTWO)
+					gpc.ScoreExplode(gpc.sr.color, 4, combos);
+				else 
+					gpc.ScoreExplode(gpc.sr.color, 2, combos);
                 gpc.ShockWave(gpc.sr.color, shockwaveSize);
                 gpc.blockType = 0;
                 int blockColor = gpc.blockColor;
@@ -2722,6 +2728,7 @@ public class PlaygridController : MonoBehaviour {
             if (gpc.sr.color != edgeColor)
             {
                 //gpc.Explode(gpc.sr.color);
+
 				if (gpc.size == GridpieceController.ONExONE)
 					gpc.ScoreExplode(gpc.sr.color, 1, combos);
 				else if (gpc.size == GridpieceController.TWOxTWO)

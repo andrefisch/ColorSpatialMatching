@@ -273,6 +273,8 @@ public class GridpieceController : MonoBehaviour {
 			go.transform.Find("ScorePart").GetComponent<Renderer>().material = twoSizeScoreMats[comboLevel - 1];
 		else if (scoreAmount == 4)
 			go.transform.Find("ScorePart").GetComponent<Renderer>().material = fourSizeScoreMats[comboLevel - 1];
+		else
+			Debug.LogError("Error (ScoreExplode): setting a scoreAmount that isn't 1, 2 or 4 -- Nothing done");
 
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
