@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 public class GridpieceController : MonoBehaviour {
 
@@ -14,9 +15,9 @@ public class GridpieceController : MonoBehaviour {
     public const int BAD = -1;
 	public const int EDGE = 0;
 	public const int RED = 1;
-	public const int BLUE = 2;
+    public const int YELLOW = 2;
 	public const int GREEN = 3;
-    public const int YELLOW = 4;
+    public const int BLUE = 4;
     public const int ORANGE = 5;
     public const int PURPLE = 6;
     public const int MAGENTA = 7;
@@ -74,12 +75,36 @@ public class GridpieceController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        countdown = Random.Range(5, 11);
+        /*
+        int[] shuffle = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        Shuffle(shuffle);
+        RED = shuffle[0];
+        ORANGE = shuffle[1];
+        YELLOW = shuffle[2];
+        GREEN = shuffle[3];
+        CYAN = shuffle[4];
+        BLUE = shuffle[5];
+        PURPLE = shuffle[6];
+        MAGENTA = shuffle[7];
+        SAND = shuffle[8];
+        Debug.Log("Red is " + shuffle[0]);
+        Debug.Log("Orange is " + shuffle[1]);
+        Debug.Log("Yellow is " + shuffle[2]);
+        Debug.Log("Green is " + shuffle[3]);
+        Debug.Log("Cyan is " + shuffle[4]);
+        Debug.Log("Blue is " + shuffle[5]);
+        Debug.Log("Purple is " + shuffle[6]);
+        Debug.Log("Magenta is " + shuffle[7]);
+        Debug.Log("Sand is " + shuffle[8]);
+        */
+
+        countdown = Random.Range(6, 11);
         blockCount++;
         blockId = blockCount;
 		if (sr == null)
+        {
 			sr = GetComponent<SpriteRenderer>();
-		
+        }
 	}
 
 	// Update is called once per frame
@@ -113,15 +138,6 @@ public class GridpieceController : MonoBehaviour {
 		if (sr == null)
 			sr = GetComponent<SpriteRenderer>();
 
-		// For some reason, this doesn't do anything so I overrode it
-		/*
-		if (blockType != REG_BLOCK) {
-			print("coltest");
-			sr.color = Color.white;
-			blockColor = 10;
-		}
-		else
-		*/
 		if (blockColor == EDGE) {
 			//sr.color = new Color(1, 0, 0, .5f);
 			// sr.color = Color.gray;
@@ -316,4 +332,15 @@ public class GridpieceController : MonoBehaviour {
 			// blockColor = Random.Range(1, 10);
 		SetColor();
 	}
+
+    public void Shuffle(int[] list)  
+    { 
+        for (int i = 0; i < list.Length; i++)
+        {
+            int tmp = list[i];
+            int r = Random.Range(i, list.Length);
+            list[i] = list[r];
+            list[r] = tmp;
+        }
+    }
 }

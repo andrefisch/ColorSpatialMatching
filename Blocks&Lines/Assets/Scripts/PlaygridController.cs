@@ -684,6 +684,7 @@ public class PlaygridController : MonoBehaviour {
                     int lastBlockSize = gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().size;
                     int lastBlockType = gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().blockType;
                     // Make sure we set the pieces to 0 and gray
+                    this.GetComponent<AudioSourceController>().PlayNote(color, combos);
                     SoftRemovePieceAtPosition((int)object1[0].x, (int)object1[0].y, currentBlockSize, 3);
                     for (int i = 0; i < object1.Length; i++)
                     {
@@ -1720,7 +1721,6 @@ public class PlaygridController : MonoBehaviour {
                     bool wasNeighbor = false;
                     for (int i = 0; i < neighbors.Count; i++)
                     {
-                        Debug.Log("i = " + i);
                         if (neighbors[i] && neighbors[i].GetComponent<GridpieceController>().blockId == id)
                         {
                             wasNeighbor = true;
@@ -1859,6 +1859,7 @@ public class PlaygridController : MonoBehaviour {
                     Color color = gridObjects[x, y].GetComponent<GridpieceController>().sr.color;
                     int colorNum = gridObjects[x, y].GetComponent<GridpieceController>().blockColor;
                     int blockType = gridObjects[x, y].GetComponent<GridpieceController>().blockType;
+                    this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
                     gridObjects[x, y].GetComponent<GridpieceController>().ShockWave(color , 3);
                     ActivateSpecial(x, y, blockSize, color, blockType, colorNum);
                     gridObjects[x, y].GetComponent<GridpieceController>().sr.color = edgeColor;
