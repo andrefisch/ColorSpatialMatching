@@ -564,7 +564,7 @@ public class PlaygridController : MonoBehaviour {
     void UpdateScore ()
     {
         // scoreText.text = "Score: " + score.ToString();
-        scoreText.text = "Score: " + score.ToString() + "\nBlocks Destroyed: " + blocksDestroyed.ToString() + "\nCombos: " + combos.ToString() + "\nMoved Objects: " + movedObjects.Count.ToString() + "\nColorlevel: " + colorLevel + "\nShapeLevel: " + shapeLevel + "\nAddRow Timing: " + newLineInterval + "\nNumber of Blocks: " + CheckPieces();
+        scoreText.text = "Matches: " + matchesMade + "\nScore: " + score.ToString() + "\nBlocks Destroyed: " + blocksDestroyed.ToString() + "\nCombos: " + combos.ToString() + "\nMoved Objects: " + movedObjects.Count.ToString() + "\nColorlevel: " + colorLevel + "\nShapeLevel: " + shapeLevel + "\nAddRow Timing: " + newLineInterval + "\nNumber of Blocks: " + CheckPieces();
         // scoreText.text = score.ToString() + ", " + combos.ToString() + ", " + movedObjects.Count.ToString();
     }
 
@@ -906,24 +906,27 @@ public class PlaygridController : MonoBehaviour {
         {
             Debug.Log("now checking right from " + x1 + ", " + y1);
         }
-        for (int i = x1 + 1; i < gridSize.x + extraX; i++)
+        if (y1 > 0)
         {
-            if (DECREATEMATCHTRAIL)
-            {
-                // Debug.Log ("Now checking " + i + ", " + y1);
-            }
-            if (gridObjects[i, y1] && gridObjects[i, y1].GetComponent<GridpieceController>().blockColor == 0)
+            for (int i = x1 + 1; i < gridSize.x + extraX; i++)
             {
                 if (DECREATEMATCHTRAIL)
                 {
-                    // Debug.Log("Added a -1!");
+                    // Debug.Log ("Now checking " + i + ", " + y1);
                 }
-                gridObjects[i, y1].GetComponent<GridpieceController>().blockColor = -1;
-                output.Add(new Vector2(i, y1));
-            }
-            else
-            {
-                break;
+                if (gridObjects[i, y1] && gridObjects[i, y1].GetComponent<GridpieceController>().blockColor == 0)
+                {
+                    if (DECREATEMATCHTRAIL)
+                    {
+                        // Debug.Log("Added a -1!");
+                    }
+                    gridObjects[i, y1].GetComponent<GridpieceController>().blockColor = -1;
+                    output.Add(new Vector2(i, y1));
+                }
+                else
+                {
+                    break;
+                }
             }
         }
         // Check left
@@ -931,24 +934,27 @@ public class PlaygridController : MonoBehaviour {
         {
             Debug.Log("now checking left from " + x1 + ", " + y1);
         }
-        for (int i = x1 - 1; i > -1; i--)
+        if (y1 > 0)
         {
-            if (DECREATEMATCHTRAIL)
-            {
-                // Debug.Log("Now checking " + x1 + ", " + i);
-            }
-            if (gridObjects[i, y1] && gridObjects[i, y1].GetComponent<GridpieceController>().blockColor == 0)
+            for (int i = x1 - 1; i > -1; i--)
             {
                 if (DECREATEMATCHTRAIL)
                 {
-                    // Debug.Log("Added a -1!");
+                    // Debug.Log("Now checking " + x1 + ", " + i);
                 }
-                gridObjects[i, y1].GetComponent<GridpieceController>().blockColor = -1;
-                output.Add(new Vector2(i, y1));
-            }
-            else
-            {
-                break;
+                if (gridObjects[i, y1] && gridObjects[i, y1].GetComponent<GridpieceController>().blockColor == 0)
+                {
+                    if (DECREATEMATCHTRAIL)
+                    {
+                        // Debug.Log("Added a -1!");
+                    }
+                    gridObjects[i, y1].GetComponent<GridpieceController>().blockColor = -1;
+                    output.Add(new Vector2(i, y1));
+                }
+                else
+                {
+                    break;
+                }
             }
         }
         // Add the block itself to the list of blocks to check
