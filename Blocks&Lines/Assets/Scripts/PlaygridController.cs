@@ -265,6 +265,7 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void Update() {
 
+
 		bool DEUPDATE = false;
         CheckPieces();
        
@@ -2304,6 +2305,7 @@ public class PlaygridController : MonoBehaviour {
                 }
             }
         }
+        MovePiecesDown();
     }
 
     // Changes all white blocks back
@@ -2408,7 +2410,7 @@ public class PlaygridController : MonoBehaviour {
     }
 
     // Freezes all effects, including adding new rows, block countdowns, and the whiteout clock
-    // NO KNOWN BUGS
+    // DOES NOT PAUSE SPECIAL BLOCKS THAT ARE CREATED AFTER THE FREEZE
     void StopTime(int x, int y, Color color)
     {
         bool DEPAUSECLOCK = false;
@@ -3084,7 +3086,7 @@ public class PlaygridController : MonoBehaviour {
         lastPiece = Vector2.one * -1;
     }
 
-    private bool AlmostLost()
+    public bool AlmostLost()
     {
 		for (int i = 1; i < gridSize.x + extraX; i++)
 		{
