@@ -80,6 +80,7 @@ public class PlaygridController : MonoBehaviour {
     // Keep track of which objects fell down for combo checking
     public List<GameObject> movedObjects;
     public List<GameObject> objectsToProcess;
+    public HashSet<int> recentlyDestroyed;
 
     private Vector3[,] gridPositions;
 
@@ -109,6 +110,7 @@ public class PlaygridController : MonoBehaviour {
         blocksDestroyed = 0;
 
         edgeColor = Color.clear;
+        /*
         colorThresholds = new int[6];
         colorThresholds[0] = 0;
         colorThresholds[1] = 50;
@@ -130,6 +132,7 @@ public class PlaygridController : MonoBehaviour {
         newLineThresholds[3] = 360;
         newLineThresholds[4] = 330;
         newLineThresholds[5] = 300;
+        */
 
         startCounting = false;
         newLineCounter = 0;
@@ -141,6 +144,8 @@ public class PlaygridController : MonoBehaviour {
         whiteOutCounter = 0;
         pause = false;
         pauseCounter = 0;
+
+        recentlyDestroyed = new HashSet<int>();
 
         // mainCamera = GameObject.FindGameObjectWithTag("Camera").GetComponent<Camera>();
         line = gameObject.GetComponent<LineRenderer>();
@@ -186,7 +191,7 @@ public class PlaygridController : MonoBehaviour {
             // When time is stopped we do not add new rows
             if (!pause && !FREEZE && newLineCounter >= newLineInterval && combos == 1)
             {
-                AddRow(-1);
+                AddRow(-1, true);
             }
             if (startCounting)
             {
@@ -212,33 +217,53 @@ public class PlaygridController : MonoBehaviour {
             // What color blocks are we using
             if (score > colorThresholds[0])
             {
-                colorLevel = 5;
+                if (colorLevel < 5)
+                {
+                    colorLevel = 5;
+                }
             }
             if (score > colorThresholds[1])
             {
-                colorLevel = 6;
-                shapeLevel = 2;
+                if (colorLevel < 6)
+                {
+                    colorLevel = 6;
+                }
+                if (shapeLevel < 2)
+                {
+                    shapeLevel = 2;
+                }
                 newLineInterval = newLineThresholds[1];
             }
             if (score > colorThresholds[2])
             {
-                colorLevel = 6;
+                if (colorLevel < 7)
+                {
+                    colorLevel = 7;
+                }
                 newLineInterval = newLineThresholds[2];
             }
             if (score > colorThresholds[3])
             {
-                colorLevel = 7;
-                shapeLevel = 4;
+                if (colorLevel < 8)
+                {
+                    colorLevel = 8;
+                }
+                if (shapeLevel < 4)
+                {
+                    shapeLevel = 4;
+                }
                 newLineInterval = newLineThresholds[3];
             }
             if (score > colorThresholds[4])
             {
-                colorLevel = 8;
+                if (colorLevel < 9)
+                {
+                    colorLevel = 9;
+                }
                 newLineInterval = newLineThresholds[4];
             }
             if (score > colorThresholds[5])
             {
-                colorLevel = 9;
                 newLineInterval = newLineThresholds[5];
             }
             if (whiteOut)
@@ -286,11 +311,11 @@ public class PlaygridController : MonoBehaviour {
         if (Input.GetKeyDown("a")) {
             if (!AlmostLost())
             {
-                AddRow(-1);
+                AddRow(-1, true);
             }
         }
         if (Input.GetKeyDown("g")){
-            AddRow(3);
+            AddRow(3, true);
         }
 
         // FOR DEBUGGING MAKES SURE THERE ARE NO BLANK SPACES IN THE GRID
@@ -1631,19 +1656,23 @@ public class PlaygridController : MonoBehaviour {
                         }
                     }
                     combo = true;
-                    comboScore += ScoreBlock(x - 1, y);
-                    //gridObjects[x - 1, y].GetComponent<GridpieceController>().Explode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color);
-					if (gridObjects[x - 1, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                    if (!recentlyDestroyed.Contains(id))
                     {
-						gridObjects[x - 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color, 1, combos);
-                    }
-					else if (gridObjects[x - 1, y].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
-                    {
-						gridObjects[x - 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color, 4, combos);
-                    }
-					else 
-                    {
-						gridObjects[x - 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color, 2, combos);
+                        comboScore += ScoreBlock(x - 1, y);
+                        recentlyDestroyed.Add(id);
+                        //gridObjects[x - 1, y].GetComponent<GridpieceController>().Explode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color);
+                        if (gridObjects[x - 1, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                        {
+                            gridObjects[x - 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color, 1, combos);
+                        }
+                        else if (gridObjects[x - 1, y].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
+                        {
+                            gridObjects[x - 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color, 4, combos);
+                        }
+                        else 
+                        {
+                            gridObjects[x - 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x - 1, y].GetComponent<GridpieceController>().sr.color, 2, combos);
+                        }
                     }
                     
                     int blockSize = gridObjects[x - 1, y].GetComponent<GridpieceController>().size;
@@ -1688,19 +1717,23 @@ public class PlaygridController : MonoBehaviour {
                         }
                     }
                     combo = true;
-                    comboScore += ScoreBlock(x + 1, y);
-                    //gridObjects[x + 1, y].GetComponent<GridpieceController>().Explode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color);
-					if (gridObjects[x + 1, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                    if (!recentlyDestroyed.Contains(id))
                     {
-						gridObjects[x + 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color, 1, combos);
-                    }
-					else if (gridObjects[x + 1, y].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
-                    {
-						gridObjects[x + 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color, 4, combos);
-                    }
-					else 
-                    {
-						gridObjects[x + 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color, 2, combos);
+                        comboScore += ScoreBlock(x + 1, y);
+                        recentlyDestroyed.Add(id);
+                        //gridObjects[x + 1, y].GetComponent<GridpieceController>().Explode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color);
+                        if (gridObjects[x + 1, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                        {
+                            gridObjects[x + 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color, 1, combos);
+                        }
+                        else if (gridObjects[x + 1, y].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
+                        {
+                            gridObjects[x + 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color, 4, combos);
+                        }
+                        else 
+                        {
+                            gridObjects[x + 1, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color, 2, combos);
+                        }
                     }
                     int blockSize = gridObjects[x - 1, y].GetComponent<GridpieceController>().size;
                     Color color = gridObjects[x + 1, y].GetComponent<GridpieceController>().sr.color;
@@ -1751,19 +1784,23 @@ public class PlaygridController : MonoBehaviour {
                             }
                         }
                         combo = true;
-                        comboScore += ScoreBlock(x, y - 1);
-                        //gridObjects[x, y - 1].GetComponent<GridpieceController>().Explode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color);
-						if (gridObjects[x, y - 1].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                        if (!recentlyDestroyed.Contains(id))
                         {
-							gridObjects[x, y - 1].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color, 1, combos);
-                        }
-						else if (gridObjects[x, y - 1].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
-                        {
-							gridObjects[x, y - 1].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color, 4, combos);
-                        }
-						else 
-                        {
-							gridObjects[x, y - 1].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color, 2, combos);
+                            comboScore += ScoreBlock(x, y - 1);
+                            recentlyDestroyed.Add(id);
+                            //gridObjects[x, y - 1].GetComponent<GridpieceController>().Explode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color);
+                            if (gridObjects[x, y - 1].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                            {
+                                gridObjects[x, y - 1].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color, 1, combos);
+                            }
+                            else if (gridObjects[x, y - 1].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
+                            {
+                                gridObjects[x, y - 1].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color, 4, combos);
+                            }
+                            else 
+                            {
+                                gridObjects[x, y - 1].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color, 2, combos);
+                            }
                         }
                         int blockSize = gridObjects[x - 1, y].GetComponent<GridpieceController>().size;
                         Color color = gridObjects[x, y - 1].GetComponent<GridpieceController>().sr.color;
@@ -1790,6 +1827,8 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("--------------------- NOW PROCESSING COMBOS ---------------------");
             Debug.Log("How many items are in movedObjects?: " + movedObjects.Count);
         }
+        // Clear recently destroyed list
+        recentlyDestroyed.Clear();
         // First move items from movedObjects to objectsToProcess
         objectsToProcess.Clear();
         for (int i = 0; i < movedObjects.Count; i++)
@@ -1823,35 +1862,35 @@ public class PlaygridController : MonoBehaviour {
                 if (size == GridpieceController.ONExONE)
                 {
                     combo = CheckDirection(x, y, 0) | // left
-                        CheckDirection(x, y, 1) | // right
-                        CheckDirection(x, y, 2);  // down
+                            CheckDirection(x, y, 1) | // right
+                            CheckDirection(x, y, 2) ; // down
                 }
                 else if (size == GridpieceController.ONExTWO)
                 {
                     Vector2[] locations = gridObjects[x, y].GetComponent<GridpieceController>().GetPositions();
                     combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 0) | // left from top
-                        CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from top
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0) | // left from bottom
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 1) | // right from bottom
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 2);  // down from bottom
+                            CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from top
+                            CheckDirection((int)locations[1].x, (int)locations[1].y, 0) | // left from bottom
+                            CheckDirection((int)locations[1].x, (int)locations[1].y, 1) | // right from bottom
+                            CheckDirection((int)locations[1].x, (int)locations[1].y, 2) ; // down from bottom
                 }
                 else if (size == GridpieceController.TWOxONE)
                 {
                     Vector2[] locations = gridObjects[x, y].GetComponent<GridpieceController>().GetPositions();
                     combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from right
-                        CheckDirection((int)locations[0].x, (int)locations[0].y, 2) | // down from right
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0) | // left from left
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 2);  // down from left
+                            CheckDirection((int)locations[0].x, (int)locations[0].y, 2) | // down from right
+                            CheckDirection((int)locations[1].x, (int)locations[1].y, 0) | // left from left
+                            CheckDirection((int)locations[1].x, (int)locations[1].y, 2) ; // down from left
                 }
                 else if (size == GridpieceController.TWOxTWO)
                 {
                     Vector2[] locations = gridObjects[x, y].GetComponent<GridpieceController>().GetPositions();
                     combo = CheckDirection((int)locations[0].x, (int)locations[0].y, 1) | // right from upright
-                        CheckDirection((int)locations[2].x, (int)locations[2].y, 1) | // right from downright
-                        CheckDirection((int)locations[2].x, (int)locations[2].y, 2) | // down from downright
-                        CheckDirection((int)locations[3].x, (int)locations[3].y, 2) | // down from downleft
-                        CheckDirection((int)locations[3].x, (int)locations[3].y, 0) | // left from downleft
-                        CheckDirection((int)locations[1].x, (int)locations[1].y, 0);  // left from upleft
+                            CheckDirection((int)locations[2].x, (int)locations[2].y, 1) | // right from downright
+                            CheckDirection((int)locations[2].x, (int)locations[2].y, 2) | // down from downright
+                            CheckDirection((int)locations[3].x, (int)locations[3].y, 2) | // down from downleft
+                            CheckDirection((int)locations[3].x, (int)locations[3].y, 0) | // left from downleft
+                            CheckDirection((int)locations[1].x, (int)locations[1].y, 0) ; // left from upleft
                 }
                 // If any of the blocks comboed with the main block remove it too
                 if (combo)
@@ -1859,15 +1898,19 @@ public class PlaygridController : MonoBehaviour {
                     // If anything has comboed keep track of it
                     anyCombo = true;
                     // gridObjects[x, y].GetComponent<GridpieceController>().blockColor = 0;
-                    int val = ScoreBlock(x, y);
-                    //gridObjects[x, y].GetComponent<GridpieceController>().Explode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color);
-                    if (gridObjects[x, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
-                        gridObjects[x, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color, 1, combos);
-                    else if (gridObjects[x, y].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
-                        gridObjects[x, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color, 4, combos);
-                    else 
-                        gridObjects[x, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color, 2, combos);
-                    int blockSize = gridObjects[x - 1, y].GetComponent<GridpieceController>().size;
+                    if (!recentlyDestroyed.Contains(gridObjects[x, y].GetComponent<GridpieceController>().blockId))
+                    {
+                        int val = ScoreBlock(x, y);
+                        recentlyDestroyed.Add(gridObjects[x, y].GetComponent<GridpieceController>().blockId);
+                        //gridObjects[x, y].GetComponent<GridpieceController>().Explode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color);
+                        if (gridObjects[x, y].GetComponent<GridpieceController>().size == GridpieceController.ONExONE)
+                            gridObjects[x, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color, 1, combos);
+                        else if (gridObjects[x, y].GetComponent<GridpieceController>().size == GridpieceController.TWOxTWO)
+                            gridObjects[x, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color, 4, combos);
+                        else 
+                            gridObjects[x, y].GetComponent<GridpieceController>().ScoreExplode(gridObjects[x, y].GetComponent<GridpieceController>().sr.color, 2, combos);
+                    }
+                    int blockSize = gridObjects[x, y].GetComponent<GridpieceController>().size;
                     Color color = gridObjects[x, y].GetComponent<GridpieceController>().sr.color;
                     int colorNum = gridObjects[x, y].GetComponent<GridpieceController>().blockColor;
                     int blockType = gridObjects[x, y].GetComponent<GridpieceController>().blockType;
@@ -1877,10 +1920,6 @@ public class PlaygridController : MonoBehaviour {
                     gridObjects[x, y].GetComponent<GridpieceController>().sr.color = edgeColor;
                     // Here is where we will do userfeedback stuff for combo
                     // DisplayComboScore(val)
-                    if (DEPROCESSCOMBOS)
-                    {
-                        Debug.Log("COMBO WORTH " + ((comboScore + val) * combos));
-                    }
                 }
                 else
                 {
@@ -2163,7 +2202,7 @@ public class PlaygridController : MonoBehaviour {
                     Debug.Log("Removed the UP block");
                 }
                 SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3);
-                AddRow(-1);
+                AddRow(-1, false);
             }
             // Whitewash the board
             else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
@@ -2192,7 +2231,10 @@ public class PlaygridController : MonoBehaviour {
         // Turn all objects in the row gray and empty
         for (int x = x1; x <= x2; x++)
         {
-            SoftRemovePieceAtPosition(x, y, gridObjects[x, y].GetComponent<GridpieceController>().size, 3);
+            if (gridObjects[x, y].GetComponent<GridpieceController>().sr.color != edgeColor)
+            {
+                SoftRemovePieceAtPosition(x, y, gridObjects[x, y].GetComponent<GridpieceController>().size, 3);
+            }
         }
         matchTrack = new List<Vector2>();
         currentPiece = new Vector2(x1, y);
@@ -2215,7 +2257,10 @@ public class PlaygridController : MonoBehaviour {
         // Turn all objects in the row gray and empty
         for (int y = 1; y < gridSize.y + extraY; y++)
         {
-            SoftRemovePieceAtPosition(x, y, gridObjects[x, y].GetComponent<GridpieceController>().size, 3);
+            if (gridObjects[x, y].GetComponent<GridpieceController>().sr.color != edgeColor)
+            {
+                SoftRemovePieceAtPosition(x, y, gridObjects[x, y].GetComponent<GridpieceController>().size, 3);
+            }
         }
         startCounting = true;
         combos++;
@@ -2232,12 +2277,18 @@ public class PlaygridController : MonoBehaviour {
         // Turn all objects in the column gray and empty
         for (int x = 1; x < gridSize.x + extraX; x++)
         {
-            SoftRemovePieceAtPosition(x, j, gridObjects[x, j].GetComponent<GridpieceController>().size, 3);
+            if (gridObjects[x, j].GetComponent<GridpieceController>().sr.color != edgeColor)
+            {
+                SoftRemovePieceAtPosition(x, j, gridObjects[x, j].GetComponent<GridpieceController>().size, 3);
+            }
         }
         // Turn all objects in the row gray and empty
         for (int y = 1; y < gridSize.y + extraY; y++)
         {
-            SoftRemovePieceAtPosition(i, y, gridObjects[i, y].GetComponent<GridpieceController>().size, 3);
+            if (gridObjects[i, y].GetComponent<GridpieceController>().sr.color != edgeColor)
+            {
+                SoftRemovePieceAtPosition(i, y, gridObjects[i, y].GetComponent<GridpieceController>().size, 3);
+            }
         }
         startCounting = true;
         combos++;
@@ -2295,14 +2346,6 @@ public class PlaygridController : MonoBehaviour {
             for (int j = 1; j < gridSize.y + extraY; j++)
             {
 				GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
-				if (gpc.blockColor != GridpieceController.EDGE)
-                {
-                    if (gpc.blockColor == GridpieceController.WHITE)
-                    {
-                        SoftRemovePieceAtPosition(i, j, gridObjects[i, j].GetComponent<GridpieceController>().size, 3);
-                    }
-					gpc.Colorwash(Color.white, true);
-                }
             }
         }
         MovePiecesDown();
@@ -2487,12 +2530,15 @@ public class PlaygridController : MonoBehaviour {
     // Adds a new row to bottom
     // NO KNOWN BUGS
 	// UPDATED FOR MULTIPLE SIZES
-    void AddRow(int color)
+    void AddRow(int color, bool resetTimer)
     {
 		justAddedRow = true;
         bool DEADDROW = false;
         // Reset the new line counter when we add a new line
-        newLineCounter = 0;
+        if (resetTimer)
+        {
+            newLineCounter = 0;
+        }
         if (DEADDROW)
         {
             Debug.Log("Are we whited out in addrow?: " + whiteOut);

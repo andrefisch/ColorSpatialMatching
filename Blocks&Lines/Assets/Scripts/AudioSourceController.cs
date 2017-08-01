@@ -19,7 +19,11 @@ public class AudioSourceController : MonoBehaviour {
     {
         int max = notes.Length;
         int note = baseNote + combo - 2;
-        if (note < max)
+        if (note < 0)
+        {
+            audioSource.PlayOneShot(notes[0]);
+        }
+        else if (note < max)
         {
             audioSource.PlayOneShot(notes[note]);
         }

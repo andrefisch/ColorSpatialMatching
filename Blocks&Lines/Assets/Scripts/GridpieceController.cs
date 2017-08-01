@@ -284,13 +284,21 @@ public class GridpieceController : MonoBehaviour {
         }
 		GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 		if (scoreAmount == 1)
+        {
 			go.transform.Find("ScorePart").GetComponent<Renderer>().material = oneSizeScoreMats[comboLevel - 1];
+        }
 		else if (scoreAmount == 2)
+        {
 			go.transform.Find("ScorePart").GetComponent<Renderer>().material = twoSizeScoreMats[comboLevel - 1];
+        }
 		else if (scoreAmount == 4)
+        {
 			go.transform.Find("ScorePart").GetComponent<Renderer>().material = fourSizeScoreMats[comboLevel - 1];
+        }
 		else
+        {
 			Debug.LogError("Error (ScoreExplode): setting a scoreAmount that isn't 1, 2 or 4 -- Nothing done");
+        }
 
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
@@ -328,8 +336,10 @@ public class GridpieceController : MonoBehaviour {
 
 	public void Repaint() {
 		SetType();
-		// if (blockColor > 9)
-			// blockColor = Random.Range(1, 10);
+		if (blockColor > 9)
+        {
+            blockColor = Random.Range(1, 10);
+        }
 		SetColor();
 	}
 
