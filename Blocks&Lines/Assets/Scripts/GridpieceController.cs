@@ -17,14 +17,14 @@ public class GridpieceController : MonoBehaviour {
     public const int BAD = -1;
 	public const int EDGE = 0;
 	public const int RED = 1;
-    public const int YELLOW = 2;
-	public const int GREEN = 3;
-    public const int BLUE = 4;
-    public const int ORANGE = 5;
-    public const int PURPLE = 6;
-    public const int MAGENTA = 7;
-    public const int CYAN = 8;
-    public const int SAND = 9;
+    public const int ORANGE = 2;
+    public const int YELLOW = 3;
+	public const int GREEN = 4;
+    public const int BLUE = 5;
+    public const int VIOLET = 6;
+    public const int INDIGO = 7;
+    public const int MAGENTA = 8;
+    public const int CYAN = 9;
 	public const int WHITE = 10;
 
 	public int blockColor;
@@ -152,15 +152,15 @@ public class GridpieceController : MonoBehaviour {
         }
 		else if (blockColor == RED)
         {
-			sr.color = Color.red;
+            sr.color = new Color(1.0f, 0f, 0f);
         }
 		else if (blockColor == BLUE)
         {
-			sr.color = Color.blue;
+			sr.color = new Color(0f, 0f, 1.0f);
         }
 		else if (blockColor == GREEN)
         {
-			sr.color = Color.green;
+			sr.color = new Color(0f, 1.0f, 0f);
         }
 		else if (blockColor == YELLOW)
         {
@@ -168,23 +168,29 @@ public class GridpieceController : MonoBehaviour {
         }
         else if (blockColor == ORANGE)
         {
-            sr.color = new Color(1.0f, 140.0f / 255.0f, 0f);
+            sr.color = new Color(1.0f, 127.0f / 255.0f, 0f);
         }
-        else if (blockColor == PURPLE)
+        else if (blockColor == INDIGO)
+        // else if (blockColor == PURPLE)
         {
-            sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
+            // sr.color = new Color(138.0f / 255.0f, 43.0f / 255.0f, 226.0f / 255.0f);
+            sr.color = new Color(100.0f / 255.0f, 0f / 255.0f, 75.0f / 255.0f);
         }
-        else if (blockColor == MAGENTA)
+        else if (blockColor == VIOLET)
+        // else if (blockColor == MAGENTA)
         {
-            sr.color = Color.magenta;
+            // sr.color = Color.magenta;
+            sr.color = new Color(148.0f / 255.0f, 0f / 255.0f, 211.0f / 255.0f);
         }
         else if (blockColor == CYAN)
         {
             sr.color = Color.cyan;
         }
-        else if (blockColor == SAND)
+        else if (blockColor == MAGENTA)
+        // else if (blockColor == SAND)
         {
-            sr.color = new Color(166.0f / 255.0f, 145.0f / 255.0f, 80.0f / 255.0f);
+            // sr.color = new Color(166.0f / 255.0f, 145.0f / 255.0f, 80.0f / 255.0f);
+            sr.color = Color.magenta;
         }
 
 		setColor = true;

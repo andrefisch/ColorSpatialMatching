@@ -101,8 +101,8 @@ public class PlaygridController : MonoBehaviour {
         DECOMBOS = false;
         // includeBigPieces = true;
         // SCORE STUFF
-        colorLevel = 4;
-        shapeLevel = 1;
+        // colorLevel = 4;
+        // shapeLevel = 1;
         score = 0;
         combos = 1;
         comboScore = 0;
@@ -3206,13 +3206,13 @@ public class PlaygridController : MonoBehaviour {
 						gridSize.y = boardHeight;
 						SetUpGridEdgePieces(false);
 						int numGarbageVals = 0;
-						for (int i=0; i<boardPieces.Length; i++) {
+						for (int i = 0; i < boardPieces.Length; i++) {
 							if (boardPieces[i].Length == 0 || (int)boardPieces[i][0] < 48 || ((int)boardPieces[i][0] > 57 && (int)boardPieces[i][0] < 97))
 								numGarbageVals++;
 						}
 						string[] onlyPieces = new string[boardPieces.Length - 2 - numGarbageVals];
 						//print(numGarbageVals);
-						for (int i = 2, j=0; i < boardPieces.Length; i++) {
+						for (int i = 2, j = 0; i < boardPieces.Length; i++) {
 							if (boardPieces[i].Length != 0 && ((int)boardPieces[i][0] >= 48 && (int)boardPieces[i][0] <= 57) || ((int)boardPieces[i][0] >= 97 && (int)boardPieces[i][0] <= 122)) {
 								onlyPieces[j] = boardPieces[i];
 								j++;
