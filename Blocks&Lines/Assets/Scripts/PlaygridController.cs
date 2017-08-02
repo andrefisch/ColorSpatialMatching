@@ -2855,6 +2855,7 @@ public class PlaygridController : MonoBehaviour {
         else {
             GameObject go = (GameObject)Instantiate(gridPiece, gridPositions[x, y], Quaternion.identity);
             GridpieceController gpc = go.GetComponent<GridpieceController>();
+			gpc.pgc = this;
             if (num < 0) {
 				gpc.blockColor = (int)Mathf.Floor(UnityEngine.Random.Range(1, (1 + colorLevel - 0.00000001f)));
             }

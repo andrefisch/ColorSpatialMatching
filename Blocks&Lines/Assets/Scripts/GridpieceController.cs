@@ -12,6 +12,8 @@ public class GridpieceController : MonoBehaviour {
 
 	public GameObject timer;
 
+	public PlaygridController pgc;
+
     public const int BAD = -1;
 	public const int EDGE = 0;
 	public const int RED = 1;
@@ -116,7 +118,7 @@ public class GridpieceController : MonoBehaviour {
 		if (!setColor) {
 			SetColor();
 		}
-        if (hasCountdown)
+		if (hasCountdown && !pgc.pause)
         {
             countdown -= Time.deltaTime;
         }
