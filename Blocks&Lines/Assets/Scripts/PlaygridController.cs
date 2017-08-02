@@ -380,7 +380,7 @@ public class PlaygridController : MonoBehaviour {
 			if (hit.collider != null) {
 
 				GridpieceController gpc = hit.collider.gameObject.GetComponent<GridpieceController>();
-				if (selectionBuffer && gpc.dimY < gridSize.y - 1) {
+				if (selectionBuffer && gpc.dimY < gridSize.y - 1 && !(gpc.size == GridpieceController.ONExTWO || gpc.size == GridpieceController.TWOxONE || gpc.size == GridpieceController.TWOxTWO)) {
 					gpc = gridObjects[gpc.dimX, gpc.dimY + 1].GetComponent<GridpieceController>();
 				}
 
