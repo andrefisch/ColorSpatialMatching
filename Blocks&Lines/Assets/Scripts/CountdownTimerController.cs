@@ -31,7 +31,7 @@ public class CountdownTimerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (blockgpc != null) {
+		if (blockgpc != null && !GlobalVariables.gameOver) {
 			float amount = blockgpc.countdown / startTime;
 			int index = countdownBlocks.Length - ((int)(countdownBlocks.Length * amount) + 1);
 			sr.sprite = countdownBlocks[index];
