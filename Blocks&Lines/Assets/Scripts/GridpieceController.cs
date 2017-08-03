@@ -118,7 +118,7 @@ public class GridpieceController : MonoBehaviour {
 		if (!setColor) {
 			SetColor();
 		}
-		if (hasCountdown && !pgc.pause)
+		if (hasCountdown && !pgc.pause && !GlobalVariables.gameOver)
         {
             countdown -= Time.deltaTime;
         }

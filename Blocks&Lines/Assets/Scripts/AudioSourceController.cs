@@ -19,7 +19,6 @@ public class AudioSourceController : MonoBehaviour {
     {
         int max = notes.Length;
         int note = baseNote + combo - 2;
-        Debug.Log("note is " + note);
         if (note < 0)
         {
             audioSource.PlayOneShot(notes[0]);
