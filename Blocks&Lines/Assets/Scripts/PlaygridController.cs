@@ -2341,8 +2341,8 @@ public class PlaygridController : MonoBehaviour {
                 GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
                 if (gpc.blockColor != GridpieceController.EDGE)
                 {
+                    gpc.ClearBlockType();
                     gpc.Colorwash(Color.white, true);
-                    gpc.hasCountdown = false;
                 }
             }
         }
@@ -2716,7 +2716,7 @@ public class PlaygridController : MonoBehaviour {
                 }
                 gpc.ShockWave(gpc.sr.color, shockwaveSize);
                 gpc.blockType = 0;
-                // int blockColor = gpc.blockColor;
+                int colorNum = gpc.blockColor;
                 gpc.blockColor = 0;
                 Color color = gpc.sr.color;
                 gpc.sr.color = edgeColor;
@@ -2724,7 +2724,6 @@ public class PlaygridController : MonoBehaviour {
                 {
                     Debug.Log("Now removing piece at " + x + ", " + y);
                 }
-                /*
                 if (blockSize == GridpieceController.ONExONE)
                 {
                     // CORRECT
@@ -2765,7 +2764,6 @@ public class PlaygridController : MonoBehaviour {
                     ActivateAdjacentSpecial(x, y - 2, color, colorNum);     // SOUTHEAST SOUTH
                     ActivateAdjacentSpecial(x + 1, y - 1, color, colorNum); // SOUTHEAST EAST
                 }
-                */
             }
             else
             {
