@@ -53,6 +53,7 @@ public class PlaygridController : MonoBehaviour {
     public bool includeBigPieces;
     public bool includeGoodSpecialBlocks;
     public bool includeBadSpecialBlocks;
+    public bool keepHalfFull;
 
     // COUNTER TO KEEP TRACK OF WHEN THE BLOCKS FALL
     private bool startCounting;
@@ -181,6 +182,14 @@ public class PlaygridController : MonoBehaviour {
                 {
                     AddRow(-1, true);
                 }
+            } 
+            if (keepHalfFull && !HalfFull())
+            {
+                AddRow(-1, true);
+            }
+            if (combos == 1)
+            {
+                AudioSourceController.lastNote = 0;
             }
             if (startCounting)
             {
@@ -192,6 +201,7 @@ public class PlaygridController : MonoBehaviour {
                 {
                     // Debug.Log("Count at time of piece moving is: " + processingCounter);
                 }
+                CheckHorizontalSpecial();
                 MovePiecesDown();
             }
             else if (!FREEZE && movedObjects.Count > 0 && processingCounter >= processingInterval)
@@ -247,9 +257,12 @@ public class PlaygridController : MonoBehaviour {
                     colorLevel = 9;
                 }
             }
-            for (int i = newLineThresholds.Count() - 1; i >= 0; i--)
+            for (int i = 0; i < newLineThresholds.Count(); i++)
             {
-                newLineInterval = newLineSpeeds[i];
+                if (score >= newLineThresholds[i])
+                {
+                    newLineInterval = newLineSpeeds[i];
+                }
             }
             if (whiteOut)
             {
@@ -265,6 +278,7 @@ public class PlaygridController : MonoBehaviour {
             }
             if (pauseCounter > pauseTimer)
             {
+                this.GetComponent<AudioSourceController>().PlayThawSound();
                 pause = false;
                 pauseCounter = 0;
             }
@@ -1812,7 +1826,7 @@ public class PlaygridController : MonoBehaviour {
         for (int i = 0; i < movedObjects.Count; i++)
         {
             // White blocks cannot combo
-            if (movedObjects[i].GetComponent<GridpieceController>().blockColor != GridpieceController.WHITE)
+            if (movedObjects[i] && movedObjects[i].GetComponent<GridpieceController>().blockColor != GridpieceController.WHITE)
             {
                 objectsToProcess.Add(movedObjects[i]);
             }
@@ -2145,7 +2159,6 @@ public class PlaygridController : MonoBehaviour {
                 {
                     if (colorNum != GridpieceController.WHITE)
                     {
-                        this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
                         RemoveOneColor(x, y, color);
                     }
                 }
@@ -2154,7 +2167,6 @@ public class PlaygridController : MonoBehaviour {
                 {
                     if (colorNum != GridpieceController.WHITE)
                     {
-                        this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
                         PaintOneColor(x, y, color, colorNum);
                     }
                 }
@@ -2162,20 +2174,17 @@ public class PlaygridController : MonoBehaviour {
                 // remove the sad block
                 else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
                 {
-                    this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
                     SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3, false);
                 }
                 // REMOVE THE BAD BLOCKS WITH NO EFFECT IF WE MATCH NEXT TO THEM IN TIME
                 // remove row up block
                 else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.UP_BLOCK)
                 {
-                    this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
                     SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3, false);
                 }
                 // remove angry block
                 else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
                 {
-                    this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
                     SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3, false);
                 }
             }
@@ -2455,6 +2464,7 @@ public class PlaygridController : MonoBehaviour {
     // DOES NOT PAUSE SPECIAL BLOCKS THAT ARE CREATED AFTER THE FREEZE
     void StopTime(int x, int y, Color color)
     {
+        this.GetComponent<AudioSourceController>().PlayFreezeSound();
         pause = true;
         pauseCounter = 0;
         pauseTimer = newLineInterval * 2;
@@ -2679,7 +2689,7 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
             }
-            CheckHorizontalSpecial();
+            // CheckHorizontalSpecial();
         }
     }
 
@@ -2928,7 +2938,7 @@ public class PlaygridController : MonoBehaviour {
                     if (val < 0.15)
                     {
                         float type = UnityEngine.Random.value;
-                        if (includeGoodSpecialBlocks || includeBadSpecialBlocks && type < 0.4)
+                        if (type < 0.4 && (includeGoodSpecialBlocks || includeBadSpecialBlocks))
                         {
                             gpc.blockType = GridpieceController.HORIZ_CLEAR_BLOCK;
                         }
@@ -3146,11 +3156,27 @@ public class PlaygridController : MonoBehaviour {
         lastPiece = Vector2.one * -1;
     }
 
+    // If there is a block in the top row return true
+    // NO KNOWN BUGS
     public bool AlmostLost()
     {
 		for (int i = 1; i < gridSize.x + extraX; i++)
 		{
 			if (gridObjects[i, (int)gridSize.y - 1] && gridObjects[i, (int)gridSize.y - 1].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+			{
+                return true;
+			}
+		}
+        return false;
+    }
+
+    // If there is at least one block in the middle row return true
+    // NO KNOWN BUGS
+    public bool HalfFull()
+    {
+		for (int i = 1; i < gridSize.x + extraX; i++)
+		{
+			if (gridObjects[i, (int)gridSize.y / 2] && gridObjects[i, (int)gridSize.y / 2].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
 			{
                 return true;
 			}
