@@ -68,6 +68,7 @@ public class PlaygridController : MonoBehaviour {
     public bool pause;
     private int pauseCounter;
     private int pauseTimer;
+    public int lastNote;
 
     //public GridpieceController gpc;
     // MATCHING VARIABLES
@@ -183,13 +184,14 @@ public class PlaygridController : MonoBehaviour {
                     AddRow(-1, true);
                 }
             } 
-            if (keepHalfFull && !HalfFull())
+            // TODO: make this happen on a delay
+            if (keepHalfFull && !AtLeastHalfFull())
             {
                 AddRow(-1, true);
             }
             if (combos == 1)
             {
-                AudioSourceController.lastNote = 0;
+                lastNote = 0;
             }
             if (startCounting)
             {
@@ -197,20 +199,15 @@ public class PlaygridController : MonoBehaviour {
             }
             if (!FREEZE && movedObjects.Count == 0 && processingCounter >= processingInterval)
             {
-                if (DEFIXEDUPDATE)
-                {
-                    // Debug.Log("Count at time of piece moving is: " + processingCounter);
-                }
                 CheckHorizontalSpecial();
                 MovePiecesDown();
+                if (movedObjects.Count == 0)
+                {
+                    combos = 1;
+                }
             }
             else if (!FREEZE && movedObjects.Count > 0 && processingCounter >= processingInterval)
             {
-                if (DEFIXEDUPDATE)
-                {
-                    // Debug.Log("Count at time of combo processing is: " + processingCounter);
-                    Debug.Log("Combos at time of combo processing is: " + combos);
-                }
                 ProcessCombos();
             }
             // What color blocks are we using
@@ -707,7 +704,15 @@ public class PlaygridController : MonoBehaviour {
                     int lastBlockSize = gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().size;
                     int lastBlockType = gridObjects[(int)lastPiece.x, (int)lastPiece.y].GetComponent<GridpieceController>().blockType;
                     // Make sure we set the pieces to 0 and gray
-                    this.GetComponent<AudioSourceController>().PlayNote(color, combos);
+                    if (lastNote == 0)
+                    {
+                        this.GetComponent<AudioSourceController>().PlayNote(color);
+                        lastNote = color;
+                    }
+                    else
+                    {
+                        this.GetComponent<AudioSourceController>().PlayNote(lastNote);
+                    }
                     SoftRemovePieceAtPosition((int)object1[0].x, (int)object1[0].y, currentBlockSize, 3, true);
                     for (int i = 0; i < object1.Length; i++)
                     {
@@ -747,7 +752,11 @@ public class PlaygridController : MonoBehaviour {
                     currentPiece.y = -1;
                     // Start the clock
                     startCounting = true;
-                    combos++;
+                    if (combos < 10)
+                    {
+                        combos++;
+                        lastNote++;
+                    }
                     if (DECOMBOS)
                     {
                         Debug.Log("Combos incrimented in MATCH. COMBO IS: " + combos);
@@ -1569,10 +1578,12 @@ public class PlaygridController : MonoBehaviour {
             }
             movedObjects = movedObjects.Distinct().ToList();
             // If nothing moved this iteration reset the combo count
+            /*
             if (movedObjects.Count == 0)
             {
                 combos = 1;
             }
+            */
             if (DEMOVEPIECESDOWN)
             {
                 Debug.Log(movedObjects.Count + " game pieces moved in this move");
@@ -1916,7 +1927,7 @@ public class PlaygridController : MonoBehaviour {
                     Color color = gridObjects[x, y].GetComponent<GridpieceController>().sr.color;
                     int colorNum = gridObjects[x, y].GetComponent<GridpieceController>().blockColor;
                     int blockType = gridObjects[x, y].GetComponent<GridpieceController>().blockType;
-                    this.GetComponent<AudioSourceController>().PlayNote(colorNum, combos);
+                    this.GetComponent<AudioSourceController>().PlayNote(lastNote);
                     gridObjects[x, y].GetComponent<GridpieceController>().ShockWave(color , 3);
                     ActivateSpecial(x, y, blockSize, color, blockType, colorNum);
                     gridObjects[x, y].GetComponent<GridpieceController>().sr.color = edgeColor;
@@ -1967,6 +1978,7 @@ public class PlaygridController : MonoBehaviour {
             if (combos < 10)
             {
                 combos++;
+                lastNote++;
                 if (DECOMBOS)
                 {
                     Debug.Log("Combos incrimented in PROCESSCOMBOS. COMBO IS: " + combos);
@@ -2935,7 +2947,7 @@ public class PlaygridController : MonoBehaviour {
                 {
                     float val = UnityEngine.Random.value;
                     // 15% chance of a special block being created 
-                    if (val < 0.15)
+                    if (val < 0.2)
                     {
                         float type = UnityEngine.Random.value;
                         if (type < 0.4 && (includeGoodSpecialBlocks || includeBadSpecialBlocks))
@@ -2958,23 +2970,23 @@ public class PlaygridController : MonoBehaviour {
                         {
                             gpc.blockType = GridpieceController.UP_BLOCK;             // BAD
                         }
-                        else if (includeGoodSpecialBlocks && type < 0.65)
+                        else if (includeGoodSpecialBlocks && type < 0.70)
                         {
                             gpc.blockType = GridpieceController.BOMB_BLOCK;
                         }
-                        else if (includeGoodSpecialBlocks && type < 0.70)
+                        else if (includeGoodSpecialBlocks && type < 0.75)
                         {
                             gpc.blockType = GridpieceController.CLOCK_BLOCK;
                         }
-                        else if (includeBadSpecialBlocks && type < 0.75)
+                        else if (includeBadSpecialBlocks && type < 0.80)
                         {
                             gpc.blockType = GridpieceController.ANGRY_BLOCK;          // BAD
                         }
-                        else if (includeBadSpecialBlocks && type < 0.80)
+                        else if (includeBadSpecialBlocks && type < 0.90)
                         {
                             gpc.blockType = GridpieceController.SAD_BLOCK;            // BAD
                         }
-                        else if (includeGoodSpecialBlocks && type < 0.83)
+                        else if (includeGoodSpecialBlocks && type < 0.93)
                         {
                             gpc.blockType = GridpieceController.RAINDROPS_BLOCK;
                         }
@@ -3172,7 +3184,7 @@ public class PlaygridController : MonoBehaviour {
 
     // If there is at least one block in the middle row return true
     // NO KNOWN BUGS
-    public bool HalfFull()
+    public bool AtLeastHalfFull()
     {
 		for (int i = 1; i < gridSize.x + extraX; i++)
 		{
