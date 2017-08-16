@@ -205,7 +205,6 @@ public class GridpieceController : MonoBehaviour {
             // MAKE SURE THE PROPER BLOCKS ARE WHITE AND UNSELECTABLE
             if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == UP_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK || blockType == BUBBLES_BLOCK)
             {
-                //print("Setting Type");
                 blockColor = 10;
                 sr.color = Color.white;
                 setColor = true;

@@ -9,18 +9,16 @@ public class AudioSourceController : MonoBehaviour {
     public AudioClip freeze;
     public AudioClip thaw;
     public AudioClip warning;
+    public AudioClip bomb;
 
 
     // public static int lastNote;
 
 	// Use this for initialization
-	void Start () {
-        // lastNote = 0;
-	}
-	
+	void Start () {} 
+
 	// Update is called once per frame
-	void Update () {
-	}
+	void Update () {}
 
     public void PlayNote(int note)
     {
@@ -45,62 +43,56 @@ public class AudioSourceController : MonoBehaviour {
                 Debug.Log("Now playing note number " + max);
         }
     }
-    /*
-    public void PlayNote(int baseNote, int combo)
-    {
-        bool DEPLAYNOTE = true;
-        int max = notes.Length - 1;
-        if (lastNote == 0)
-        {
-            lastNote = baseNote + combo - 2;
-            if (lastNote < 0)
-            {
-                audioSource.PlayOneShot(notes[0]);
-                if (DEPLAYNOTE)
-                    Debug.Log("Now playing note number 0");
-            }
-            else if (lastNote < max)
-            {
-                audioSource.PlayOneShot(notes[lastNote]);
-                if (DEPLAYNOTE)
-                    Debug.Log("Now playing note number " + lastNote);
-            }
-            else
-            {
-                audioSource.PlayOneShot(notes[max]);
-                if (DEPLAYNOTE)
-                    Debug.Log("Now playing note number " + max);
-            }
-        }
-        else
-        {
-            if (lastNote < max)
-            {
-                lastNote++;
-                audioSource.PlayOneShot(notes[lastNote]);
-                if (DEPLAYNOTE)
-                    Debug.Log("Now playing note number " + lastNote);
-            }
-            else
-            {
-                audioSource.PlayOneShot(notes[max]);
-                if (DEPLAYNOTE)
-                    Debug.Log("Now playing note number " + max);
-            }
-        }
-    }
-    */
 
+    // GOOD BLOCK SOUNDS
+    public void PlaySquiggleSound()
+    {
+    }
+    public void PlayVertSound()
+    {
+    }
+    public void PlayHorizSound()
+    {
+        // Zap sound
+    }
+    public void PlayPlusSound()
+    {
+    }
+    public void PlayBombSound()
+    {
+        audioSource.PlayOneShot(bomb);
+    }
     public void PlayFreezeSound()
     {
         audioSource.PlayOneShot(freeze);
     }
-
     public void PlayThawSound()
     {
         audioSource.PlayOneShot(thaw);
     }
 
+    // BAD BLOCK SOUNDS
+    public void PlayUpActivateSound()
+    {
+        // Some kind of spring
+    }
+    public void PlayWhiteOutSound()
+    {
+        // Some kind of spring
+    }
+    public void PlayRepaintSound()
+    {
+    }
+    public void PlayBadRemoveSound()
+    {
+    }
+    public void PlayBubbleSound()
+    {
+        // Some kind of spring
+    }
+
+    // OTHER SOUNDS
+    // When about to lose
     public void PlayWarningSound()
     {
         audioSource.PlayOneShot(warning);
