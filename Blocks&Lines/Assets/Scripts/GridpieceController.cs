@@ -70,9 +70,9 @@ public class GridpieceController : MonoBehaviour {
 	public Sprite[] blockShapeSprites;
 	//public Vector2 placeInGrid;
 
-	private bool setColor;
-	private bool setSize;
-	private bool setType = false;
+	protected bool setColor;
+	protected bool setSize;
+	protected bool setType = false;
 	public SpriteRenderer sr;
 
 	// Use this for initialization
@@ -123,20 +123,13 @@ public class GridpieceController : MonoBehaviour {
             countdown -= Time.deltaTime;
         }
 		if (!setSize) {
-			if (size == ONExONE)
-				transform.localScale = new Vector3(0.5f, 0.3f, .3f);
-			else if (size == ONExTWO)
-				transform.localScale = new Vector3(0.5f, 0.6f, 1);
-			else if (size == TWOxONE)
-				transform.localScale = new Vector3(1f, 0.3f, 1);
-			else if (size == TWOxTWO)
-				transform.localScale = new Vector3(1f, 0.6f, 1);
-			setSize = true;
+			SetSize();
 		}
+
 	}
 
 
-	public void SetColor() {
+	public virtual void SetColor() {
 		if (sr == null)
 			sr = GetComponent<SpriteRenderer>();
 
@@ -196,7 +189,7 @@ public class GridpieceController : MonoBehaviour {
 		setColor = true;
 	}
 
-	private void SetType(){
+	protected virtual void SetType(){
 		if (sr == null)
 			sr = GetComponent<SpriteRenderer>();
 
@@ -235,6 +228,19 @@ public class GridpieceController : MonoBehaviour {
         }
 		//print("typetest2");
 		setType = true;
+	}
+
+
+	public virtual void SetSize() {
+		if (size == ONExONE)
+			transform.localScale = new Vector3(0.5f, 0.3f, .3f);
+		else if (size == ONExTWO)
+			transform.localScale = new Vector3(0.5f, 0.6f, 1);
+		else if (size == TWOxONE)
+			transform.localScale = new Vector3(1f, 0.3f, 1);
+		else if (size == TWOxTWO)
+			transform.localScale = new Vector3(1f, 0.6f, 1);
+		setSize = true;
 	}
 
 	// Returns an array of positions of the block based on the size and the dimX and dimY
