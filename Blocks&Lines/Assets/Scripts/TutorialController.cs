@@ -32,7 +32,17 @@ public class TutorialController : MonoBehaviour {
         if (tutorialPart == 0)
         {
             StartCoroutine(FadeCanvas(true));
-            tutorialText.text = "There are 4 ways to match blocks in this game, the first way is to match two adjacent blocks. Try matching the two PINK blocks by clicking on them";
+            tutorialText.text = "Welcome to Blocks and Lines! The goal of this game is to get as many points as you can before you lose";
+            yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
+            StartCoroutine(FadeCanvas(false));
+            tutorialText.text = "Over time new rows will be added from the bottom. If a block gets pushed past the green line at the top the game will end";
+            StartCoroutine(FadeCanvas(true));
+            yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
+            StartCoroutine(FadeCanvas(false));
+            tutorialText.text = "Points are scored by making matches and there are 4 ways to match blocks in this game. The first way is to match two adjacent blocks. Try matching the two PINK blocks by clicking on them";
+            StartCoroutine(FadeCanvas(true));
+            yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
+            StartCoroutine(FadeCanvas(false));
             // yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
             // StartCoroutine(FadeCanvas(false));
             GameObject o1 = pgc.gridObjects[4, 3];
