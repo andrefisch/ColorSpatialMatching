@@ -16,6 +16,7 @@ public class PlaygridController : MonoBehaviour {
 
     public bool DECOMBOS;
     public bool FREEZE;
+    public bool usesTimer = true;
     public GameObject gridPiece;
     // 1x1 is 0, 1x2 is 1, 2x1 is 2, 2x2 is 3
     public GameObject[] highlighters;
@@ -166,7 +167,7 @@ public class PlaygridController : MonoBehaviour {
         UpdateScore();
         if (!GlobalVariables.gameOver)
         {
-            if (!pause)
+            if (!pause && usesTimer)
             {
                 newLineCounter++;
             }
@@ -344,7 +345,7 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("Block " + (int)currentPiece.x + ", " + (int)currentPiece.y + " is in the top row: " + (currentPiece.y == gridSize.y));
         }
         if (Input.GetKeyDown("j")){
-            Whiteout();
+            // Whiteout();
         }
         if (Input.GetKeyDown("k")){
             Repaint();
@@ -3198,10 +3199,13 @@ public class PlaygridController : MonoBehaviour {
     {
 		for (int i = 1; i < gridSize.x + extraX; i++)
 		{
-			if (gridObjects[i, (int)gridSize.y / 2] && gridObjects[i, (int)gridSize.y / 2].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
-			{
-                return true;
-			}
+            for (float j = gridSize.y / 2; j < gridSize.y + extraY; j++)
+            {
+                if (gridObjects[i, (int)j] && gridObjects[i, (int)j].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
+                {
+                    return true;
+                }
+            }
 		}
         return false;
     }
