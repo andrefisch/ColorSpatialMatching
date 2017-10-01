@@ -7,6 +7,11 @@ public class GlobalVariables : MonoBehaviour {
 	public static Camera cam;
 	public static GridpieceController gridC;
 
+	public static bool musicOn;
+	public static bool soundOn;
+
+
+
 	public static bool gameOver;
 
 
