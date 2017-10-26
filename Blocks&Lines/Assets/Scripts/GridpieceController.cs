@@ -44,17 +44,17 @@ public class GridpieceController : MonoBehaviour {
 	public const int NUM_TYPES_SPECIAL_BLOCKS = 11;
 
 	public const int REG_BLOCK = 0;
-	public const int SQUIGLY_BLOCK = 1; // Done
+	public const int REMOVE_ONE_COLOR_BLOCK = 1; // Done
 	public const int VERT_CLEAR_BLOCK = 2; // Done
 	public const int HORIZ_CLEAR_BLOCK = 3; // Done 
 	public const int PLUS_CLEAR_BLOCK = 4; // Done
     public const int UP_BLOCK = 5; // Done
-	public const int SAD_BLOCK = 6; // Done
-	public const int ANGRY_BLOCK = 7; // Done
+	public const int WASTE_OF_SPACE_BLOCK = 6; // Done
+	public const int WHITEWASH_BLOCK = 7; // Done
 	public const int BOMB_BLOCK = 8; // DONE
 	public const int BUBBLES_BLOCK = 9;
 	public const int CLOCK_BLOCK = 10; // DONE
-	public const int RAINDROPS_BLOCK = 11; // Done
+	public const int COLORWASH_BLOCK = 11; // Done
     
     public float countdown;
     public bool hasCountdown = false;
@@ -196,14 +196,14 @@ public class GridpieceController : MonoBehaviour {
 		if (blockType != REG_BLOCK) 
         {
             // MAKE SURE THE PROPER BLOCKS ARE WHITE AND UNSELECTABLE
-            if (blockType == SQUIGLY_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == UP_BLOCK || blockType == SAD_BLOCK || blockType == ANGRY_BLOCK || blockType == RAINDROPS_BLOCK || blockType == BUBBLES_BLOCK)
+            if (blockType == REMOVE_ONE_COLOR_BLOCK || blockType == HORIZ_CLEAR_BLOCK || blockType == UP_BLOCK || blockType == WASTE_OF_SPACE_BLOCK || blockType == WHITEWASH_BLOCK || blockType == COLORWASH_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 blockColor = 10;
                 sr.color = Color.white;
                 setColor = true;
             }
             // MAKE SURE COUNT DOWN BLOCKS HAVE AN ACTIVE TIMER
-            if (blockType == UP_BLOCK || blockType == ANGRY_BLOCK || blockType == BUBBLES_BLOCK)
+            if (blockType == UP_BLOCK || blockType == WHITEWASH_BLOCK || blockType == BUBBLES_BLOCK)
             {
                 hasCountdown = true;
 				GameObject go = Instantiate(timer, transform.position, Quaternion.identity);
@@ -213,7 +213,7 @@ public class GridpieceController : MonoBehaviour {
 		}
 
 		/*
-		if (blockType == SQUIGLY_BLOCK) {
+		if (blockType == REMOVE_ONE_COLOR_BLOCK) {
 			sr.sprite = blockShapeSprites[1];
 		}
 		else if (blockType == VERT_CLEAR_BLOCK) {

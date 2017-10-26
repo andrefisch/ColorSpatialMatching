@@ -2177,7 +2177,7 @@ public class PlaygridController : MonoBehaviour {
             if (gridObjects[x, y])
             {
                 // remove all blocks of one color
-                if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SQUIGLY_BLOCK)
+                if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.REMOVE_ONE_COLOR_BLOCK)
                 {
                     if (colorNum != GridpieceController.WHITE)
                     {
@@ -2185,7 +2185,7 @@ public class PlaygridController : MonoBehaviour {
                     }
                 }
                 // Colorwash the board
-                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.RAINDROPS_BLOCK)
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.COLORWASH_BLOCK)
                 {
                     if (colorNum != GridpieceController.WHITE)
                     {
@@ -2194,7 +2194,7 @@ public class PlaygridController : MonoBehaviour {
                 }
                 // THIS BLOCK HAS NO EFFECT ANYWAY
                 // remove the sad block
-                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.SAD_BLOCK)
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.WASTE_OF_SPACE_BLOCK)
                 {
                     SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3, false);
                 }
@@ -2205,7 +2205,7 @@ public class PlaygridController : MonoBehaviour {
                     SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3, false);
                 }
                 // remove angry block
-                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
+                else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.WHITEWASH_BLOCK)
                 {
                     SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 3, false);
                 }
@@ -2229,11 +2229,11 @@ public class PlaygridController : MonoBehaviour {
                 AddRow(-1, false);
             }
             // Whitewash the board
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.ANGRY_BLOCK)
+            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.WHITEWASH_BLOCK)
             {
                 if (DEACTIVATETIMERSPECIAL)
                 {
-                    Debug.Log("Removed the ANGRY block");
+                    Debug.Log("Removed the WHITEWASH block");
                 }
                 SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 21, false);
                 Whiteout();
@@ -2967,7 +2967,7 @@ public class PlaygridController : MonoBehaviour {
                         }
                         else if (includeGoodSpecialBlocks && type < 0.45)
                         {
-                            gpc.blockType = GridpieceController.SQUIGLY_BLOCK;
+                            gpc.blockType = GridpieceController.REMOVE_ONE_COLOR_BLOCK;
                         }
                         else if (includeGoodSpecialBlocks && type < 0.50)
                         {
@@ -2991,15 +2991,15 @@ public class PlaygridController : MonoBehaviour {
                         }
                         else if (includeBadSpecialBlocks && type < 0.80)
                         {
-                            gpc.blockType = GridpieceController.ANGRY_BLOCK;          // BAD
+                            gpc.blockType = GridpieceController.WHITEWASH_BLOCK;          // BAD
                         }
                         else if (includeBadSpecialBlocks && type < 0.90)
                         {
-                            gpc.blockType = GridpieceController.SAD_BLOCK;            // BAD
+                            gpc.blockType = GridpieceController.WASTE_OF_SPACE_BLOCK;            // BAD
                         }
                         else if (includeGoodSpecialBlocks && type < 0.93)
                         {
-                            gpc.blockType = GridpieceController.RAINDROPS_BLOCK;
+                            gpc.blockType = GridpieceController.COLORWASH_BLOCK;
                         }
                     }
                 }
