@@ -78,13 +78,13 @@ public class AnimalGridPieceController : GridpieceController {
 
 	public override void SetSize() {
 		if (size == ONExONE)
-			transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+			transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
 		else if (size == ONExTWO)
-			transform.localScale = new Vector3(0.2f, 0.5f, 1);
+			transform.localScale = new Vector3(0.35f, 0.625f, 1);
 		else if (size == TWOxONE)
-			transform.localScale = new Vector3(.5f, 0.2f, 1);
+			transform.localScale = new Vector3(0.625f, 0.35f, 1);
 		else if (size == TWOxTWO)
-			transform.localScale = new Vector3(.5f, 0.5f, 1);
+			transform.localScale = new Vector3(.625f, .625f, 1);
 		setSize = true;
 	}
 
