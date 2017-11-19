@@ -33,7 +33,10 @@ public class CountdownTimerController : MonoBehaviour {
 	void Update () {
 		if (blockgpc != null && !GlobalVariables.gameOver) {
 			float amount = blockgpc.countdown / startTime;
+			if (amount < 0)
+				amount = 0;
 			int index = countdownBlocks.Length - ((int)(countdownBlocks.Length * amount) + 1);
+
 			sr.sprite = countdownBlocks[index];
 
 			//This one will lighten the block over time

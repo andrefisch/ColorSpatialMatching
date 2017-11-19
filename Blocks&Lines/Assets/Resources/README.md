@@ -18,15 +18,15 @@ First one is a char from `0-9` and `a-b`.  Represents the type of block.
 
   *  0:  Regular Block
   *  1:  Remove One Color
-  *  2:  Vert Clear
+  *  2:  Vert Clear  **Color Required**
   *  3:  Horiz Clear
-  *  4:  Plus Clear
+  *  4:  Plus Clear   **Color Required**
   *  5:  Up Block
   *  6:  Waste of Space Block
   *  7:  Whitewash Block
-  *  8:  Bomb Block
+  *  8:  Bomb Block   **Color Required**
   *  9:  Bubbles Block
-  *  a:  Clock Block
+  *  a:  Clock Block   **Color Required**
   *  b:  Colorwash Block
 
 
@@ -70,5 +70,8 @@ The two sets of blocks are equivalent because the top-right block is a D block a
 
 The system is quite fault-tolerant and will give off warnings and such if the file doesn't conform properly.  It will also fill spaces with regular blocks or clear blocks if it finds chars outside of specified limits.
 
+The first thing the board checks when adding the piece is if the color is 0-Clear, If it is, it will fill the piece with a 1x1 0-Color Block (of given blocktype) before looking at the size of the block
+
 Note that larger blocks also should have type set at 0.  They will only be set as 0-type regular blocks and will give a warning if set something else.  They will default to 0-type regardless.
 This happens in the `FillBoardBasedOnStringArray` method.
+

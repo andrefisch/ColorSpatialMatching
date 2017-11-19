@@ -142,21 +142,6 @@ public class PlaygridController : MonoBehaviour {
 		LoadPlayBoard();
 		Vector3 linePos = gridPositions[(int)(gridSize.x / 2), (int)(gridSize.y - 1)] + new Vector3(1, .85f);
 		topLine.transform.position = linePos;
-
-        /*
-        // Set up the actual pieces
-        for (int i = (int)gridSize.x; i >= 1; i--) {
-            for (int j = (int)gridSize.y; j >= 1; j--) {
-                if (!gridObjects[i, j]) {
-                    if (i >= 1 && j > 0 && includeBigPieces){
-                        AddPieceAtPosition(i, j, -1, -1);
-                    } else {
-                        AddPieceAtPosition(i, j, -1, GridpieceController.ONExONE);
-                    }
-                }
-            }
-        }
-        */
     }
 
     // Update at a fixed interval so we can count accurately
@@ -354,8 +339,8 @@ public class PlaygridController : MonoBehaviour {
         {
             if (Input.GetKeyDown("r"))
             {
-                Application.LoadLevel(Application.loadedLevel);
-            }
+				SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+			}
         }
 
 		if (!GlobalVariables.gameOver) {
@@ -2219,25 +2204,30 @@ public class PlaygridController : MonoBehaviour {
         if (x > 0 && x < gridSize.x + extraX && y > 0 && y < gridSize.y + extraY)
         {
             // Adds another row
-            if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.UP_BLOCK)
-            {
-                if (DEACTIVATETIMERSPECIAL)
-                {
-                    Debug.Log("Removed the UP block");
-                }
-                SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 5, false);
-                AddRow(-1, false);
-            }
+			if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.UP_BLOCK) {
+				if (DEACTIVATETIMERSPECIAL) {
+					Debug.Log("Removed the UP block");
+				}
+				SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 5, false);
+				AddRow(-1, false);
+			}
             // Whitewash the board
-            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.WHITEWASH_BLOCK)
-            {
-                if (DEACTIVATETIMERSPECIAL)
-                {
-                    Debug.Log("Removed the WHITEWASH block");
-                }
-                SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 21, false);
-                Whiteout();
-            }
+            else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.WHITEWASH_BLOCK) {
+				if (DEACTIVATETIMERSPECIAL) {
+					Debug.Log("Removed the WHITEWASH block");
+				}
+				SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 21, false);
+				Whiteout();
+			}
+			else if (gridObjects[x, y].GetComponent<GridpieceController>().blockType == GridpieceController.BUBBLES_BLOCK) {
+				if (DEACTIVATETIMERSPECIAL) {
+					Debug.Log("Removed the BUBBLE block");
+					SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 21, false);
+
+					//TODO: What should happen for the bubble block?
+				}
+			
+			}
         }
         // Make sure to move all the pieces after the block disappears
         MovePiecesDown();
@@ -3436,7 +3426,6 @@ public class PlaygridController : MonoBehaviour {
 
 		for (int i = (int)gridSize.y; i >= 1; i--) {
 			for (int j = (int)gridSize.x; j >= 1; j--) {
-				//print((j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1);
 				if (gridObjects[j, i] == null && ((j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1) < pieces.Length) {
 					
 					string piece = pieces[(j + (int)(gridSize.x) * ((int)gridSize.y - i)) - 1];

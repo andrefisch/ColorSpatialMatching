@@ -77,34 +77,11 @@ public class GridpieceController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        /*
-        int[] shuffle = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        Shuffle(shuffle);
-        RED = shuffle[0];
-        ORANGE = shuffle[1];
-        YELLOW = shuffle[2];
-        GREEN = shuffle[3];
-        CYAN = shuffle[4];
-        BLUE = shuffle[5];
-        PURPLE = shuffle[6];
-        MAGENTA = shuffle[7];
-        SAND = shuffle[8];
-        Debug.Log("Red is " + shuffle[0]);
-        Debug.Log("Orange is " + shuffle[1]);
-        Debug.Log("Yellow is " + shuffle[2]);
-        Debug.Log("Green is " + shuffle[3]);
-        Debug.Log("Cyan is " + shuffle[4]);
-        Debug.Log("Blue is " + shuffle[5]);
-        Debug.Log("Purple is " + shuffle[6]);
-        Debug.Log("Magenta is " + shuffle[7]);
-        Debug.Log("Sand is " + shuffle[8]);
-        */
 
         countdown = Random.Range(6, 11);
         blockCount++;
         blockId = blockCount;
-		if (sr == null)
-        {
+		if (sr == null) {
 			sr = GetComponent<SpriteRenderer>();
         }
 	}
@@ -202,6 +179,13 @@ public class GridpieceController : MonoBehaviour {
                 sr.color = Color.white;
                 setColor = true;
             }
+			// Make sure that special blocks with color actually have those colors
+			else if (blockColor == 0 || blockColor > 10){
+				Debug.LogWarning("Warning (SetType): Block in space " + dimX + " " + dimY + " is set to a special type that needs a color but has no color or too high a color-- Setting color to Red");
+				blockColor = RED;
+				sr.color = Color.red;
+				setColor = true;
+			}
             // MAKE SURE COUNT DOWN BLOCKS HAVE AN ACTIVE TIMER
             if (blockType == UP_BLOCK || blockType == WHITEWASH_BLOCK || blockType == BUBBLES_BLOCK)
             {
@@ -211,22 +195,10 @@ public class GridpieceController : MonoBehaviour {
 				go.GetComponent<CountdownTimerController>().blockgpc = this;
             }
 		}
-
-		/*
-		if (blockType == REMOVE_ONE_COLOR_BLOCK) {
-			sr.sprite = blockShapeSprites[1];
-		}
-		else if (blockType == VERT_CLEAR_BLOCK) {
-			sr.sprite = blockShapeSprites[2];
-		}
-		else if (blockType == HORIZ_CLEAR_BLOCK) {
-			sr.sprite = blockShapeSprites[3];
-		}
-		*/
+			
 		if (blockType < blockShapeSprites.Length){
 			sr.sprite = blockShapeSprites[blockType];
         }
-		//print("typetest2");
 		setType = true;
 	}
 
@@ -276,8 +248,7 @@ public class GridpieceController : MonoBehaviour {
 		return (size == ONExTWO || size == TWOxTWO) && dimY == 1;
 	}
 
-    public GameObject Explode(Color color)
-    {
+    public GameObject Explode(Color color) {
         GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
@@ -355,15 +326,4 @@ public class GridpieceController : MonoBehaviour {
         }
 		SetColor();
 	}
-
-    public void Shuffle(int[] list)  
-    { 
-        for (int i = 0; i < list.Length; i++)
-        {
-            int tmp = list[i];
-            int r = Random.Range(i, list.Length);
-            list[i] = list[r];
-            list[r] = tmp;
-        }
-    }
 }

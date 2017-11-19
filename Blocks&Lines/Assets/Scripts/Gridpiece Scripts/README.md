@@ -28,7 +28,7 @@ There are currently 11 types of blocks
     *  If it doesn't have a color, it becomes an empty-space block
   *  1:  Remove One Color --
   *  2:  Vert Clear  **Color Required**  --
-  *  3:  Horiz Clear  **Color Required**  -- 
+  *  3:  Horiz Clear  -- 
   *  4:  Plus Clear  **Color Required**  -- 
   *  5:  Up Block  -- 
   *  6:  Waste of Space Block  -- 
