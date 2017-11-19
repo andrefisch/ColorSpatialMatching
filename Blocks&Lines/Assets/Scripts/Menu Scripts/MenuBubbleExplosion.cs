@@ -17,16 +17,4 @@ public class MenuBubbleExplosion : MonoBehaviour {
 		yield return new WaitForSeconds(sec);
 		GameObject.Destroy(this.gameObject);
 	}
-
-	/*
-	public IEnumerator ParticleColors() {
-		yield return null;
-		yield return null;
-		yield return null;
-		ParticleSystem ps = GetComponent<ParticleSystem>();
-		for (int i = 0; i < ps.GetParticles(); i++) {
-		
-		}
-	}
-	*/
 }

@@ -17,10 +17,7 @@ public class AnimalGridPieceController : GridpieceController {
 				sr = GetComponent<SpriteRenderer>();
 
 			if (blockColor == EDGE) {
-				print("test");
 				sr.sprite = animalSprites[0];
-				//sr.color = new Color(1, 0, 0, .5f);
-				// sr.color = Color.gray;
 				sr.color = Color.clear;
 				GetComponent<BoxCollider2D>().enabled = false;
 			}

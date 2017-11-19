@@ -70,3 +70,5 @@ The two sets of blocks are equivalent because the top-right block is a D block a
 
 The system is quite fault-tolerant and will give off warnings and such if the file doesn't conform properly.  It will also fill spaces with regular blocks or clear blocks if it finds chars outside of specified limits.
 
+Note that larger blocks also should have type set at 0.  They will only be set as 0-type regular blocks and will give a warning if set something else.  They will default to 0-type regardless.
+This happens in the `FillBoardBasedOnStringArray` method.

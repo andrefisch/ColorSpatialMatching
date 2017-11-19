@@ -3464,6 +3464,11 @@ public class PlaygridController : MonoBehaviour {
 						blockSize = 'A';
 					}
 
+					if ((blockSize == 'B' || blockSize == 'C' || blockSize == 'D') && blockType != 0) {
+						Debug.LogWarning("Warning (FillBoardBasedOnStringArray): Block Size at position (" + j + ", " + i + ") is set to a larger block (B, C, D) and doesn't have type 0 -- Setting type to 0");
+						blockType = 0;
+					} 
+
 					if (blockColor == 0)
 						AddPieceAtPosition(j, i, 0, GridpieceController.ONExONE, blockType);
 					else {
