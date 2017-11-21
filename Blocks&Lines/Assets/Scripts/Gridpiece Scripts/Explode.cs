@@ -17,9 +17,6 @@ public class Explode : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        // this.GetComponent<ParticleSystem>().startColor = gameObject.GetComponent<SpriteRenderer>().color;
-        // color = Color.red;
-        // this.GetComponent<ParticleSystem>().startColor = color;
 		StartCoroutine("PartExpl"); // This is for playing around with a particle explosion
 
 	}

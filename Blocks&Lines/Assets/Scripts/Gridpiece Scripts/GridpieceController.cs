@@ -202,6 +202,10 @@ public class GridpieceController : MonoBehaviour {
 		setType = true;
 	}
 
+	public virtual Color GetBlockColor() {
+		return sr.color;
+	}
+
 
 	public virtual void SetSize() {
 		if (size == ONExONE)
@@ -252,7 +256,7 @@ public class GridpieceController : MonoBehaviour {
         GameObject go = (GameObject)Instantiate(explosion, transform.position, Quaternion.identity);
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
-        main.startColor = color;
+		main.startColor = GetBlockColor();
 		go.transform.Find("ScorePart").gameObject.SetActive(false);
         return go;
     }
@@ -286,7 +290,7 @@ public class GridpieceController : MonoBehaviour {
 
 	    ParticleSystem ps = go.GetComponent<ParticleSystem>();
         ParticleSystem.MainModule main = ps.main;
-        main.startColor = color;
+		main.startColor = GetBlockColor();
 		return go;
 	}
 
@@ -294,7 +298,7 @@ public class GridpieceController : MonoBehaviour {
     public GameObject ShockWave(Color color, int maxRadius)
     {
         GameObject go = (GameObject)Instantiate(shockWave, transform.position, Quaternion.identity);
-        (go.GetComponent<Circle>() as Circle).color = color;
+		(go.GetComponent<Circle>() as Circle).color = GetBlockColor();
         (go.GetComponent<Circle>() as Circle).maxRadius = maxRadius;
         // go.GetComponent<LineRenderer>().SetColors(color, color);
         return go;

@@ -103,6 +103,32 @@ public class AnimalGridPieceController : GridpieceController {
 		setSize = true;
 	}
 
+	public override Color GetBlockColor() {
+		Color col = new Color(1, 1, 1);
+
+		if (blockColor == RED)
+			col = Color.red;
+		else if (blockColor == ORANGE)
+			col = new Color(1, 142f / 255f, 0);	
+		else if (blockColor == YELLOW)
+			col = new Color(1.0f, 1.0f, 0f);
+		else if (blockColor == GREEN)
+			col = new Color(0f, 1.0f, 0f);
+		else if (blockColor == BLUE)
+			col = new Color(0f, 0f, 1.0f);
+		else if (blockColor == INDIGO)  // Pink
+			col = new Color(1, 86f / 255f, 1);
+		else if (blockColor == VIOLET)  // Purple
+			col = new Color(135f / 255f, 0, 1);
+		else if (blockColor == MAGENTA)  // Brown
+			col = new Color(208f / 255f, 135f / 255f, 35f / 255f);
+		else if (blockColor == CYAN)  // White/Black
+			sr.color = Color.grey;
+		
+		return col;
+
+	}
+
 
 
 }
