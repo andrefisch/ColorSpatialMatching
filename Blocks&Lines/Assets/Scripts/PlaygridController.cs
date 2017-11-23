@@ -2209,6 +2209,7 @@ public class PlaygridController : MonoBehaviour {
 					Debug.Log("Removed the UP block");
 				}
 				SoftRemovePieceAtPosition(x, y, GridpieceController.ONExONE, 5, false);
+                MovePiecesDown();
 				AddRow(-1, false);
 			}
             // Whitewash the board
