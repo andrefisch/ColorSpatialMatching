@@ -1203,7 +1203,7 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("Two positions we are setting are " + position + ", " + (position - 1));
             Debug.Log("Drawing a line between " + start + " and " + end);
         }
-        line.material = new Material(Shader.Find("Particles/Additive (Soft)"));
+        line.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive (Soft)"));
         line.startColor = color;
         line.endColor = color;
         line.startWidth = 0.4f;

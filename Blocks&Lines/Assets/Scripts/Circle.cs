@@ -66,7 +66,7 @@ public class Circle : MonoBehaviour
         line.endWidth = 0.4f;
         line.SetPosition(0, Vector3.zero);
         line.SetPosition(1, Vector3.up);
-        Material whiteDiffuseMat = new Material(Shader.Find("Particles/Additive (Soft)"));
+        Material whiteDiffuseMat = new Material(Shader.Find("Legacy Shader/Particles/Additive (Soft)"));
         line.material = whiteDiffuseMat;
         CreatePoints();
     }
