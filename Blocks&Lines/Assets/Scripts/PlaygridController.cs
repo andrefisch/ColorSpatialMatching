@@ -41,6 +41,9 @@ public class PlaygridController : MonoBehaviour {
     public int blocksDestroyed;
     public Color edgeColor;
 
+    // WHITE BLOCKS CAN COMBO?
+    public bool whiteCombo = false;
+
     // HOW MANY EXTRA ROWS AND COLUMNS THERE ARE
     public const int extraX = 2;
     public const int extraY = 2;
@@ -93,7 +96,6 @@ public class PlaygridController : MonoBehaviour {
     //  This is to help keep track of the highlighted piece's position so that it doesn't get messed up if you don't happen to move the mouse off a piece between frames 
     private Vector2 highlightedPiece;
     private GridpieceController highlightedGridpiece;
-
 
 	// For the buffer time 
 	private bool justAddedRow;
@@ -1862,15 +1864,22 @@ public class PlaygridController : MonoBehaviour {
         objectsToProcess.Clear();
         for (int i = 0; i < movedObjects.Count; i++)
         {
-            // White blocks can combo
-            objectsToProcess.Add(movedObjects[i]);
-            /*
-            // White blocks cannot combo
-            if (movedObjects[i] && movedObjects[i].GetComponent<GridpieceController>().blockColor != GridpieceController.WHITE)
+            if (whiteCombo)
             {
-                objectsToProcess.Add(movedObjects[i]);
+                // White blocks can combo
+                if (movedObjects[i])
+                {
+                    objectsToProcess.Add(movedObjects[i]);
+                }
             }
-            */
+            else
+            {
+                // White blocks cannot combo
+                if (movedObjects[i] && movedObjects[i].GetComponent<GridpieceController>().blockColor != GridpieceController.WHITE)
+                {
+                    objectsToProcess.Add(movedObjects[i]);
+                }
+            }
         }
         movedObjects.Clear();
         if (DEPROCESSCOMBOS)
