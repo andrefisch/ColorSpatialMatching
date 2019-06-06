@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class TutorialController : MonoBehaviour {
 
@@ -12,6 +13,8 @@ public class TutorialController : MonoBehaviour {
 
 	private bool lockoutBool;
 
+    private int counter = 0;
+    private bool counterOn = false;
     // Use this for initialization
     void Start () {
         tutorialPart = 0;
@@ -46,7 +49,7 @@ public class TutorialController : MonoBehaviour {
             yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
             StartCoroutine(FadeCanvas(false));
 			yield return new WaitUntil(() => !lockoutBool);
-            tutorialText.text = "Points are scored by making matches and there are 4 ways to match blocks in this game. The first way is to match two adjacent blocks. Try matching the two PINK blocks by clicking on them";
+            tutorialText.text = "Points are scored by matching blocks of the same color in several different ways. The first way is to match two adjacent blocks. Try matching the two PINK blocks by selecting them";
             StartCoroutine(FadeCanvas(true));
 			yield return new WaitUntil(() => !lockoutBool);
 			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
@@ -58,13 +61,13 @@ public class TutorialController : MonoBehaviour {
             GameObject o2 = pgc.gridObjects[5, 3];
             o1.GetComponent<Collider2D>().enabled = true;
             o2.GetComponent<Collider2D>().enabled = true;
-            yield return new WaitUntil(() => (o1 == null));
+            yield return new WaitUntil(() => (o1 == null && !pgc.startCounting));
             tutorialPart = 1;
         }
         if (tutorialPart == 1)
         {
             Debug.Log("Tutorial Part 1");
-			tutorialText.text = "The next way to match is if the two blocks could be connected by a horizontal or vertical light. Try clicking on the two GREEN blocks";
+			tutorialText.text = "The next way to match is if the two blocks could be connected by a horizontal or vertical line. Try selecting the two GREEN blocks";
 			StartCoroutine(FadeCanvas(true));
 			yield return new WaitUntil(() => !lockoutBool);
 			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
@@ -74,7 +77,7 @@ public class TutorialController : MonoBehaviour {
             GameObject o2 = pgc.gridObjects[8, 5];
             o1.GetComponent<Collider2D>().enabled = true;
             o2.GetComponent<Collider2D>().enabled = true;
-            yield return new WaitUntil(() => (o1 == null));
+            yield return new WaitUntil(() => (o1 == null && !pgc.startCounting));
             tutorialPart = 2;
         }
         if (tutorialPart == 2)
@@ -90,7 +93,7 @@ public class TutorialController : MonoBehaviour {
             GameObject o2 = pgc.gridObjects[5, 2];
             o1.GetComponent<Collider2D>().enabled = true;
             o2.GetComponent<Collider2D>().enabled = true;
-            yield return new WaitUntil(() => (o1 == null));
+            yield return new WaitUntil(() => (o1 == null && !pgc.startCounting));
             tutorialPart = 3;
         }
         if (tutorialPart == 3)
@@ -112,7 +115,7 @@ public class TutorialController : MonoBehaviour {
             GameObject o2 = pgc.gridObjects[8, 4];
             o1.GetComponent<Collider2D>().enabled = true;
             o2.GetComponent<Collider2D>().enabled = true;
-            yield return new WaitUntil(() => (o1 == null));
+            yield return new WaitUntil(() => (o1 == null && !pgc.startCounting));
             tutorialPart = 4;
         }
         if (tutorialPart == 4)
@@ -128,7 +131,7 @@ public class TutorialController : MonoBehaviour {
             GameObject o2 = pgc.gridObjects[8, 3];
             o1.GetComponent<Collider2D>().enabled = true;
             o2.GetComponent<Collider2D>().enabled = true;
-            yield return new WaitUntil(() => (o1 == null));
+            yield return new WaitUntil(() => (o1 == null && !pgc.startCounting));
             tutorialPart = 5;
         }
         if (tutorialPart == 5)
@@ -139,12 +142,34 @@ public class TutorialController : MonoBehaviour {
 			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
 			StartCoroutine(FadeCanvas(false));
 			yield return new WaitUntil(() => !lockoutBool);
+            /*
             GameObject o1 = pgc.gridObjects[1, 2];
             GameObject o2 = pgc.gridObjects[8, 3];
             o1.GetComponent<Collider2D>().enabled = true;
             o2.GetComponent<Collider2D>().enabled = true;
             yield return new WaitUntil(() => (o1 == null));
+            */
             tutorialPart = 6;
+        }
+        if (tutorialPart == 6)
+        {
+            Debug.Log("Tutorial Part 6");
+			tutorialText.text = "As time goes on more colors and bigger blocks will appear. These blocks match and combo just like the little ones but are worth more points.";
+			StartCoroutine(FadeCanvas(true));
+			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
+			StartCoroutine(FadeCanvas(false));
+			yield return new WaitUntil(() => !lockoutBool);
+			tutorialText.text = "Special blocks will also eventually appear. Some are good and some are bad and you'll have to figure out how to use/deal with each one.";
+			StartCoroutine(FadeCanvas(true));
+			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
+			StartCoroutine(FadeCanvas(false));
+			yield return new WaitUntil(() => !lockoutBool);
+			tutorialText.text = "And that's basically it! Now lets try a real game!";
+			StartCoroutine(FadeCanvas(true));
+			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
+			StartCoroutine(FadeCanvas(false));
+			yield return new WaitUntil(() => !lockoutBool);
+            SceneManager.LoadScene("ArcadeMode");
         }
         yield return null;
     }

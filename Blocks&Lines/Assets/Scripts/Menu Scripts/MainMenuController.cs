@@ -29,6 +29,13 @@ public class MainMenuController : MonoBehaviour {
 			SceneManager.LoadScene("ArcadeMode");	
 		}
 	}
+
+	public void PlayHard() {
+		if (!changing) {
+			changing = true;
+			SceneManager.LoadScene("MasochistMode");	
+		}
+	}
 		
 	public void PlayTutorial() {
 		if (!changing) {

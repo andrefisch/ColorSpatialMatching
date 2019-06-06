@@ -57,7 +57,7 @@ public class PlaygridController : MonoBehaviour {
     public bool keepHalfFull;
 
     // COUNTER TO KEEP TRACK OF WHEN THE BLOCKS FALL
-    private bool startCounting;
+    public bool startCounting;
     public int newLineCounter;
     public int newLineInterval;
     // private int newLineBuffer;
@@ -284,6 +284,12 @@ public class PlaygridController : MonoBehaviour {
 		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown("s") && Input.GetKey(KeyCode.Space))
 			ActivateSaveCanvas();
 
+		if (Input.GetKey(KeyCode.Escape))
+            if (FREEZE)
+                FREEZE = false;
+            else
+                FREEZE = true;
+
 
         // check to see if there are any null blocks
 		/*
@@ -330,7 +336,7 @@ public class PlaygridController : MonoBehaviour {
             Debug.Log("Block " + (int)currentPiece.x + ", " + (int)currentPiece.y + " is in the top row: " + (currentPiece.y == gridSize.y));
         }
         if (Input.GetKeyDown("j")){
-            // Whiteout();
+            Whiteout();
         }
         if (Input.GetKeyDown("k")){
             Repaint();
@@ -345,11 +351,15 @@ public class PlaygridController : MonoBehaviour {
 
 		if (!GlobalVariables.gameOver) {
 			// First we check to see if any special blocks have activated
-			for (int i = 1; i < gridSize.x + extraX; i++) {
-				for (int j = 1; j < gridSize.y + extraY; j++) {
-					if (gridObjects[i, j]) {
+			for (int i = 1; i < gridSize.x + extraX; i++) 
+            {
+				for (int j = 1; j < gridSize.y + extraY; j++) 
+                {
+					if (gridObjects[i, j]) 
+                    {
 						GridpieceController gpc = gridObjects[i, j].GetComponent<GridpieceController>();
-						if (gpc.countdown <= 0) {
+						if (gpc.countdown <= 0) 
+                        {
 							ActivateTimerSpecial(gpc.dimX, gpc.dimY);
 						}
 					}
@@ -360,19 +370,22 @@ public class PlaygridController : MonoBehaviour {
 			// We need these so that the highlighter and selector part knows the size of the piece we're dealing with so that it can use the proper image
 			int gpcHighlightSize = -1;
 			highlightedPiece = Vector2.one * -1;
-			if (hit.collider != null) {
+			if (hit.collider != null) 
+            {
                 // when we select another piece make sure we whitewash the previous piece only if we are in whiteout;
                 if (whiteOut && highlightedGridpiece)
                 {
                     highlightedGridpiece.Colorwash(Color.white, true);
                 }
 				highlightedGridpiece = hit.collider.gameObject.GetComponent<GridpieceController>();
-				if (selectionBuffer && highlightedGridpiece.dimY < gridSize.y - 1 && !(highlightedGridpiece.size == GridpieceController.ONExTWO || highlightedGridpiece.size == GridpieceController.TWOxONE || highlightedGridpiece.size == GridpieceController.TWOxTWO)) {
+				if (selectionBuffer && highlightedGridpiece.dimY < gridSize.y - 1 && !(highlightedGridpiece.size == GridpieceController.ONExTWO || highlightedGridpiece.size == GridpieceController.TWOxONE || highlightedGridpiece.size == GridpieceController.TWOxTWO)) 
+                {
 					highlightedGridpiece = gridObjects[highlightedGridpiece.dimX, highlightedGridpiece.dimY + 1].GetComponent<GridpieceController>();
 				}
 
                 gpcHighlightSize = highlightedGridpiece.size;
-				if ((highlightedGridpiece.blockColor != 0 && highlightedGridpiece.blockColor != GridpieceController.WHITE) && (highlightedGridpiece.dimX >= 1 && highlightedGridpiece.dimX <= gridSize.x && highlightedGridpiece.dimY >= 0 && highlightedGridpiece.dimY <= gridSize.y)) {
+				if ((highlightedGridpiece.blockColor != 0 && highlightedGridpiece.blockColor != GridpieceController.WHITE) && (highlightedGridpiece.dimX >= 1 && highlightedGridpiece.dimX <= gridSize.x && highlightedGridpiece.dimY >= 0 && highlightedGridpiece.dimY <= gridSize.y)) 
+                {
                     if (whiteOut)
                     {
                         highlightedGridpiece.Repaint();
@@ -381,33 +394,43 @@ public class PlaygridController : MonoBehaviour {
 					highlightedPiece.y = highlightedGridpiece.dimY;
 				}
 
-				if (Input.GetMouseButtonDown(0)) {
+				if (Input.GetMouseButtonDown(0)) 
+                {
 					// First deselect any selected piece
-					for (int i = 1; i <= gridSize.x; i++) {
-						for (int j = 1; j <= gridSize.y; j++) {
-							if (gridObjects[i, j]) {
+					for (int i = 1; i <= gridSize.x; i++) 
+                    {
+						for (int j = 1; j <= gridSize.y; j++) 
+                        {
+							if (gridObjects[i, j]) 
+                            {
 								gridObjects[i, j].GetComponent<GridpieceController>().selected = false;
 							}
 						}
 					}
 					// Select only pieces that aren't 0 or white and are in the playable grid
-					if ((highlightedGridpiece.blockColor != 0 && highlightedGridpiece.blockColor != GridpieceController.WHITE) && (highlightedGridpiece.dimX >= 1 && highlightedGridpiece.dimX <= gridSize.x && highlightedGridpiece.dimY >= 1 && highlightedGridpiece.dimY <= gridSize.y)) {
+					if ((highlightedGridpiece.blockColor != 0 && highlightedGridpiece.blockColor != GridpieceController.WHITE) && (highlightedGridpiece.dimX >= 1 && highlightedGridpiece.dimX <= gridSize.x && highlightedGridpiece.dimY >= 1 && highlightedGridpiece.dimY <= gridSize.y)) 
+                    {
 						// if it's not new, toggle the selection
-						if (highlightedGridpiece.dimX == currentPiece.x && highlightedGridpiece.dimY == currentPiece.y) {
+						if (highlightedGridpiece.dimX == currentPiece.x && highlightedGridpiece.dimY == currentPiece.y) 
+                        {
 							highlightedGridpiece.selected = false;
 							ResetCurrentLastPieces();
 						}
-						else {
+						else 
+                        {
 							highlightedGridpiece.selected = true;
-							if (DEUPDATE) {
+							if (DEUPDATE) 
+                            {
 								Debug.Log("Grid spaces of this block are:");
 								Vector2[] gridSpaces = highlightedGridpiece.GetComponent<GridpieceController>().GetPositions();
-								for (int i = 0; i < gridSpaces.Length; i++) {
+								for (int i = 0; i < gridSpaces.Length; i++) 
+                                {
 									Debug.Log((int)gridSpaces[i].x + ", " + (int)gridSpaces[i].y);
 								}
 							}
 
-							if (currentPiece.x != -1 && currentPiece.y != -1) {
+							if (currentPiece.x != -1 && currentPiece.y != -1) 
+                            {
 								lastPiece.x = currentPiece.x;
 								lastPiece.y = currentPiece.y;
 							}
@@ -416,7 +439,8 @@ public class PlaygridController : MonoBehaviour {
 							currentPiece.y = highlightedGridpiece.dimY;
 						}
 
-						if (DEUPDATE) {
+						if (DEUPDATE) 
+                        {
 							// Debug.Log("----------------------Clicked Playgrid Piece----------------------------");
 							// Debug.Log("Dimensions of selected piece: " + currentPiece.x + ", " + currentPiece.y);
 							// Debug.Log("Dimensions of last selected piece: " + lastPiece.x + ", " + lastPiece.y);
@@ -425,16 +449,23 @@ public class PlaygridController : MonoBehaviour {
 				}
 
 			}
-			else {
+			else 
+            {
 				gpcHighlightSize = -1;
 
 				// If you click away, it deselects any piece
-				if (Input.GetMouseButtonDown(0)) {
+				if (Input.GetMouseButtonDown(0)) 
+                {
 					ResetCurrentLastPieces();
-					for (int i = 1; i <= gridSize.x; i++) {
+					for (int i = 1; i <= gridSize.x; i++) 
+                    {
 						for (int j = 1; j <= gridSize.y; j++)
+                        {
 							if (gridObjects[i, j])
+                            {
 								gridObjects[i, j].GetComponent<GridpieceController>().selected = false;
+                            }
+                        }
 					}
 				}
 			}
@@ -1831,11 +1862,15 @@ public class PlaygridController : MonoBehaviour {
         objectsToProcess.Clear();
         for (int i = 0; i < movedObjects.Count; i++)
         {
+            // White blocks can combo
+            objectsToProcess.Add(movedObjects[i]);
+            /*
             // White blocks cannot combo
             if (movedObjects[i] && movedObjects[i].GetComponent<GridpieceController>().blockColor != GridpieceController.WHITE)
             {
                 objectsToProcess.Add(movedObjects[i]);
             }
+            */
         }
         movedObjects.Clear();
         if (DEPROCESSCOMBOS)
@@ -2011,7 +2046,7 @@ public class PlaygridController : MonoBehaviour {
     //
     void CheckHorizontalSpecial()
     {
-        bool DECHECKHORIZONTALSPECIAL = false;
+        bool DECHECKHORIZONTALSPECIAL = true;
         int firstX = -1;
         int secondX = -1;
         if (DECHECKHORIZONTALSPECIAL)
@@ -2238,16 +2273,20 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void RemoveRow(int x1, int x2, int y)
     {
-        bool DEREMOVEROW = false;
+        bool DEREMOVEROW = true;
         if (DEREMOVEROW)
         {
-            Debug.Log("NOW REMOVING ROW");
+            Debug.Log("Now REMOVINGROW from coordinates " + x1 + ", " + y + " to "+ x2 + ", " + y);
         }
         // Turn all objects in the row gray and empty
         for (int x = x1; x <= x2; x++)
         {
-            if (gridObjects[x, y].GetComponent<GridpieceController>().sr.color != edgeColor)
+            if (gridObjects[x, y].GetComponent<GridpieceController>().blockColor != GridpieceController.EDGE)
             {
+                if (DEREMOVEROW)
+                {
+                    Debug.Log("Now Removing block " + x + ", " + y + " " + (gridObjects[x, y].GetComponent<GridpieceController>().blockColor));
+                }
                 SoftRemovePieceAtPosition(x, y, gridObjects[x, y].GetComponent<GridpieceController>().size, 3, false);
             }
         }
@@ -2712,7 +2751,7 @@ public class PlaygridController : MonoBehaviour {
     // DOES NOT TAKE SPECIAL EFFECTS OF SPECIAL PIECES INTO ACCOUNT
     public void SoftRemovePieceAtPosition(int x, int y, int blockSize, int shockwaveSize, bool getPoints)
     {
-        bool DESOFTREMOVEPIECEATPOSITION = false;
+        bool DESOFTREMOVEPIECEATPOSITION = true;
         if (gridObjects[x, y])
         {
             GridpieceController gpc = gridObjects[x, y].GetComponent<GridpieceController>();

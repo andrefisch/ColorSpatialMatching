@@ -78,7 +78,8 @@ public class GridpieceController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        countdown = Random.Range(6, 11);
+        // countdown = Random.Range(6, 11);
+        countdown = 11;
         blockCount++;
         blockId = blockCount;
 		if (sr == null) {
