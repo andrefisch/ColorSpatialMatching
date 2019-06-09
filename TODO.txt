@@ -1,0 +1,27 @@
+- High score screen (TIM)
+  - OCEAN DROPLETS SOMETHING SERVER FOR INTERPERSON HIGH SCORE
+
+- Transitions to Mobile
+  - swipe up instead of A to add a row (TIM)
+  - think about how we want the whitewash block to be handled since hovering
+    doesnt work to expose color (ANDREW)
+    - what if clicking on a block illuminated all blocks of same color
+      (ANDREW)
+
+- Bugs
+  - a big block fell into a little block (CANNOT REPRODUCE)
+  - a new row had an invisible block (CANNOT REPRODUCE)
+  - stupid horizontal clear still has a bug on the left side (ANDREW)
+  - circle doesnt expand like it is supposed to (TIM)
+
+- Game Ideas (ANDREW)
+  - What if you always had an option to remove big blocks with a 30 second
+    recharge
+  - SPECIAL BLOCK IDEAS
+    - Special block that when not destroyed makes the auto add-row line higher
+    - Special block that when not destroyed makes the auto add-row line lower
+
+GET UNITY PRO (ANDREW)
+  - Hackintosh for iOS testing
+
+- UI (WE CAN DO THIS LAST) (TIM)
