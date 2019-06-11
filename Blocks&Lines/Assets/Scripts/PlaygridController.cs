@@ -374,11 +374,13 @@ public class PlaygridController : MonoBehaviour {
 			highlightedPiece = Vector2.one * -1;
 			if (hit.collider != null) 
             {
+                /*
                 // when we select another piece make sure we whitewash the previous piece only if we are in whiteout;
                 if (whiteOut && highlightedGridpiece)
                 {
                     highlightedGridpiece.Colorwash(Color.white, true);
                 }
+                */
 				highlightedGridpiece = hit.collider.gameObject.GetComponent<GridpieceController>();
 				if (selectionBuffer && highlightedGridpiece.dimY < gridSize.y - 1 && !(highlightedGridpiece.size == GridpieceController.ONExTWO || highlightedGridpiece.size == GridpieceController.TWOxONE || highlightedGridpiece.size == GridpieceController.TWOxTWO)) 
                 {
@@ -386,18 +388,20 @@ public class PlaygridController : MonoBehaviour {
 				}
 
                 gpcHighlightSize = highlightedGridpiece.size;
+                // HIGHLIGHT BLOCK UNDER MOUSE IN PC VERSION ONLY
 				if ((highlightedGridpiece.blockColor != 0 && highlightedGridpiece.blockColor != GridpieceController.WHITE) && (highlightedGridpiece.dimX >= 1 && highlightedGridpiece.dimX <= gridSize.x && highlightedGridpiece.dimY >= 0 && highlightedGridpiece.dimY <= gridSize.y)) 
                 {
-                    if (whiteOut)
-                    {
-                        highlightedGridpiece.Repaint();
-                    }
 					highlightedPiece.x = highlightedGridpiece.dimX;
 					highlightedPiece.y = highlightedGridpiece.dimY;
 				}
 
 				if (Input.GetMouseButtonDown(0)) 
                 {
+                    // When we select a piece, if we are in whiteout, whiteout all other pieces
+                    if (whiteOut)
+                    {
+                        Whiteout();
+                    }
 					// First deselect any selected piece
 					for (int i = 1; i <= gridSize.x; i++) 
                     {
@@ -409,6 +413,7 @@ public class PlaygridController : MonoBehaviour {
 							}
 						}
 					}
+                    // SELECT PIECE
 					// Select only pieces that aren't 0 or white and are in the playable grid
 					if ((highlightedGridpiece.blockColor != 0 && highlightedGridpiece.blockColor != GridpieceController.WHITE) && (highlightedGridpiece.dimX >= 1 && highlightedGridpiece.dimX <= gridSize.x && highlightedGridpiece.dimY >= 1 && highlightedGridpiece.dimY <= gridSize.y)) 
                     {
@@ -436,6 +441,24 @@ public class PlaygridController : MonoBehaviour {
 								lastPiece.x = currentPiece.x;
 								lastPiece.y = currentPiece.y;
 							}
+                            // If we are in whiteout, repaint all blocks of the same color
+                            if (whiteOut)
+                            {
+                                // Repaint the selected block
+                                int selectedColor = highlightedGridpiece.blockColor;
+                                // highlightedGridpiece.Repaint();
+                                // Repaint all other blocks of the same color
+                                for (int i = 1; i <= gridSize.x; i++) 
+                                {
+                                    for (int j = 1; j <= gridSize.y; j++)
+                                    {
+                                        if (gridObjects[i, j] && gridObjects[i, j].GetComponent<GridpieceController>().blockColor == selectedColor)
+                                        {
+                                            gridObjects[i, j].GetComponent<GridpieceController>().Repaint();
+                                        }
+                                    }
+                                }
+                            }
 							// Make sure the current piece is the one selected
 							currentPiece.x = highlightedGridpiece.dimX;
 							currentPiece.y = highlightedGridpiece.dimY;
@@ -2282,6 +2305,9 @@ public class PlaygridController : MonoBehaviour {
     // NO KNOWN BUGS
     void RemoveRow(int x1, int x2, int y)
     {
+        // Save currentPiece and lastPiece and restore them after
+        Vector2 iCurrentPiece = currentPiece;
+        Vector2 iLastPiece = lastPiece;
         bool DEREMOVEROW = true;
         if (DEREMOVEROW)
         {
@@ -2304,6 +2330,9 @@ public class PlaygridController : MonoBehaviour {
         lastPiece = new Vector2(x2, y);
         HighlightMatchTrack();
         startCounting = true;
+        // Restore currentPiece and lastPiece
+        currentPiece = iCurrentPiece;
+        lastPiece = iLastPiece;
         /*
         combos++;
         if (DECOMBOS)
