@@ -3,15 +3,17 @@
 
 - Transitions to Mobile
   - swipe up instead of A to add a row (TIM)
-  - think about how we want the whitewash block to be handled since hovering
+  = think about how we want the whitewash block to be handled since hovering
     doesnt work to expose color (ANDREW)
-    - what if clicking on a block illuminated all blocks of same color
+    = what if clicking on a block illuminated all blocks of same color
       (ANDREW)
 
 - Bugs
-  - a big block fell into a little block (CANNOT REPRODUCE)
+  - a big block fell inside of a little block (CANNOT REPRODUCE)
   - a new row had an invisible block (CANNOT REPRODUCE)
-  - stupid horizontal clear still has a bug on the left side (ANDREW)
+  - stupid horizontal clear still has a bug where usually a circle appears on
+    invisible grid blocks (LETS SEE IF THE PROBLEM PERSISTS AFTER TIM CHANGES
+    FROM PARTICLE EFFECTS)
   - circle doesnt expand like it is supposed to (TIM)
 
 - Game Ideas (ANDREW)
@@ -21,7 +23,11 @@
     - Special block that when not destroyed makes the auto add-row line higher
     - Special block that when not destroyed makes the auto add-row line lower
 
+- Other
+  - Change particle effect of circle expanding circle to an expanding sprite 
+    same color as the destroyed block (TIM) (TALK TO ME ABOUT THIS BEFORE YOU
+    DO IT SO I CAN TELL YOU WHAT IT IS SUPPOSED TO LOOK LIKE)
+
 GET UNITY PRO (ANDREW)
-  - Hackintosh for iOS testing
 
 - UI (WE CAN DO THIS LAST) (TIM)

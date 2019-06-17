@@ -121,7 +121,7 @@ public class TutorialController : MonoBehaviour {
         if (tutorialPart == 4)
         {
             Debug.Log("Tutorial Part 4");
-			tutorialText.text = "Now that you know how to make matches can you see a combo on the screen that will get you a lot of points? Give it a try!";
+			tutorialText.text = "Distance is not a factor when making matches: the blocks can be one space away or ten spaces away. Now that you know how to make matches can you see a combo on the screen that will get you a lot of points? Give it a try!";
 			StartCoroutine(FadeCanvas(true));
 			yield return new WaitUntil(() => !lockoutBool);
 			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
@@ -159,7 +159,7 @@ public class TutorialController : MonoBehaviour {
 			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
 			StartCoroutine(FadeCanvas(false));
 			yield return new WaitUntil(() => !lockoutBool);
-			tutorialText.text = "Special blocks will also eventually appear. Some are good and some are bad and you'll have to figure out how to use/deal with each one.";
+			tutorialText.text = "Most white blocks have special effects but none can be selected. You'll have to make a match next to most of them to get them to disappear. Make sure you remove the blocks with timers before their nasty effects trigger!";
 			StartCoroutine(FadeCanvas(true));
 			yield return new WaitUntil(() => (Input.GetMouseButtonDown(0)));
 			StartCoroutine(FadeCanvas(false));

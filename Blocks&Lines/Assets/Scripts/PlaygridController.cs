@@ -2428,7 +2428,7 @@ public class PlaygridController : MonoBehaviour {
         bool DEWHITEOUT = false;
         whiteOut = true;
         whiteOutCounter = 0;
-        whiteOutTimer = newLineInterval * 2;
+        whiteOutTimer = newLineInterval;
         if (DEWHITEOUT)
         {
             Debug.Log("Are we whited out?: " + whiteOut);
